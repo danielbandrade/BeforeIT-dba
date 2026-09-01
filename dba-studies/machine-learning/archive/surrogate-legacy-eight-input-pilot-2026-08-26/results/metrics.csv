@@ -1,0 +1,10 @@
+target,mae,nrmse,r2
+real_gdp_growth_12q,0.016827410663870966,NaN,-Inf
+mean_quarterly_real_gdp_growth,0.001463694356465746,NaN,-Inf
+maximum_gdp_decline,0.01594180785466138,NaN,-Inf
+mean_implicit_gdp_inflation,0.0002582231326979964,NaN,-Inf
+final_real_household_consumption,223.05057290488185,NaN,-Inf
+final_real_capitalformation,116.20692740877894,NaN,-Inf
+final_real_exports,887.0235627549046,NaN,-Inf
+final_real_imports,538.3976808509542,NaN,-Inf
+final_wages,577.0741935498954,NaN,-Inf

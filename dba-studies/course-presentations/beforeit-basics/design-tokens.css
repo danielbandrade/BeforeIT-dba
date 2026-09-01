@@ -1,0 +1,26 @@
+:root {
+  --slide-w: 1920px;
+  --slide-h: 1080px;
+  --safe-pad: 104px;
+
+  --font-display: Georgia, "Times New Roman", serif;
+  --font-text: Georgia, "Times New Roman", serif;
+  --font-label: Arial, Helvetica, sans-serif;
+  --fs-hero: 112px;
+  --fs-h1: 76px;
+  --fs-h2: 42px;
+  --fs-body: 28px;
+  --fs-caption: 19px;
+  --lh-tight: 1.05;
+  --lh-body: 1.42;
+
+  --bg: #f4efe6;
+  --fg: #1f1a14;
+  --muted: #766b5e;
+  --accent: #8c3324;
+  --surface: #ebe3d7;
+  --line: rgba(31, 26, 20, 0.24);
+
+  --col: 12;
+  --gutter: 32px;
+}

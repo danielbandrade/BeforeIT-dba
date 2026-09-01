@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BeforeIT — amostra Paper and ink</title>
+<link rel="stylesheet" href="design-tokens.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+  body { position: relative; background: #17130f; }
+  .slide {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: var(--slide-w);
+    height: var(--slide-h);
+    overflow: hidden;
+    padding: 82px var(--safe-pad) 70px;
+    color: var(--fg);
+    background-color: var(--bg);
+    background-image: radial-gradient(rgba(95, 85, 72, .18) .55px, transparent .7px);
+    background-size: 6px 6px;
+    font-family: var(--font-text);
+    transform: translate(-50%, -50%) scale(var(--deck-scale, 1));
+    transform-origin: center;
+  }
+  .slide svg { display: block; }
+  .slide::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 72px;
+    width: 1px;
+    background: var(--accent);
+    opacity: .62;
+  }
+  .chapter {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    color: var(--accent);
+    font-family: var(--font-label);
+    font-size: var(--fs-caption);
+    font-weight: 700;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+  }
+  .chapter::after { content: ""; width: 150px; height: 1px; background: currentColor; }
+  h1 {
+    width: 1310px;
+    margin: 26px 0 0;
+    font-family: var(--font-display);
+    font-size: var(--fs-h1);
+    font-weight: 500;
+    letter-spacing: -.035em;
+    line-height: var(--lh-tight);
+  }
+  h1 code { color: var(--accent); font-family: inherit; font-style: italic; font-weight: 500; }
+  .dek {
+    position: absolute;
+    top: 166px;
+    right: var(--safe-pad);
+    width: 390px;
+    margin: 0;
+    padding-left: 28px;
+    border-left: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 24px;
+    line-height: 1.42;
+  }
+  .flow {
+    position: relative;
+    margin-top: 76px;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 22px;
+  }
+  .flow::before {
+    content: "";
+    position: absolute;
+    top: 65px;
+    left: 90px;
+    right: 90px;
+    height: 2px;
+    background: var(--line);
+  }
+  .phase {
+    position: relative;
+    min-height: 294px;
+    padding: 94px 22px 28px;
+    border-top: 2px solid var(--fg);
+    background: rgba(244, 239, 230, .88);
+  }
+  .phase::before {
+    content: attr(data-step);
+    position: absolute;
+    top: 39px;
+    left: 22px;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border: 2px solid var(--fg);
+    border-radius: 50%;
+    color: var(--fg);
+    background: var(--bg);
+    font-family: var(--font-label);
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .phase:nth-child(3)::before,
+  .phase:nth-child(6)::before { border-color: var(--accent); color: var(--bg); background: var(--accent); }
+  .phase h2 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 31px;
+    font-weight: 500;
+    line-height: 1.12;
+  }
+  .phase p {
+    margin: 18px 0 0;
+    color: var(--muted);
+    font-family: var(--font-label);
+    font-size: 18px;
+    line-height: 1.36;
+  }
+  .phase:not(:last-child)::after {
+    content: "→";
+    position: absolute;
+    top: 41px;
+    right: -18px;
+    z-index: 2;
+    color: var(--accent);
+    font-size: 38px;
+  }
+  .footer {
+    position: absolute;
+    right: var(--safe-pad);
+    bottom: 40px;
+    left: var(--safe-pad);
+    display: flex;
+    justify-content: space-between;
+    color: var(--muted);
+    font-family: var(--font-label);
+    font-size: 17px;
+    letter-spacing: .035em;
+  }
+  .footer strong { color: var(--accent); }
+</style>
+</head>
+<body>
+<section class="slide" aria-label="Slide 7 de 15">
+  <div class="chapter">Por dentro do modelo</div>
+  <h1>Um <code>step!</code> transforma expectativas em um trimestre completo</h1>
+  <p class="dek">A ordem conecta decisões planejadas, transações realizadas e o novo estado da economia.</p>
+
+  <div class="flow" aria-label="Seis fases de um trimestre simulado">
+    <article class="phase" data-step="01">
+      <h2>Formar expectativas</h2>
+      <p>Crescimento, inflação e juros.</p>
+    </article>
+    <article class="phase" data-step="02">
+      <h2>Planejar firmas</h2>
+      <p>Produção, preços e insumos.</p>
+    </article>
+    <article class="phase" data-step="03">
+      <h2>Crédito e trabalho</h2>
+      <p>Matching, salários e produção.</p>
+    </article>
+    <article class="phase" data-step="04">
+      <h2>Definir orçamentos</h2>
+      <p>Famílias, governo e exterior.</p>
+    </article>
+    <article class="phase" data-step="05">
+      <h2>Realizar mercados</h2>
+      <p>Bens, consumo e investimento.</p>
+    </article>
+    <article class="phase" data-step="06">
+      <h2>Fechar as contas</h2>
+      <p>Preços, balanços, PIB e tempo.</p>
+    </article>
+  </div>
+
+  <footer class="footer">
+    <span>Fonte: <strong>BeforeIT.jl</strong> · <code>src/one_step.jl</code></span>
+    <span>07 / 15</span>
+  </footer>
+</section>
+<script>
+  function fit() {
+    document.documentElement.style.setProperty('--deck-scale', Math.min(innerWidth / 1920, innerHeight / 1080));
+  }
+  addEventListener('resize', fit);
+  fit();
+</script>
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BeforeIT — prévias visuais</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; }
+  button { font: inherit; }
+  .deck { position: relative; width: 100vw; height: 100vh; overflow: hidden; background: #111; }
+  .slide {
+    width: 1920px; height: 1080px; display: none; position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(var(--deck-scale, 1)); transform-origin: center; overflow: hidden;
+  }
+  .slide.active { display: grid; }
+  .slide svg { display: block; }
+  .eyebrow { font-size: 22px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
+  .subtitle { font-size: 30px; line-height: 1.4; max-width: 710px; }
+  .meta { font-size: 20px; letter-spacing: .04em; }
+  .preview-label { position: absolute; top: 44px; right: 52px; font-size: 18px; letter-spacing: .12em; text-transform: uppercase; }
+  .controls {
+    position: fixed; z-index: 20; left: 50%; bottom: 22px; transform: translateX(-50%);
+    display: flex; gap: 10px; padding: 9px; border-radius: 999px;
+    background: rgba(10,10,10,.82); backdrop-filter: blur(12px);
+  }
+  .controls button { width: 38px; height: 38px; border: 0; border-radius: 50%; color: #fff; background: #333; cursor: pointer; }
+  .controls button.active { background: #fff; color: #111; }
+
+  /* 1 — notebook-tabs */
+  .notebook {
+    padding: 96px 116px; grid-template-columns: 1.08fr .92fr; align-items: center;
+    color: #1a1a1a; background-color: #faf8f3;
+    background-image: linear-gradient(rgba(46,91,255,.055) 1px, transparent 1px), linear-gradient(90deg, rgba(46,91,255,.055) 1px, transparent 1px);
+    background-size: 48px 48px; font-family: Inter, Arial, sans-serif;
+  }
+  .notebook::before { content: ""; position: absolute; left: 70px; top: 0; bottom: 0; width: 2px; background: #ff6b61; opacity: .58; }
+  .notebook h1 { max-width: 900px; font-size: 112px; line-height: .98; letter-spacing: -.055em; font-weight: 800; }
+  .notebook .eyebrow, .notebook .accent { color: #2e5bff; }
+  .notebook .subtitle { margin-top: 38px; color: #51545b; }
+  .notebook .meta { position: absolute; left: 116px; bottom: 72px; color: #777a82; }
+  .notebook .preview-label { color: #2e5bff; }
+  .tabs { position: absolute; right: 0; top: 238px; display: grid; gap: 14px; }
+  .tab { width: 190px; padding: 18px 26px; color: #fff; background: #2e5bff; border-radius: 18px 0 0 18px; font-size: 19px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+  .notebook-visual { display: grid; place-items: center; }
+  .notebook-visual svg { width: 690px; height: 690px; }
+
+  /* 2 — swiss-modern */
+  .swiss {
+    padding: 82px 100px 86px; grid-template-columns: 1.18fr .82fr; grid-template-rows: auto 1fr auto;
+    color: #000; background: #fff; font-family: Helvetica, Arial, sans-serif;
+  }
+  .swiss .topline { grid-column: 1 / -1; display: flex; align-items: center; gap: 24px; border-top: 16px solid #000; padding-top: 20px; }
+  .swiss .serial { color: #e51d20; font-size: 28px; font-weight: 800; }
+  .swiss .eyebrow { color: #000; }
+  .swiss .copy { align-self: center; }
+  .swiss h1 { max-width: 980px; font-size: 118px; line-height: .91; letter-spacing: -.065em; font-weight: 900; }
+  .swiss h1 span { color: #e51d20; }
+  .swiss .subtitle { margin-top: 34px; color: #272727; }
+  .swiss .meta { grid-column: 1 / -1; border-bottom: 3px solid #000; padding-bottom: 17px; display: flex; justify-content: space-between; }
+  .swiss .preview-label { color: #e51d20; top: 123px; right: 100px; }
+  .swiss-visual { align-self: center; justify-self: end; width: 620px; height: 620px; border: 4px solid #000; position: relative; display: grid; place-items: center; }
+  .swiss-visual .big-number { position: absolute; right: -3px; top: -91px; font-size: 244px; line-height: 1; font-weight: 900; color: #e51d20; }
+  .swiss-visual svg { width: 500px; height: 500px; }
+
+  /* 3 — paper-and-ink */
+  .paper {
+    padding: 94px 120px; grid-template-columns: 1.15fr .85fr; align-items: center;
+    color: #1f1a14; background: #f4efe6; font-family: Georgia, "Times New Roman", serif;
+  }
+  .paper::after { content: ""; position: absolute; inset: 0; opacity: .15; pointer-events: none; background-image: radial-gradient(#5f5548 .55px, transparent .65px); background-size: 6px 6px; }
+  .paper .copy, .paper .paper-visual, .paper .meta, .paper .preview-label { z-index: 1; }
+  .paper .eyebrow { color: #8c3324; font-family: Arial, sans-serif; }
+  .paper h1 { max-width: 1020px; margin-top: 28px; font-size: 110px; line-height: 1.01; letter-spacing: -.045em; font-weight: 500; }
+  .paper h1 em { color: #8c3324; font-style: italic; }
+  .paper .subtitle { margin-top: 40px; color: #5f5548; }
+  .paper .meta { position: absolute; left: 120px; bottom: 70px; color: #766b5e; font-family: Arial, sans-serif; }
+  .paper .preview-label { color: #8c3324; font-family: Arial, sans-serif; }
+  .paper-visual { height: 720px; display: grid; place-items: center; border-left: 1px solid rgba(31,26,20,.25); }
+  .paper-visual svg { width: 610px; height: 700px; }
+</style>
+</head>
+<body>
+<main class="deck">
+  <section class="slide notebook active" data-name="Notebook tabs">
+    <div class="copy">
+      <div class="eyebrow">Modelo macroeconômico baseado em agentes</div>
+      <h1>BeforeIT simula a economia de <span class="accent">baixo para cima</span></h1>
+      <p class="subtitle">Do paper de previsão ao mecanismo de um trimestre simulado.</p>
+    </div>
+    <div class="notebook-visual" aria-hidden="true">
+      <svg viewBox="0 0 700 700">
+        <g fill="none" stroke="#2e5bff" stroke-width="4" opacity=".42">
+          <path d="M350 350 L160 170 M350 350 L540 160 M350 350 L575 380 M350 350 L500 565 M350 350 L188 545 M350 350 L105 360"/>
+          <path d="M160 170 Q350 65 540 160 M540 160 Q670 280 575 380 M575 380 Q590 530 500 565 M500 565 Q330 660 188 545 M188 545 Q55 485 105 360 M105 360 Q45 240 160 170" stroke-dasharray="10 13"/>
+        </g>
+        <g fill="#faf8f3" stroke="#2e5bff" stroke-width="5">
+          <circle cx="350" cy="350" r="82" fill="#2e5bff"/>
+          <circle cx="160" cy="170" r="54"/><circle cx="540" cy="160" r="54"/>
+          <circle cx="575" cy="380" r="54"/><circle cx="500" cy="565" r="54"/>
+          <circle cx="188" cy="545" r="54"/><circle cx="105" cy="360" r="54"/>
+        </g>
+        <g font-family="Arial" font-size="18" text-anchor="middle" fill="#1a1a1a" font-weight="700">
+          <text x="350" y="357" fill="#fff" font-size="24">ECONOMIA</text>
+          <text x="160" y="176">FAMÍLIAS</text><text x="540" y="166">FIRMAS</text>
+          <text x="575" y="386">BANCO</text><text x="500" y="571">GOVERNO</text>
+          <text x="188" y="551">BC</text><text x="105" y="354">RESTO DO</text><text x="105" y="376">MUNDO</text>
+        </g>
+      </svg>
+    </div>
+    <div class="tabs"><div class="tab">paper</div><div class="tab">modelo</div><div class="tab">trimestre</div></div>
+    <div class="meta">Apresentação acadêmica · BeforeIT.jl</div>
+    <div class="preview-label">Opção 1 · Notebook tabs</div>
+  </section>
+
+  <section class="slide swiss" data-name="Swiss modern">
+    <div class="topline"><span class="serial">B/IT—01</span><span class="eyebrow">Macroeconomia computacional</span></div>
+    <div class="copy">
+      <h1>BeforeIT simula a economia de <span>baixo para cima</span></h1>
+      <p class="subtitle">Do paper de previsão ao mecanismo de um trimestre simulado.</p>
+    </div>
+    <div class="swiss-visual" aria-hidden="true">
+      <div class="big-number">6</div>
+      <svg viewBox="0 0 500 500">
+        <g stroke="#000" stroke-width="5" fill="none">
+          <path d="M250 250 L92 110 M250 250 L264 62 M250 250 L420 128 M250 250 L432 342 M250 250 L244 444 M250 250 L74 350"/>
+        </g>
+        <circle cx="250" cy="250" r="78" fill="#000"/>
+        <g fill="#fff" stroke="#000" stroke-width="5">
+          <circle cx="92" cy="110" r="43"/><circle cx="264" cy="62" r="43"/>
+          <circle cx="420" cy="128" r="43"/><circle cx="432" cy="342" r="43"/>
+          <circle cx="244" cy="444" r="43"/><circle cx="74" cy="350" r="43"/>
+        </g>
+        <circle cx="92" cy="110" r="13" fill="#e51d20"/><circle cx="264" cy="62" r="13" fill="#e51d20"/>
+        <circle cx="420" cy="128" r="13" fill="#e51d20"/><circle cx="432" cy="342" r="13" fill="#e51d20"/>
+        <circle cx="244" cy="444" r="13" fill="#e51d20"/><circle cx="74" cy="350" r="13" fill="#e51d20"/>
+        <text x="250" y="261" font-family="Arial" font-size="29" font-weight="800" text-anchor="middle" fill="#fff">MACRO</text>
+      </svg>
+    </div>
+    <div class="meta"><span>BeforeIT.jl</span><span>Paper → agentes → mercados → previsão</span></div>
+    <div class="preview-label">Opção 2 · Swiss modern</div>
+  </section>
+
+  <section class="slide paper" data-name="Paper and ink">
+    <div class="copy">
+      <div class="eyebrow">Uma introdução ao modelo e ao paper</div>
+      <h1>BeforeIT simula a economia de <em>baixo para cima</em></h1>
+      <p class="subtitle">Do paper de previsão ao mecanismo de um trimestre simulado.</p>
+    </div>
+    <div class="paper-visual" aria-hidden="true">
+      <svg viewBox="0 0 610 700">
+        <g fill="none" stroke="#1f1a14" stroke-width="2.4">
+          <path d="M305 84 C430 84 520 165 520 270 C520 390 415 438 305 508 C195 438 90 390 90 270 C90 165 180 84 305 84Z"/>
+          <path d="M305 164 C386 164 444 212 444 280 C444 358 376 390 305 436 C234 390 166 358 166 280 C166 212 224 164 305 164Z" stroke="#8c3324"/>
+          <path d="M305 164 V84 M444 280 L520 270 M305 436 V508 M166 280 L90 270"/>
+          <path d="M305 508 C310 575 360 602 416 623 M305 508 C300 575 250 602 194 623"/>
+        </g>
+        <g fill="#f4efe6" stroke="#1f1a14" stroke-width="2.4">
+          <circle cx="305" cy="84" r="47"/><circle cx="520" cy="270" r="47"/>
+          <circle cx="416" cy="623" r="47"/><circle cx="194" cy="623" r="47"/>
+          <circle cx="90" cy="270" r="47"/><circle cx="305" cy="300" r="76" fill="#8c3324" stroke="#8c3324"/>
+        </g>
+        <g font-family="Georgia" font-size="18" text-anchor="middle" fill="#1f1a14">
+          <text x="305" y="90">famílias</text><text x="520" y="276">firmas</text>
+          <text x="416" y="629">bancos</text><text x="194" y="629">governo</text>
+          <text x="90" y="266">mundo</text><text x="90" y="287">externo</text>
+          <text x="305" y="307" fill="#f4efe6" font-size="25">mercados</text>
+        </g>
+        <text x="305" y="686" font-family="Georgia" font-style="italic" font-size="20" text-anchor="middle" fill="#766b5e">interações microeconômicas → resultados macroeconômicos</text>
+      </svg>
+    </div>
+    <div class="meta">BeforeIT.jl · Apresentação acadêmica</div>
+    <div class="preview-label">Opção 3 · Paper and ink</div>
+  </section>
+</main>
+
+<nav class="controls" aria-label="Escolher prévia">
+  <button class="active" data-index="0" aria-label="Opção 1">1</button>
+  <button data-index="1" aria-label="Opção 2">2</button>
+  <button data-index="2" aria-label="Opção 3">3</button>
+</nav>
+<script>
+  const slides = [...document.querySelectorAll('.slide')];
+  const buttons = [...document.querySelectorAll('.controls button')];
+  let current = 0;
+  function fit() {
+    document.documentElement.style.setProperty('--deck-scale', Math.min(innerWidth / 1920, innerHeight / 1080));
+  }
+  function go(index) {
+    current = Math.max(0, Math.min(slides.length - 1, index));
+    slides.forEach((slide, i) => slide.classList.toggle('active', i === current));
+    buttons.forEach((button, i) => button.classList.toggle('active', i === current));
+    history.replaceState(null, '', '#' + (current + 1));
+    fit();
+  }
+  buttons.forEach(button => button.addEventListener('click', () => go(Number(button.dataset.index))));
+  document.addEventListener('keydown', event => {
+    if (event.key === 'ArrowRight' || event.key === ' ') go(current + 1);
+    if (event.key === 'ArrowLeft') go(current - 1);
+  });
+  addEventListener('resize', fit);
+  const start = Number(location.hash.slice(1));
+  if (start >= 1 && start <= slides.length) go(start - 1);
+</script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+
+[parameters.psi]
+lower = 0.7277344999575018
+baseline = 0.9096681249468772
+upper = 1.0
+
+[parameters.theta]
+lower = 0.04000000000000001
+baseline = 0.05
+upper = 0.06
+
+[parameters.psi_H]
+lower = 0.05700079965797075
+baseline = 0.07125099957246343
+upper = 0.08550119948695611
+
+[parameters.theta_DIV]
+lower = 0.6286459552015683
+baseline = 0.7858074440019603
+upper = 0.9429689328023524
+
+[parameters.theta_UB]
+lower = 0.28686595824487354
+baseline = 0.3585824478060919
+upper = 0.43029893736731023
+
+[parameters.zeta_LTV]
+lower = 0.48
+baseline = 0.6
+upper = 0.72
+
+[parameters.zeta]
+lower = 0.024
+baseline = 0.03
+upper = 0.036
+
+[parameters.mu]
+lower = 0.021371177355436453
+baseline = 0.026713971694295565
+upper = 0.032056766033154674
+[experiment]
+configurations = 3
+horizon = 12
+master_seed = 2025
+parameter_width = 0.2
+seeds_per_configuration = 1

@@ -1,0 +1,64 @@
+parameter,type,shape,baseline,classification,screening_eligible,source_usage,review_note
+C,Matrix{Float64},3x3,"summary(min=4.3800671000101816e-5, max=0.0004506370179043619, mean=0.00022649823378423999)",jointly_constrained_group_candidate,true,src/model_init/init_properties.jl:88,Define a structure-preserving perturbation; do not vary cells independently
+G,Float64,scalar,62.0,structural_dimension,false,src/model_init/init_aggregates.jl:18; src/model_init/init_firms.jl:18; src/model_init/init_properties.jl:46; src/model_init/init_rest_of_the_world.jl:15,Fixed during sensitivity analysis
+H_act,Float64,scalar,4743.0,structural_dimension,false,src/model_init/init_properties.jl:49; src/model_init/init_workers.jl:16,Fixed during sensitivity analysis
+H_inact,Float64,scalar,4130.0,structural_dimension,false,src/model_init/init_properties.jl:50; src/model_init/init_workers.jl:17,Fixed during sensitivity analysis
+I_s,Matrix{Float64},62x1,"summary(min=1.0, max=58.0, mean=10.064516129032258)",structural_dimension,false,src/model_init/init_firms.jl:16; src/model_init/init_firms.jl:17; src/model_init/init_firms.jl:48; src/model_init/init_firms.jl:49; src/model_init/init_properties.jl:55; src/model_init/init_properties.jl:56; src/model_init/init_workers.jl:18,Fixed during sensitivity analysis
+J,Float64,scalar,156.0,structural_dimension,false,src/model_init/init_government.jl:20; src/model_init/init_properties.jl:53,Fixed during sensitivity analysis
+L,Float64,scalar,312.0,structural_dimension,false,src/model_init/init_properties.jl:54; src/model_init/init_rest_of_the_world.jl:14,Fixed during sensitivity analysis
+S,Float64,scalar,62.0,structural_dimension,false,,Fixed during sensitivity analysis
+T,Float64,scalar,12.0,structural_dimension,false,,Fixed during sensitivity analysis
+T_max,Float64,scalar,12.0,structural_dimension,false,,Fixed during sensitivity analysis
+T_prime,Float64,scalar,54.0,structural_dimension,false,src/model_init/init_government.jl:23; src/model_init/init_properties.jl:47; src/model_init/init_rest_of_the_world.jl:29,Fixed during sensitivity analysis
+a_sg,Matrix{Float64},62x62,"summary(min=0.0, max=0.8149348034258406, mean=0.016129032258064516)",jointly_constrained_group_candidate,true,src/model_init/init_properties.jl:86,Define a structure-preserving perturbation; do not vary cells independently
+alpha_E,Float64,scalar,0.962809216044625,independent_continuous_candidate,true,src/model_init/init_rest_of_the_world.jl:16,Define an economic validity range before screening
+alpha_G,Float64,scalar,0.9905949533296431,independent_continuous_candidate,true,src/model_init/init_government.jl:14,Define an economic validity range before screening
+alpha_I,Float64,scalar,0.9662360466537488,independent_continuous_candidate,true,src/model_init/init_rest_of_the_world.jl:19,Define an economic validity range before screening
+alpha_Y_EA,Float64,scalar,0.9635784504324201,independent_continuous_candidate,true,src/model_init/init_rest_of_the_world.jl:26,Define an economic validity range before screening
+alpha_pi_EA,Float64,scalar,0.38456173629534834,independent_continuous_candidate,true,src/model_init/init_rest_of_the_world.jl:23,Define an economic validity range before screening
+alpha_s,Matrix{Float64},62x1,"summary(min=10.428169405250205, max=480.9225632826067, mean=62.18141530981933)",jointly_constrained_group_candidate,true,src/model_init/init_firms.jl:55,Define a structure-preserving perturbation; do not vary cells independently
+b_CFH_g,Matrix{Float64},62x1,"summary(min=0.0, max=0.7262566916890253, mean=0.016129032258064516)",jointly_constrained_group_candidate,true,src/model_init/init_properties.jl:81,Define a structure-preserving perturbation; do not vary cells independently
+b_CF_g,Matrix{Float64},62x1,"summary(min=0.0, max=0.29932600550873123, mean=0.01612903225806451)",jointly_constrained_group_candidate,true,src/model_init/init_properties.jl:80,Define a structure-preserving perturbation; do not vary cells independently
+b_HH_g,Matrix{Float64},62x1,"summary(min=0.0, max=0.17433924724137403, mean=0.016129032258064526)",jointly_constrained_group_candidate,true,src/model_init/init_properties.jl:82,Define a structure-preserving perturbation; do not vary cells independently
+beta_E,Float64,scalar,0.39260026877953946,independent_continuous_candidate,true,src/model_init/init_rest_of_the_world.jl:17,Define an economic validity range before screening
+beta_G,Float64,scalar,0.09373211872949586,independent_continuous_candidate,true,src/model_init/init_government.jl:15,Define an economic validity range before screening
+beta_I,Float64,scalar,0.35492769963078624,independent_continuous_candidate,true,src/model_init/init_rest_of_the_world.jl:20,Define an economic validity range before screening
+beta_Y_EA,Float64,scalar,0.5360029623199525,independent_continuous_candidate,true,src/model_init/init_rest_of_the_world.jl:27,Define an economic validity range before screening
+beta_pi_EA,Float64,scalar,0.0026219533879005877,independent_continuous_candidate,true,src/model_init/init_rest_of_the_world.jl:24,Define an economic validity range before screening
+beta_s,Matrix{Float64},62x1,"summary(min=1.0612065951355958, max=8.21779850307614, mean=2.2153511477214445)",jointly_constrained_group_candidate,true,src/model_init/init_firms.jl:56,Define a structure-preserving perturbation; do not vary cells independently
+c_E_g,Matrix{Float64},62x1,"summary(min=0.0, max=0.09939252117842774, mean=0.016129032258064516)",jointly_constrained_group_candidate,true,src/model_init/init_properties.jl:84,Define a structure-preserving perturbation; do not vary cells independently
+c_G_g,Matrix{Float64},62x1,"summary(min=0.0, max=0.3324338967920097, mean=0.016129032258064516)",jointly_constrained_group_candidate,true,src/model_init/init_properties.jl:83,Define a structure-preserving perturbation; do not vary cells independently
+c_I_g,Matrix{Float64},62x1,"summary(min=0.0, max=0.09012942708298144, mean=0.016129032258064512)",jointly_constrained_group_candidate,true,src/model_init/init_properties.jl:85,Define a structure-preserving perturbation; do not vary cells independently
+delta_s,Matrix{Float64},62x1,"summary(min=0.0009253196994160206, max=0.19108848182692395, mean=0.028967627271926498)",jointly_constrained_group_candidate,true,src/model_init/init_firms.jl:58,Define a structure-preserving perturbation; do not vary cells independently
+kappa_s,Matrix{Float64},62x1,"summary(min=0.032550901019931036, max=5.748982556939036, mean=0.592828316308779)",jointly_constrained_group_candidate,true,src/model_init/init_firms.jl:57,Define a structure-preserving perturbation; do not vary cells independently
+mu,Float64,scalar,0.026713971694295565,independent_continuous_candidate,true,src/model_init/init_banks.jl:18; src/model_init/init_firms.jl:20; src/model_init/init_properties.jl:70,Define an economic validity range before screening
+pi_star,Float64,scalar,0.0049629315732038215,independent_continuous_candidate,true,src/model_init/init_banks.jl:62,Define an economic validity range before screening
+psi,Float64,scalar,0.9096681249468772,independent_continuous_candidate,true,src/model_init/init_properties.jl:68,Define an economic validity range before screening
+psi_H,Float64,scalar,0.07125099957246343,independent_continuous_candidate,true,src/model_init/init_properties.jl:69,Define an economic validity range before screening
+r_G,Float64,scalar,0.0089810924595537,independent_continuous_candidate,true,src/model_init/init_banks.jl:59,Define an economic validity range before screening
+r_star,Float64,scalar,-0.003424572940686137,independent_continuous_candidate,true,src/model_init/init_banks.jl:61,Define an economic validity range before screening
+rho,Float64,scalar,0.9259668580654086,independent_continuous_candidate,true,src/model_init/init_banks.jl:60,Define an economic validity range before screening
+sigma_E,Float64,scalar,0.020320381298662014,independent_continuous_candidate,true,src/model_init/init_rest_of_the_world.jl:18,Define an economic validity range before screening
+sigma_G,Float64,scalar,0.011235005057648862,independent_continuous_candidate,true,src/model_init/init_government.jl:16,Define an economic validity range before screening
+sigma_I,Float64,scalar,0.02122821278168188,independent_continuous_candidate,true,src/model_init/init_rest_of_the_world.jl:21,Define an economic validity range before screening
+sigma_Y_EA,Float64,scalar,0.006618207536795881,independent_continuous_candidate,true,src/model_init/init_rest_of_the_world.jl:28,Define an economic validity range before screening
+sigma_pi_EA,Float64,scalar,0.0025327891562467505,independent_continuous_candidate,true,src/model_init/init_rest_of_the_world.jl:25,Define an economic validity range before screening
+tau_CF,Float64,scalar,0.08761417854834112,independent_continuous_candidate,true,src/model_init/init_properties.jl:65,Define an economic validity range before screening
+tau_EXPORT,Float64,scalar,0.0029486201783457183,independent_continuous_candidate,true,src/model_init/init_properties.jl:64,Define an economic validity range before screening
+tau_FIRM,Float64,scalar,0.07701197259426128,independent_continuous_candidate,true,src/model_init/init_banks.jl:17; src/model_init/init_firms.jl:23; src/model_init/init_properties.jl:60,Define an economic validity range before screening
+tau_G,Float64,scalar,0.009147800682711324,independent_continuous_candidate,true,src/model_init/init_properties.jl:66,Define an economic validity range before screening
+tau_INC,Float64,scalar,0.21340742230566648,independent_continuous_candidate,true,src/model_init/init_banks.jl:16; src/model_init/init_firms.jl:22; src/model_init/init_properties.jl:59; src/model_init/init_workers.jl:21,Define an economic validity range before screening
+tau_K_s,Matrix{Float64},62x1,"summary(min=-0.26105054841223635, max=0.04534595393638835, mean=0.0034425254364573135)",jointly_constrained_group_candidate,true,src/model_init/init_firms.jl:61,Define a structure-preserving perturbation; do not vary cells independently
+tau_SIF,Float64,scalar,0.21215146534992413,independent_continuous_candidate,true,src/model_init/init_firms.jl:19; src/model_init/init_properties.jl:62,Define an economic validity range before screening
+tau_SIW,Float64,scalar,0.17114894621657745,independent_continuous_candidate,true,src/model_init/init_properties.jl:63; src/model_init/init_workers.jl:20,Define an economic validity range before screening
+tau_VAT,Float64,scalar,0.1528683933530887,independent_continuous_candidate,true,src/model_init/init_properties.jl:61,Define an economic validity range before screening
+tau_Y_s,Matrix{Float64},62x1,"summary(min=0.0009036288207524677, max=0.06592084150472455, mean=0.01156409110458395)",jointly_constrained_group_candidate,true,src/model_init/init_firms.jl:60,Define a structure-preserving perturbation; do not vary cells independently
+theta,Float64,scalar,0.05,independent_continuous_candidate,true,src/model_init/init_properties.jl:74,Define an economic validity range before screening
+theta_DIV,Float64,scalar,0.7858074440019603,independent_continuous_candidate,true,src/model_init/init_banks.jl:15; src/model_init/init_firms.jl:21; src/model_init/init_properties.jl:73,Define an economic validity range before screening
+theta_UB,Float64,scalar,0.3585824478060919,independent_continuous_candidate,true,src/model_init/init_properties.jl:67; src/model_init/init_workers.jl:19,Define an economic validity range before screening
+w_s,Matrix{Float64},62x1,"summary(min=0.2697101055708983, max=53.76744755120394, mean=8.407566371524046)",jointly_constrained_group_candidate,true,src/model_init/init_firms.jl:59,Define a structure-preserving perturbation; do not vary cells independently
+xi_gamma,Float64,scalar,1.328593153520194,independent_continuous_candidate,true,src/model_init/init_banks.jl:64,Define an economic validity range before screening
+xi_pi,Float64,scalar,0.30996974466133875,independent_continuous_candidate,true,src/model_init/init_banks.jl:63,Define an economic validity range before screening
+zeta,Float64,scalar,0.03,independent_continuous_candidate,true,src/model_init/init_properties.jl:75,Define an economic validity range before screening
+zeta_LTV,Float64,scalar,0.6,independent_continuous_candidate,true,src/model_init/init_properties.jl:76,Define an economic validity range before screening
+zeta_b,Float64,scalar,0.5,independent_continuous_candidate,true,src/model_init/init_properties.jl:77,Define an economic validity range before screening

@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BeforeIT Model Map</title>
+  <style>
+    :root { color-scheme: light dark; --bg:#f5f3ed; --ink:#25251f; --muted:#6f7067; --line:#bab7aa; --card:#fffdf7; --accent:#276b59; --parameter:#9b5c27; }
+    @media (prefers-color-scheme:dark) { :root { --bg:#171916; --ink:#edf0e8; --muted:#a9afa5; --line:#4a5149; --card:#222620; --accent:#68c4a8; --parameter:#eda565; } }
+    * { box-sizing:border-box }
+    body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace }
+    header { position:sticky; top:0; z-index:2; display:flex; gap:16px; align-items:center; padding:18px clamp(18px,4vw,52px); background:color-mix(in srgb,var(--bg) 90%,transparent); border-bottom:1px solid var(--line); backdrop-filter:blur(12px) }
+    h1 { margin:0; font:700 clamp(19px,3vw,28px)/1.1 system-ui,sans-serif }
+    header p { margin:3px 0 0; color:var(--muted); font-size:12px }
+    input { margin-left:auto; width:min(320px,40vw); padding:10px 12px; border:1px solid var(--line); border-radius:8px; background:var(--card); color:var(--ink); font:inherit }
+    main { padding:28px clamp(18px,4vw,52px) 60px }
+    .tree,.tree ul { list-style:none; margin:0; padding-left:30px; position:relative }
+    .tree ul::before { content:""; position:absolute; left:10px; top:0; bottom:18px; border-left:1px solid var(--line) }
+    .tree li { position:relative; padding:5px 0 }
+    .tree li::before { content:""; position:absolute; left:-20px; top:24px; width:20px; border-top:1px solid var(--line) }
+    .tree>li::before { display:none }
+    details>summary { list-style:none; cursor:pointer }
+    details>summary::-webkit-details-marker { display:none }
+    .node { display:inline-flex; align-items:center; gap:9px; min-width:220px; padding:10px 13px; border:1px solid var(--line); border-left:4px solid var(--accent); border-radius:8px; background:var(--card); box-shadow:0 2px 7px color-mix(in srgb,var(--ink) 8%,transparent) }
+    .node::before { content:"+"; color:var(--accent); font-weight:700 }
+    details[open]>.node::before { content:"−" }
+    .node strong { font-family:system-ui,sans-serif }
+    .count { margin-left:auto; color:var(--muted); font-size:11px }
+    .fields { display:flex; flex-wrap:wrap; gap:7px; padding:10px 0 8px 10px }
+    .field { padding:5px 8px; border:1px solid var(--line); border-radius:6px; background:color-mix(in srgb,var(--card) 82%,var(--bg)); color:var(--ink); font:inherit; white-space:nowrap; cursor:pointer }
+    .field:hover,.field:focus-visible { outline:2px solid var(--accent); outline-offset:2px }
+    .field.parameter { color:var(--parameter); border-color:color-mix(in srgb,var(--parameter) 55%,var(--line)) }
+    .field[data-type="Vector"],.field[data-type="Matrix"] { border-style:dashed }
+    .legend { display:flex; gap:18px; flex-wrap:wrap; padding:0 0 22px; color:var(--muted); font-size:12px }
+    .legend b { color:var(--ink) }
+    .detail { position:sticky; top:86px; z-index:1; min-height:76px; margin:0 0 22px; padding:14px 16px; border:1px solid var(--line); border-radius:8px; background:var(--card) }
+    .detail h2 { margin:0 0 5px; font:700 16px/1.2 system-ui,sans-serif }
+    .detail p { margin:0; color:var(--muted) }
+    mark { background:color-mix(in srgb,var(--parameter) 35%,transparent); color:inherit }
+    .hidden { display:none }
+    @media (max-width:600px) { header { align-items:flex-start; flex-direction:column } input { margin:0; width:100% } .detail { top:142px } .tree,.tree ul { padding-left:20px } .tree ul::before { left:5px } .tree li::before { left:-15px; width:15px } }
+  </style>
+</head>
+<body>
+  <header>
+    <div><h1>BeforeIT.Model</h1><p>Objects, state fields, and calibrated parameters</p></div>
+    <input id="search" type="search" placeholder="Find an object or field…" aria-label="Find an object or field">
+  </header>
+  <main>
+    <div class="legend"><span><b>solid</b> scalar</span><span><b>dashed</b> vector / matrix</span><span style="color:var(--parameter)"><b>orange</b> parameter or initial condition</span></div>
+    <aside class="detail" id="detail" aria-live="polite"><h2>Select a variable</h2><p>Click a field to see its documented meaning and storage type.</p></aside>
+    <ul class="tree" id="map"></ul>
+  </main>
+  <script>
+    const objects = [
+      ['w_act','Workers (active)',['del:Ref','lastid:Ref','id_to_index:Dict','ID:Vector','Y_h:Vector','D_h:Vector','K_h:Vector','w_h:Vector','O_h:Vector','C_d_h:Vector','I_d_h:Vector','C_h:Vector','I_h:Vector']],
+      ['w_inact','Workers (inactive)',['del:Ref','lastid:Ref','id_to_index:Dict','ID:Vector','Y_h:Vector','D_h:Vector','K_h:Vector','w_h:Vector','O_h:Vector','C_d_h:Vector','I_d_h:Vector','C_h:Vector','I_h:Vector']],
+      ['firms','Firms',['del:Ref','lastid:Ref','id_to_index:Dict','ID:Vector','G_i:Vector','alpha_bar_i:Vector','beta_i:Vector','kappa_i:Vector','w_i:Vector','w_bar_i:Vector','delta_i:Vector','tau_Y_i:Vector','tau_K_i:Vector','N_i:Vector','Y_i:Vector','Q_i:Vector','Q_d_i:Vector','P_i:Vector','S_i:Vector','K_i:Vector','M_i:Vector','L_i:Vector','pi_bar_i:Vector','D_i:Vector','Pi_i:Vector','V_i:Vector','I_i:Vector','E_i:Vector','P_bar_i:Vector','P_CF_i:Vector','DS_i:Vector','DM_i:Vector','DL_i:Vector','DL_d_i:Vector','K_e_i:Vector','L_e_i:Vector','Q_s_i:Vector','I_d_i:Vector','DM_d_i:Vector','N_d_i:Vector','Pi_e_i:Vector','Y_h:Vector','C_d_h:Vector','I_d_h:Vector','C_h:Vector','I_h:Vector','K_h:Vector','D_h:Vector']],
+      ['bank','Bank',['E_k','Pi_k','Pi_e_k','D_k','r','Y_h','C_d_h','I_d_h','C_h','I_h','K_h','D_h']],
+      ['cb','CentralBank',['r_bar','r_G','rho','r_star','pi_star','xi_pi','xi_gamma','E_CB']],
+      ['gov','Government',['alpha_G','beta_G','sigma_G','Y_G','C_G','L_G','sb_inact','sb_other','C_d_j:Vector','C_j','P_j']],
+      ['rotw','RestOfTheWorld',['alpha_E','beta_E','sigma_E','alpha_I','beta_I','sigma_I','Y_EA','gamma_EA','pi_EA','alpha_pi_EA','beta_pi_EA','sigma_pi_EA','alpha_Y_EA','beta_Y_EA','sigma_Y_EA','D_RoW','Y_I','C_E','C_d_l:Vector','C_l','Y_m:Vector','Q_m:Vector','Q_d_m:Vector','P_m:Vector','P_l']],
+      ['agg','Aggregates',['Y:Vector','pi_:Vector','P_bar','P_bar_g:Vector','P_bar_HH','P_bar_CF','P_bar_h','P_bar_CF_h','Y_e','gamma_e','pi_e','epsilon_Y_EA','epsilon_E','epsilon_I','t:Int']],
+      ['prop','Properties',['G:Int','T_prime:Int','H_act:Int','H_inact:Int','J:Int','L:Int','I_s:Vector','I:Int','H:Int','tau_INC','tau_FIRM','tau_VAT','tau_SIF','tau_SIW','tau_EXPORT','tau_CF','tau_G','theta_UB','psi','psi_H','mu','theta_DIV','theta','zeta','zeta_LTV','zeta_b','b_CF_g:Vector','b_CFH_g:Vector','b_HH_g:Vector','c_G_g:Vector','c_E_g:Vector','c_I_g:Vector','a_sg:Matrix','C:Matrix','D_H','K_H','sb_other','E_k','r_bar'],true],
+      ['data','Data',['collection_time:Vector','nominal_gdp:Vector','real_gdp:Vector','nominal_gva:Vector','real_gva:Vector','nominal_household_consumption:Vector','real_household_consumption:Vector','nominal_government_consumption:Vector','real_government_consumption:Vector','nominal_capitalformation:Vector','real_capitalformation:Vector','nominal_fixed_capitalformation:Vector','real_fixed_capitalformation:Vector','nominal_fixed_capitalformation_dwellings:Vector','real_fixed_capitalformation_dwellings:Vector','nominal_exports:Vector','real_exports:Vector','nominal_imports:Vector','real_imports:Vector','operating_surplus:Vector','compensation_employees:Vector','wages:Vector','taxes_production:Vector','gdp_deflator_growth_ea:Vector','real_gdp_ea:Vector','euribor:Vector','nominal_sector_gva:Vector','real_sector_gva:Vector']]
+    ];
+    const descriptions = {
+      del:'Deletion flag used by the agent container.',lastid:'Last unique agent ID assigned.',id_to_index:'Maps stable agent IDs to their current array indices.',ID:'Stable unique ID of each agent.',
+      Y_h:'Net disposable income of the household or owner.',D_h:'Household or owner deposits.',K_h:'Household or owner capital stock.',w_h:'Worker wage; zero when inactive or unemployed.',O_h:'Employer ID; 0 means unemployed and −1 inactive.',C_d_h:'Desired household consumption budget.',I_d_h:'Desired household investment budget.',C_h:'Realised household consumption.',I_h:'Realised household investment.',
+      G_i:'Principal product produced by the firm.',alpha_bar_i:'Average labour productivity.',beta_i:'Productivity of intermediate consumption.',kappa_i:'Productivity of capital.',w_i:'Wage paid by the firm.',w_bar_i:'Average wage rate.',delta_i:'Capital depreciation rate.',tau_Y_i:'Net tax rate on products.',tau_K_i:'Net tax rate on production.',N_i:'Number of people employed.',Y_i:'Goods production.',Q_i:'Goods sold.',Q_d_i:'Demand for goods.',P_i:'Firm output price.',S_i:'Final-goods inventories.',K_i:'Real capital stock.',M_i:'Real intermediate inputs and raw materials.',L_i:'Outstanding firm loans.',pi_bar_i:'Operating margin.',D_i:'Firm deposits.',Pi_i:'Firm profits.',V_i:'Job vacancies.',I_i:'Firm investment.',E_i:'Firm equity.',P_bar_i:'Intermediate-input price index.',P_CF_i:'Capital-formation price index.',DS_i:'Change in final-goods inventory.',DM_i:'Change in intermediate-goods inventory.',DL_i:'New loans obtained.',DL_d_i:'Target demand for new loans.',K_e_i:'Expected capital.',L_e_i:'Expected loans.',Q_s_i:'Expected sales.',I_d_i:'Desired firm investment.',DM_d_i:'Desired intermediate-material purchases.',N_d_i:'Desired employment.',Pi_e_i:'Expected profits.',
+      E_k:'Bank equity capital.',Pi_k:'Bank profits.',Pi_e_k:'Expected bank profits.',D_k:'Residual balancing item on the bank balance sheet.',r:'Rate on loans and mortgages.',r_bar:'Nominal central-bank policy rate.',r_G:'Interest rate on government bonds.',rho:'Gradual policy-rate adjustment parameter.',r_star:'Real equilibrium interest rate.',pi_star:'Central-bank inflation target.',xi_pi:'Policy weight on inflation.',xi_gamma:'Policy weight on economic growth.',E_CB:'Central-bank equity.',
+      alpha_G:'Autoregressive coefficient for government consumption.',beta_G:'Constant in the government-consumption process.',sigma_G:'Shock variance coefficient for government consumption.',Y_G:'Government revenue.',C_G:'Government consumption demand.',L_G:'Government debt or loans.',sb_inact:'Social benefits for inactive people.',sb_other:'General social benefit.',C_d_j:'Consumption demand by local government.',C_j:'Realised government consumption.',P_j:'Government-goods price index.',
+      alpha_E:'Autoregressive coefficient for exports.',beta_E:'Constant in the export process.',sigma_E:'Shock variance coefficient for exports.',alpha_I:'Autoregressive coefficient for imports.',beta_I:'Constant in the import process.',sigma_I:'Shock variance coefficient for imports.',Y_EA:'Euro-area GDP.',gamma_EA:'Euro-area GDP growth.',pi_EA:'Euro-area inflation.',alpha_pi_EA:'Autoregressive coefficient for euro-area inflation.',beta_pi_EA:'Constant in the euro-area inflation process.',sigma_pi_EA:'Shock variance coefficient for euro-area inflation.',alpha_Y_EA:'Autoregressive coefficient for euro-area GDP.',beta_Y_EA:'Constant in the euro-area GDP process.',sigma_Y_EA:'Shock variance coefficient for euro-area GDP.',D_RoW:'National economy’s net position against the rest of the world.',Y_I:'Real supply of imports.',C_E:'Total export demand.',C_d_l:'Export demand by foreign consumer.',C_l:'Realised foreign consumption.',Y_m:'Import supply by sector.',Q_m:'Import sales by sector.',Q_d_m:'Demand for imported goods.',P_m:'Import price by sector.',P_l:'Export price index.',
+      Y:'GDP observations and predictions.',pi_:'Inflation observations and predictions.',P_bar:'Economy-wide price index.',P_bar_g:'Producer price index by product.',P_bar_HH:'Consumer price index.',P_bar_CF:'Capital-goods price index.',P_bar_h:'Household consumption price index.',P_bar_CF_h:'Household capital-formation price index.',Y_e:'Expected GDP.',gamma_e:'Expected growth.',pi_e:'Expected inflation.',epsilon_Y_EA:'Euro-area GDP innovation.',epsilon_E:'Export innovation.',epsilon_I:'Import innovation.',t:'Simulation time index.',
+      G:'Number of product groups.',T_prime:'Historical window used to estimate expectations.',H_act:'Number of economically active people.',H_inact:'Number of economically inactive people.',J:'Number of government entities.',L:'Number of foreign consumers.',I_s:'Number of firms in each industry.',I:'Total number of firms.',H:'Total number of households.',tau_INC:'Income-tax rate.',tau_FIRM:'Corporate-tax rate.',tau_VAT:'Value-added-tax rate.',tau_SIF:'Employer social-insurance rate.',tau_SIW:'Employee social-insurance rate.',tau_EXPORT:'Export-tax rate.',tau_CF:'Capital-formation tax rate.',tau_G:'Government-consumption tax rate.',theta_UB:'Unemployment-benefit replacement rate.',psi:'Income share allocated to consumption.',psi_H:'Income share allocated to housing investment.',mu:'Risk premium over the policy rate.',theta_DIV:'Dividend payout ratio.',theta:'Debt instalment rate.',zeta:'Bank capital-requirement coefficient.',zeta_LTV:'Loan-to-value ratio.',zeta_b:'Loan-to-capital ratio for replacement firms.',b_CF_g:'Firm capital-formation weights by product.',b_CFH_g:'Household investment weights by product.',b_HH_g:'Household consumption weights by product.',c_G_g:'Government consumption by product.',c_E_g:'Exports by product.',c_I_g:'Imports by product.',a_sg:'Industry-by-product technology coefficients.',C:'Calibration matrix.',D_H:'Initial household deposit-to-income factor.',K_H:'Initial household capital-to-income factor.'
+    };
+    const readable=name=>name.replaceAll('_',' ').replace(/\bgdp\b/gi,'GDP').replace(/\bgva\b/gi,'GVA').replace(/\bea\b/gi,'euro area');
+    const describe=(object,name)=>descriptions[name]||(object==='data'?`Recorded time series for ${readable(name)}.`:`Model variable ${readable(name)}.`);
+    const map=document.getElementById('map');
+    const root=document.createElement('li');
+    root.innerHTML=`<details open><summary class="node"><strong>model</strong><span class="count">${objects.length} objects</span></summary><ul></ul></details>`;
+    const branches=root.querySelector('ul');
+    objects.forEach(([key,label,fields,parameters])=>{
+      const li=document.createElement('li'); li.dataset.text=(key+' '+label+' '+fields.join(' ')).toLowerCase();
+      li.innerHTML=`<details><summary class="node"><strong>model.${key}</strong><span>${label}</span><span class="count">${fields.length}</span></summary><div class="fields"></div></details>`;
+      const box=li.querySelector('.fields');
+      fields.forEach(raw=>{ const [name,type='Scalar']=raw.split(':'); const button=document.createElement('button'); button.type='button'; button.className='field'+(parameters?' parameter':''); button.dataset.type=type; button.title=`${type} — click for details`; button.textContent=name; button.addEventListener('click',()=>{ document.getElementById('detail').innerHTML=`<h2>model.${key}.${name}</h2><p>${describe(key,name)} <strong>Type:</strong> ${type}.</p>` }); box.append(button) });
+      branches.append(li);
+    });
+    map.append(root);
+    document.getElementById('search').addEventListener('input',e=>{
+      const q=e.target.value.trim().toLowerCase();
+      branches.querySelectorAll(':scope>li').forEach(li=>{ const hit=!q||li.dataset.text.includes(q); li.classList.toggle('hidden',!hit); if(q&&hit) li.querySelector('details').open=true; li.querySelectorAll('.field').forEach(f=>f.classList.toggle('hidden',q&&!f.textContent.toLowerCase().includes(q)&&!li.querySelector('summary').textContent.toLowerCase().includes(q))) });
+    });
+  </script>
+</body>
+</html>

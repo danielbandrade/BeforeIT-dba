@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BeforeIT — do paper a um trimestre simulado</title>
+<style>
+  :root {
+    --slide-w: 1920px;
+    --slide-h: 1080px;
+    --safe-pad: 104px;
+    --font-display: Georgia, "Times New Roman", serif;
+    --font-text: Georgia, "Times New Roman", serif;
+    --font-label: Arial, Helvetica, sans-serif;
+    --fs-hero: 112px;
+    --fs-h1: 76px;
+    --fs-h2: 42px;
+    --fs-body: 28px;
+    --fs-caption: 19px;
+    --lh-tight: 1.05;
+    --lh-body: 1.42;
+    --bg: #f4efe6;
+    --fg: #1f1a14;
+    --muted: #766b5e;
+    --accent: #8c3324;
+    --surface: #ebe3d7;
+    --line: rgba(31, 26, 20, .24);
+    --deck-scale: 1;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; }
+  body { color: var(--fg); background: #17130f; font-family: var(--font-text); }
+  button { font: inherit; }
+  code { font-family: "Courier New", monospace; }
+  .deck { position: relative; width: 100vw; height: 100vh; overflow: hidden; }
+  .slide {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: none;
+    width: var(--slide-w);
+    height: var(--slide-h);
+    overflow: hidden;
+    padding: 76px var(--safe-pad) 70px;
+    background-color: var(--bg);
+    background-image: radial-gradient(rgba(95, 85, 72, .18) .55px, transparent .7px);
+    background-size: 6px 6px;
+    transform: translate(-50%, -50%) scale(var(--deck-scale));
+    transform-origin: center;
+    will-change: transform;
+  }
+  .slide.active { display: block; }
+  .slide svg { display: block; }
+  .slide::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 72px;
+    width: 1px;
+    background: var(--accent);
+    opacity: .58;
+  }
+  .slide::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    box-shadow: inset 0 0 140px rgba(80, 60, 38, .055);
+  }
+  .chapter {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    color: var(--accent);
+    font-family: var(--font-label);
+    font-size: var(--fs-caption);
+    font-weight: 700;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+  }
+  .chapter::after { content: ""; width: 138px; height: 1px; background: currentColor; }
+  h1 {
+    max-width: 1480px;
+    margin-top: 24px;
+    font-family: var(--font-display);
+    font-size: var(--fs-h1);
+    font-weight: 500;
+    letter-spacing: -.038em;
+    line-height: var(--lh-tight);
+  }
+  h1 em, h1 code { color: var(--accent); font-family: inherit; font-style: italic; font-weight: 500; }
+  .dek { color: var(--muted); font-size: 25px; line-height: 1.42; }
+  .label {
+    color: var(--muted);
+    font-family: var(--font-label);
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  .source {
+    position: absolute;
+    right: var(--safe-pad);
+    bottom: 37px;
+    left: var(--safe-pad);
+    z-index: 2;
+    display: flex;
+    justify-content: space-between;
+    gap: 30px;
+    color: var(--muted);
+    font-family: var(--font-label);
+    font-size: 16px;
+    letter-spacing: .025em;
+  }
+  .source strong { color: var(--accent); }
+  .progress {
+    position: fixed;
+    z-index: 20;
+    right: 24px;
+    bottom: 20px;
+    left: 24px;
+    height: 3px;
+    background: rgba(255,255,255,.12);
+  }
+  .progress span { display: block; width: 6.6667%; height: 100%; background: #b84c38; transition: width .25s ease; }
+  .nav {
+    position: fixed;
+    z-index: 21;
+    right: 22px;
+    top: 50%;
+    display: grid;
+    gap: 8px;
+    transform: translateY(-50%);
+  }
+  .nav button {
+    width: 34px;
+    height: 34px;
+    border: 1px solid rgba(255,255,255,.18);
+    border-radius: 50%;
+    color: #f4efe6;
+    background: rgba(23,19,15,.76);
+    cursor: pointer;
+  }
+
+  /* 01 — cover */
+  .cover { padding: 94px 120px; }
+  .cover .copy { position: relative; z-index: 2; width: 1040px; padding-top: 74px; }
+  .cover h1 { margin-top: 30px; font-size: 110px; line-height: 1.01; }
+  .cover .dek { width: 720px; margin-top: 38px; font-size: 30px; }
+  .cover .meta { position: absolute; left: 120px; bottom: 70px; color: var(--muted); font-family: var(--font-label); font-size: 20px; }
+  .cover-visual { position: absolute; z-index: 1; right: 100px; top: 132px; width: 650px; height: 770px; border-left: 1px solid var(--line); }
+  .cover-visual svg { width: 100%; height: 100%; }
+
+  /* 02 — model comparison */
+  .model-grid { margin-top: 58px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; }
+  .model-card { min-height: 500px; padding: 34px 36px; border-top: 2px solid var(--fg); background: rgba(235,227,215,.58); }
+  .model-card.featured { color: var(--bg); border-color: var(--accent); background: var(--accent); }
+  .model-card .mark { position: relative; width: 76px; height: 76px; margin-top: 18px; }
+  .mark-dsge::before {
+    content: "";
+    position: absolute;
+    inset: 8px 5px 5px;
+    border-right: 3px solid currentColor;
+    border-bottom: 3px solid currentColor;
+    transform: skew(-18deg);
+  }
+  .mark-dsge::after {
+    content: "";
+    position: absolute;
+    left: 9px;
+    right: 9px;
+    bottom: 17px;
+    height: 3px;
+    background: currentColor;
+    transform: rotate(-31deg);
+    transform-origin: left;
+  }
+  .mark-abm { border: 3px solid currentColor; border-radius: 50%; }
+  .mark-abm::before { content: ""; position: absolute; inset: 18px; border: 3px solid currentColor; border-radius: 50%; }
+  .mark-abm::after { content: ""; position: absolute; top: 50%; left: -12px; width: 94px; height: 3px; background: currentColor; transform: rotate(-28deg); }
+  .mark-var {
+    background: linear-gradient(150deg, transparent 0 18%, currentColor 19% 22%, transparent 23% 43%, currentColor 44% 47%, transparent 48% 68%, currentColor 69% 72%, transparent 73%);
+  }
+  .mark-var::after { content: ""; position: absolute; right: 2px; bottom: 4px; left: 2px; height: 3px; background: currentColor; }
+  .model-card h2 { margin-top: 58px; font-size: 45px; font-weight: 500; }
+  .model-card p { margin-top: 24px; color: var(--muted); font-family: var(--font-label); font-size: 22px; line-height: 1.45; }
+  .model-card.featured p, .model-card.featured .label { color: rgba(244,239,230,.82); }
+  .model-card .verdict { margin-top: 64px; padding-top: 22px; border-top: 1px solid currentColor; font-size: 27px; font-style: italic; }
+
+  /* 03 — emergence */
+  .emergence { margin-top: 54px; display: grid; grid-template-columns: 1fr 110px 1fr 110px 1fr; align-items: center; }
+  .emergence .group { min-height: 480px; padding: 34px; border: 1px solid var(--line); background: rgba(244,239,230,.72); }
+  .emergence .arrow { color: var(--accent); font-size: 58px; text-align: center; }
+  .agent-dots { margin-top: 55px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; }
+  .agent-dots i { display: block; width: 42px; height: 42px; margin: auto; border: 2px solid var(--fg); border-radius: 50%; }
+  .agent-dots i:nth-child(3n) { background: var(--accent); border-color: var(--accent); }
+  .market-lines { margin-top: 55px; display: grid; gap: 25px; }
+  .market-lines span { display: block; padding: 17px 20px; border-bottom: 1px solid var(--line); font-size: 27px; }
+  .macro-list { margin-top: 40px; display: grid; gap: 20px; }
+  .macro-list strong { display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 16px; border-bottom: 1px solid var(--line); font-size: 34px; font-weight: 500; }
+  .macro-list small { color: var(--accent); font-family: var(--font-label); font-size: 16px; letter-spacing: .08em; text-transform: uppercase; }
+
+  /* 04 — data convergence */
+  .data-map { position: relative; height: 610px; margin-top: 38px; }
+  .data-list { position: absolute; left: 0; top: 0; width: 720px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .data-chip { min-height: 112px; padding: 26px; border-left: 3px solid var(--accent); background: rgba(235,227,215,.7); font-size: 25px; }
+  .data-map svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .model-state { position: absolute; right: 70px; top: 108px; width: 520px; height: 350px; display: grid; place-items: center; border: 2px solid var(--accent); border-radius: 50%; text-align: center; }
+  .model-state strong { display: block; color: var(--accent); font-size: 70px; font-weight: 500; }
+  .model-state span { display: block; width: 310px; margin-top: 12px; color: var(--muted); font-size: 25px; }
+
+  /* 05 — economy map */
+  .economy-map { position: absolute; left: 250px; top: 270px; width: 1420px; height: 650px; }
+  .economy-map svg { width: 100%; height: 100%; }
+  .flow-legend { position: absolute; right: 106px; top: 175px; display: flex; gap: 28px; color: var(--muted); font-family: var(--font-label); font-size: 17px; }
+  .flow-legend span::before { content: ""; display: inline-block; width: 34px; height: 2px; margin: 0 9px 5px 0; background: var(--fg); }
+  .flow-legend span:last-child::before { background: var(--accent); }
+
+  /* 06 — stats */
+  .stats-top { margin-top: 66px; display: grid; grid-template-columns: 1.1fr 1.1fr .8fr; border-top: 2px solid var(--fg); border-bottom: 1px solid var(--line); }
+  .stat { min-height: 276px; padding: 34px 30px; border-right: 1px solid var(--line); }
+  .stat:last-child { border-right: 0; }
+  .stat .num { color: var(--accent); font-size: 116px; line-height: 1; font-variant-numeric: lining-nums; }
+  .stat .desc { margin-top: 22px; color: var(--muted); font-family: var(--font-label); font-size: 21px; }
+  .stats-bottom { display: grid; grid-template-columns: repeat(3, 1fr); }
+  .stats-bottom .stat { min-height: 205px; }
+  .stats-bottom .num { color: var(--fg); font-size: 74px; }
+  .scale-note { margin-top: 36px; color: var(--muted); font-size: 25px; font-style: italic; }
+
+  /* 07 — quarter flow */
+  .quarter-flow { position: relative; margin-top: 74px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 22px; }
+  .quarter-flow::before { content: ""; position: absolute; top: 65px; left: 90px; right: 90px; height: 2px; background: var(--line); }
+  .phase { position: relative; min-height: 310px; padding: 104px 22px 28px; border-top: 2px solid var(--fg); background: rgba(244,239,230,.88); }
+  .phase::before { content: attr(data-step); position: absolute; top: 39px; left: 22px; z-index: 1; display: grid; place-items: center; width: 52px; height: 52px; border: 2px solid var(--fg); border-radius: 50%; background: var(--bg); font-family: var(--font-label); font-size: 18px; font-weight: 700; }
+  .phase:nth-child(3)::before, .phase:nth-child(6)::before { color: var(--bg); border-color: var(--accent); background: var(--accent); }
+  .phase h2 { font-size: 30px; font-weight: 500; line-height: 1.12; }
+  .phase p { margin-top: 17px; color: var(--muted); font-family: var(--font-label); font-size: 18px; line-height: 1.36; }
+  .phase:not(:last-child)::after { content: "→"; position: absolute; top: 41px; right: -18px; z-index: 2; color: var(--accent); font-size: 38px; }
+
+  /* 08 — planning funnel */
+  .planning { margin-top: 50px; display: grid; grid-template-columns: 520px 180px 1fr; align-items: center; }
+  .inputs { display: grid; gap: 16px; }
+  .inputs div { padding: 22px 26px; border-left: 3px solid var(--fg); background: rgba(235,227,215,.7); font-size: 25px; }
+  .funnel { position: relative; height: 480px; }
+  .funnel::before,
+  .funnel::after {
+    content: "";
+    position: absolute;
+    left: 28px;
+    width: 118px;
+    height: 3px;
+    background: var(--accent);
+    transform-origin: right;
+  }
+  .funnel::before { top: 192px; transform: rotate(28deg); }
+  .funnel::after { top: 286px; transform: rotate(-28deg); }
+  .funnel span { position: absolute; top: 235px; right: 0; width: 58px; height: 3px; background: var(--accent); }
+  .plans { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+  .plan { min-height: 155px; padding: 28px; border-top: 2px solid var(--accent); background: rgba(244,239,230,.72); }
+  .plan strong { font-size: 31px; font-weight: 500; }
+  .plan span { display: block; margin-top: 14px; color: var(--muted); font-family: var(--font-label); font-size: 18px; }
+  .uncertainty { grid-column: 1 / -1; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--accent); font-size: 25px; font-style: italic; }
+
+  /* 09 — binding minimum */
+  .capacity-chart { margin-top: 55px; display: grid; gap: 27px; }
+  .capacity { display: grid; grid-template-columns: 250px 1fr 110px; align-items: center; gap: 26px; }
+  .capacity .name { font-size: 28px; }
+  .track { height: 54px; background: var(--surface); }
+  .bar { height: 100%; background: var(--fg); }
+  .capacity.binding .track { outline: 3px solid var(--accent); outline-offset: 5px; }
+  .capacity.binding .bar { background: var(--accent); }
+  .capacity .value { color: var(--muted); font-family: var(--font-label); font-size: 18px; }
+  .minimum-rule { margin-top: 38px; padding: 24px 30px; border-top: 1px solid var(--line); color: var(--muted); font-size: 28px; text-align: center; }
+  .minimum-rule strong { color: var(--accent); font-weight: 500; }
+
+  /* 10 — matching */
+  .matching-grid { margin-top: 55px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+  .matching-card { position: relative; min-height: 510px; padding: 30px; border-top: 2px solid var(--fg); background: rgba(235,227,215,.6); }
+  .matching-card h2 { font-size: 41px; font-weight: 500; }
+  .match-pairs { margin-top: 46px; display: grid; grid-template-columns: 1fr 80px 1fr; align-items: center; row-gap: 18px; font-family: var(--font-label); font-size: 17px; text-align: center; }
+  .match-pairs i { display: grid; place-items: center; width: 52px; height: 52px; margin: auto; border: 2px solid var(--fg); border-radius: 50%; font-style: normal; }
+  .match-pairs span { color: var(--accent); font-size: 28px; }
+  .match-result { position: absolute; right: 30px; bottom: 30px; left: 30px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 23px; font-style: italic; }
+
+  /* 11 — feedback loop */
+  .accounting-loop { position: relative; height: 620px; margin-top: 25px; }
+  .accounting-loop svg { width: 100%; height: 100%; }
+  .loop-center { position: absolute; left: 50%; top: 50%; width: 360px; transform: translate(-50%, -50%); text-align: center; }
+  .loop-center strong { display: block; color: var(--accent); font-size: 58px; font-weight: 500; }
+  .loop-center span { display: block; margin-top: 14px; color: var(--muted); font-size: 23px; }
+
+  /* 12 — forecast fan */
+  .fan-layout { margin-top: 40px; display: grid; grid-template-columns: 1fr 390px; gap: 70px; align-items: center; }
+  .fan-chart { height: 560px; border-left: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .fan-chart svg { width: 100%; height: 100%; }
+  .fan-notes { padding-left: 34px; border-left: 1px solid var(--line); }
+  .fan-notes .big { color: var(--accent); font-size: 92px; line-height: 1; }
+  .fan-notes p { margin-top: 26px; color: var(--muted); font-size: 27px; line-height: 1.4; }
+  .fan-notes small { display: block; margin-top: 42px; color: var(--muted); font-family: var(--font-label); font-size: 16px; }
+
+  /* 13 — counterfactual */
+  .fork { position: relative; height: 590px; margin-top: 34px; }
+  .fork svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .fork-node { position: absolute; width: 310px; padding: 24px; border-top: 2px solid var(--fg); background: rgba(244,239,230,.86); }
+  .fork-node strong { font-size: 31px; font-weight: 500; }
+  .fork-node span { display: block; margin-top: 12px; color: var(--muted); font-family: var(--font-label); font-size: 17px; }
+  .fork-node.start { left: 20px; top: 210px; }
+  .fork-node.base { left: 590px; top: 78px; }
+  .fork-node.shock { left: 590px; top: 360px; border-color: var(--accent); }
+  .fork-node.compare { right: 20px; top: 210px; width: 370px; }
+  .shock-list { position: absolute; left: 970px; top: 368px; display: flex; gap: 10px; }
+  .shock-list span { padding: 10px 14px; color: var(--accent); border: 1px solid var(--accent); font-family: var(--font-label); font-size: 15px; }
+
+  /* 14 — code + benchmark */
+  .implementation { margin-top: 52px; display: grid; grid-template-columns: 1.15fr .85fr; gap: 54px; }
+  .terminal { min-height: 505px; padding: 30px 34px; color: #f4efe6; background: #201a15; box-shadow: 12px 12px 0 var(--surface); }
+  .terminal .dots { color: #c87764; letter-spacing: .5em; }
+  .terminal pre { margin-top: 44px; font-family: "Courier New", monospace; font-size: 24px; line-height: 1.75; white-space: pre-wrap; }
+  .terminal .kw { color: #d48b76; }
+  .benchmark { display: grid; grid-template-columns: 1fr 1fr; align-content: center; gap: 24px; }
+  .speed { min-height: 208px; padding: 30px; border-top: 2px solid var(--accent); background: rgba(235,227,215,.65); }
+  .speed strong { display: block; color: var(--accent); font-size: 86px; font-weight: 500; line-height: 1; }
+  .speed span { display: block; margin-top: 20px; color: var(--muted); font-family: var(--font-label); font-size: 18px; line-height: 1.4; }
+  .benchmark-note { grid-column: 1 / -1; color: var(--muted); font-size: 23px; font-style: italic; }
+
+  /* 15 — CTA */
+  .closing { padding: 100px 124px; }
+  .closing h1 { max-width: 1320px; margin-top: 82px; font-size: 98px; }
+  .cta-steps { margin-top: 74px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+  .cta-step { padding-top: 24px; border-top: 2px solid var(--fg); }
+  .cta-step span { color: var(--accent); font-family: var(--font-label); font-size: 18px; font-weight: 700; }
+  .cta-step strong { display: block; margin-top: 22px; font-size: 33px; font-weight: 500; }
+  .bibliography { position: absolute; right: 124px; bottom: 74px; left: 124px; display: grid; grid-template-columns: 1fr 1fr; gap: 50px; padding-top: 24px; border-top: 1px solid var(--line); color: var(--muted); font-family: var(--font-label); font-size: 15px; line-height: 1.45; }
+
+  @media print {
+    html, body { width: auto; height: auto; overflow: visible; background: #fff; }
+    .deck { display: block; width: auto; height: auto; overflow: visible; }
+    .slide, .slide.active { position: relative; top: auto; left: auto; display: block; transform: none !important; break-after: page; page-break-after: always; }
+    .nav, .progress { display: none; }
+  }
+</style>
+</head>
+<body>
+<main class="deck">
+  <section class="slide cover active" aria-label="Slide 1 de 15">
+    <div class="copy">
+      <div class="chapter">Uma introdução ao modelo e ao paper</div>
+      <h1>BeforeIT simula a economia de <em>baixo para cima</em></h1>
+      <p class="dek">Do problema de previsão ao mecanismo de um trimestre simulado.</p>
+    </div>
+    <div class="cover-visual" aria-hidden="true">
+      <svg viewBox="0 0 650 770">
+        <defs><marker id="arrow-cover" viewBox="0 0 10 6" markerWidth="10" markerHeight="6" refX="9" refY="3" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L0,6 L10,3 z" fill="#8c3324"/></marker></defs>
+        <g fill="none" stroke="#8c3324" stroke-width="3" marker-end="url(#arrow-cover)">
+          <path d="M290 270 L145 182"/><path d="M325 255 L325 182"/><path d="M360 270 L505 182"/>
+        </g>
+        <g fill="none" stroke="#1f1a14" stroke-width="2" opacity=".72">
+          <path d="M105 590 L275 405 M205 655 L290 415 M325 620 L325 430 M445 655 L360 415 M545 590 L375 405"/>
+          <path d="M105 590 L205 655 L325 620 L445 655 L545 590" stroke-dasharray="7 9"/>
+        </g>
+        <g fill="#f4efe6" stroke="#1f1a14" stroke-width="2.4">
+          <rect x="55" y="80" width="180" height="94"/><rect x="235" y="80" width="180" height="94"/><rect x="415" y="80" width="180" height="94"/>
+          <circle cx="105" cy="590" r="38"/><circle cx="205" cy="655" r="30"/><circle cx="325" cy="620" r="43"/>
+          <circle cx="445" cy="655" r="30"/><circle cx="545" cy="590" r="38"/>
+          <circle cx="325" cy="350" r="82" fill="#8c3324" stroke="#8c3324"/>
+        </g>
+        <g font-family="Georgia" text-anchor="middle" fill="#1f1a14">
+          <text x="145" y="137" font-size="25">PIB</text><text x="325" y="137" font-size="25">inflação</text><text x="505" y="137" font-size="25">emprego</text>
+          <text x="325" y="359" fill="#f4efe6" font-size="27">mercados</text>
+        </g>
+        <g font-family="Arial" font-size="14" font-weight="700" letter-spacing="2.2" text-anchor="middle" fill="#766b5e">
+          <text x="325" y="48">RESULTADOS MACRO</text><text x="325" y="730">AGENTES HETEROGÊNEOS</text>
+        </g>
+      </svg>
+    </div>
+    <div class="meta">BeforeIT.jl · Apresentação acadêmica</div>
+  </section>
+
+  <section class="slide" aria-label="Slide 2 de 15">
+    <div class="chapter">A contribuição do paper</div>
+    <h1>O paper transforma um ABM em instrumento de previsão</h1>
+    <div class="model-grid">
+      <article class="model-card">
+        <div class="label">Benchmark estrutural</div><div class="mark mark-dsge" aria-hidden="true"></div>
+        <h2>DSGE</h2><p>Equilíbrio, expectativas e relações agregadas disciplinam a dinâmica.</p>
+        <div class="verdict">Referência macroeconômica</div>
+      </article>
+      <article class="model-card featured">
+        <div class="label">Modelo proposto</div><div class="mark mark-abm" aria-hidden="true"></div>
+        <h2>BeforeIT</h2><p>Agentes, setores e mercados geram previsões agregadas e setoriais.</p>
+        <div class="verdict">Desempenho fora da amostra competitivo</div>
+      </article>
+      <article class="model-card">
+        <div class="label">Benchmark estatístico</div><div class="mark mark-var" aria-hidden="true"></div>
+        <h2>VAR</h2><p>Regularidades históricas conectam variáveis sem reproduzir agentes.</p>
+        <div class="verdict">Referência econométrica</div>
+      </article>
+    </div>
+    <footer class="source"><span>Fonte: Poledna et al., <strong>European Economic Review 151</strong> (2023)</span><span>02 / 15</span></footer>
+  </section>
+
+  <section class="slide" aria-label="Slide 3 de 15">
+    <div class="chapter">Por que um ABM?</div>
+    <h1>Resultados macro emergem das interações entre agentes</h1>
+    <div class="emergence">
+      <div class="group"><div class="label">01 · Heterogeneidade</div><div class="agent-dots"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+      <div class="arrow">→</div>
+      <div class="group"><div class="label">02 · Interações</div><div class="market-lines"><span>buscar crédito</span><span>contratar trabalho</span><span>comprar e vender bens</span><span>arrecadar e gastar</span></div></div>
+      <div class="arrow">→</div>
+      <div class="group"><div class="label">03 · Agregados</div><div class="macro-list"><strong>PIB <small>emerge</small></strong><strong>Inflação <small>emerge</small></strong><strong>Emprego <small>emerge</small></strong><strong>Crédito <small>emerge</small></strong></div></div>
+    </div>
+    <footer class="source"><span>Fonte: Glielmo et al., <strong>BeforeIT.jl</strong>, seções 1–2</span><span>03 / 15</span></footer>
+  </section>
+
+  <section class="slide" aria-label="Slide 4 de 15">
+    <div class="chapter">Calibração</div>
+    <h1>Dados reais reconstroem a economia inicial</h1>
+    <div class="data-map">
+      <div class="data-list">
+        <div class="data-chip">Contas nacionais</div><div class="data-chip">Contas setoriais</div>
+        <div class="data-chip">Matrizes insumo-produto</div><div class="data-chip">Finanças públicas</div>
+        <div class="data-chip">Censo populacional</div><div class="data-chip">Demografia empresarial</div>
+      </div>
+      <svg viewBox="0 0 1712 610" aria-hidden="true">
+        <g fill="none" stroke="#8c3324" stroke-width="2" opacity=".72">
+          <path d="M700 60 C920 60 1010 170 1150 260"/><path d="M700 190 C920 190 1000 220 1150 275"/>
+          <path d="M700 320 C920 320 1000 300 1150 290"/><path d="M700 450 C920 450 1010 350 1150 305"/>
+        </g>
+      </svg>
+      <div class="model-state"><div><strong>2010Q1</strong><span>estado inicial coerente entre agentes, estoques e fluxos</span></div></div>
+    </div>
+    <footer class="source"><span>Fonte: Poledna et al. (2023) · classificação <strong>ESA 2010</strong></span><span>04 / 15</span></footer>
+  </section>
+
+  <section class="slide" aria-label="Slide 5 de 15">
+    <div class="chapter">Arquitetura de agentes</div>
+    <h1>Seis papéis econômicos formam um sistema conectado</h1>
+    <div class="flow-legend"><span>fluxos reais</span><span>fluxos financeiros</span></div>
+    <div class="economy-map" aria-label="Mapa dos seis papéis econômicos">
+      <svg viewBox="0 0 1420 650">
+        <defs><marker id="arrow5" viewBox="0 0 10 6" markerWidth="10" markerHeight="6" refX="9" refY="3" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L0,6 L10,3 z" fill="#8c3324"/></marker></defs>
+        <g fill="none" stroke="#1f1a14" stroke-width="2"><circle cx="710" cy="325" r="210" stroke-dasharray="9 9"/><path d="M710 115 L710 245 M890 220 L790 280 M890 430 L790 370 M710 535 L710 405 M530 430 L630 370 M530 220 L630 280"/></g>
+        <g fill="none" stroke="#8c3324" stroke-width="3" marker-end="url(#arrow5)"><path d="M486 130 C710 20 950 55 1040 196"/><path d="M1090 430 C950 590 740 620 530 535"/><path d="M360 420 C280 260 350 140 525 105"/></g>
+        <g fill="#f4efe6" stroke="#1f1a14" stroke-width="2.5">
+          <circle cx="710" cy="325" r="98" fill="#8c3324" stroke="#8c3324"/>
+          <circle cx="710" cy="82" r="78"/><circle cx="1010" cy="205" r="78"/><circle cx="1010" cy="445" r="78"/>
+          <circle cx="710" cy="568" r="78"/><circle cx="410" cy="445" r="78"/><circle cx="410" cy="205" r="78"/>
+        </g>
+        <g font-family="Georgia" font-size="24" text-anchor="middle" fill="#1f1a14">
+          <text x="710" y="90">famílias</text><text x="1010" y="213">firmas</text><text x="1010" y="453">bancos</text>
+          <text x="710" y="576">banco central</text><text x="410" y="453">governo</text><text x="410" y="198">resto do</text><text x="410" y="226">mundo</text>
+          <text x="710" y="333" fill="#f4efe6" font-size="30">mercados</text>
+        </g>
+        <g font-family="Arial" font-size="15" fill="#766b5e"><text x="780" y="55">trabalho · consumo</text><text x="1090" y="325">crédito · depósitos</text><text x="725" y="640">juros · liquidez</text><text x="155" y="330">impostos · gasto · comércio</text></g>
+      </svg>
+    </div>
+    <footer class="source"><span>Fonte: <strong>TUTORIAL.md</strong> · <code>src/model_init/agents.jl</code></span><span>05 / 15</span></footer>
+  </section>
+
+  <section class="slide" aria-label="Slide 6 de 15">
+    <div class="chapter">Áustria · 2010Q1</div>
+    <h1>A calibração é detalhada, mas computacionalmente reduzida</h1>
+    <div class="stats-top">
+      <div class="stat"><div class="num">8.873</div><div class="desc">pessoas ativas e inativas</div></div>
+      <div class="stat"><div class="num">624</div><div class="desc">firmas heterogêneas</div></div>
+      <div class="stat"><div class="num">62</div><div class="desc">produtos e setores</div></div>
+    </div>
+    <div class="stats-bottom">
+      <div class="stat"><div class="num">156</div><div class="desc">entidades governamentais</div></div>
+      <div class="stat"><div class="num">312</div><div class="desc">consumidores estrangeiros</div></div>
+      <div class="stat"><div class="num">54</div><div class="desc">trimestres históricos para expectativas</div></div>
+    </div>
+    <div class="scale-note">A escala preserva a composição da economia sem simular cada unidade austríaca.</div>
+    <footer class="source"><span>Fonte: <strong>TUTORIAL.md</strong> · Glielmo et al. (2025), seção 2</span><span>06 / 15</span></footer>
+  </section>
+
+  <section class="slide" aria-label="Slide 7 de 15">
+    <div class="chapter">Por dentro do modelo</div>
+    <h1>Um <code>step!</code> avança a economia em um trimestre</h1>
+    <div class="quarter-flow" aria-label="Seis fases de um trimestre simulado">
+      <article class="phase" data-step="01"><h2>Formar expectativas</h2><p>Crescimento, inflação e juros.</p></article>
+      <article class="phase" data-step="02"><h2>Planejar firmas</h2><p>Produção, preços e insumos.</p></article>
+      <article class="phase" data-step="03"><h2>Crédito e trabalho</h2><p>Matching, salários e produção.</p></article>
+      <article class="phase" data-step="04"><h2>Definir orçamentos</h2><p>Famílias, governo e exterior.</p></article>
+      <article class="phase" data-step="05"><h2>Realizar mercados</h2><p>Bens, consumo e investimento.</p></article>
+      <article class="phase" data-step="06"><h2>Fechar as contas</h2><p>Preços, balanços, PIB e tempo.</p></article>
+    </div>
+    <footer class="source"><span>Fonte: <strong>BeforeIT.jl</strong> · <code>src/one_step.jl</code></span><span>07 / 15</span></footer>
+  </section>
+
+  <section class="slide" aria-label="Slide 8 de 15">
+    <div class="chapter">Decisão sob incerteza</div>
+    <h1>Firmas planejam antes de conhecer a demanda realizada</h1>
+    <div class="planning">
+      <div class="inputs"><div>demanda passada</div><div>crescimento esperado</div><div>inflação e custos</div><div>estoques e balanço</div></div>
+      <div class="funnel" aria-hidden="true"><span></span></div>
+      <div class="plans">
+        <div class="plan"><strong>Produção alvo</strong><span>quanto pretende ofertar</span></div>
+        <div class="plan"><strong>Preço</strong><span>inflação e pressão de custos</span></div>
+        <div class="plan"><strong>Trabalho</strong><span>emprego e salário desejados</span></div>
+        <div class="plan"><strong>Insumos</strong><span>materiais e investimento</span></div>
+        <div class="plan"><strong>Crédito</strong><span>financiamento esperado e desejado</span></div>
+        <div class="plan"><strong>Capital</strong><span>estoque produtivo desejado</span></div>
+        <div class="uncertainty">Planejado ≠ realizado: daí surgem estoques, desemprego e racionamento.</div>
+      </div>
+    </div>
+    <footer class="source"><span>Fonte: <code>src/agent_actions/<strong>firms.jl</strong></code></span><span>08 / 15</span></footer>
+  </section>
+
+  <section class="slide" aria-label="Slide 9 de 15">
+    <div class="chapter">Tecnologia Leontief</div>
+    <h1>O insumo mais escasso limita a produção</h1>
+    <div class="capacity-chart" aria-label="Capacidades produtivas e mínimo vinculante">
+      <div class="capacity"><div class="name">Produção alvo</div><div class="track"><div class="bar" style="width:88%"></div></div><div class="value">capacidade</div></div>
+      <div class="capacity binding"><div class="name">Trabalho</div><div class="track"><div class="bar" style="width:54%"></div></div><div class="value">mínimo</div></div>
+      <div class="capacity"><div class="name">Capital</div><div class="track"><div class="bar" style="width:76%"></div></div><div class="value">capacidade</div></div>
+      <div class="capacity"><div class="name">Insumos intermediários</div><div class="track"><div class="bar" style="width:68%"></div></div><div class="value">capacidade</div></div>
+    </div>
+    <div class="minimum-rule">produção = <strong>mínimo</strong> { alvo, trabalho, capital, insumos }</div>
+    <footer class="source"><span>Esquema conceitual · Fonte: <code>set_firms_<strong>production!</strong></code></span><span>09 / 15</span></footer>
+  </section>
+
+  <section class="slide" aria-label="Slide 10 de 15">
+    <div class="chapter">Mercados descentralizados</div>
+    <h1>Matching descentralizado cria racionamento e propagação</h1>
+    <div class="matching-grid">
+      <article class="matching-card"><div class="label">01</div><h2>Crédito</h2><div class="match-pairs"><i>F</i><span>→</span><i>B</i><i>F</i><span>×</span><i>B</i><i>F</i><span>→</span><i>B</i></div><div class="match-result">Crédito concedido limita contratação e insumos.</div></article>
+      <article class="matching-card"><div class="label">02</div><h2>Trabalho</h2><div class="match-pairs"><i>F</i><span>→</span><i>P</i><i>F</i><span>→</span><i>P</i><i>F</i><span>×</span><i>P</i></div><div class="match-result">Vagas e trabalhadores nem sempre se encontram.</div></article>
+      <article class="matching-card"><div class="label">03</div><h2>Bens</h2><div class="match-pairs"><i>C</i><span>→</span><i>F</i><i>C</i><span>×</span><i>F</i><i>C</i><span>→</span><i>F</i></div><div class="match-result">Demanda não atendida se transmite entre setores.</div></article>
+    </div>
+    <footer class="source"><span>Fonte: <code>src/markets/<strong>search_and_matching*.jl</strong></code></span><span>10 / 15</span></footer>
+  </section>
+
+  <section class="slide" aria-label="Slide 11 de 15">
+    <div class="chapter">Fechamento do período</div>
+    <h1>A contabilidade fecha o trimestre e reinicia o ciclo</h1>
+    <div class="accounting-loop">
+      <svg viewBox="0 0 1712 620" aria-hidden="true">
+        <defs><marker id="arrow11" viewBox="0 0 10 6" markerWidth="10" markerHeight="6" refX="9" refY="3" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L0,6 L10,3 z" fill="#8c3324"/></marker></defs>
+        <g fill="none" stroke="#8c3324" stroke-width="3" marker-end="url(#arrow11)"><path d="M856 82 C1190 82 1390 210 1390 310"/><path d="M1390 310 C1390 480 1160 540 856 540"/><path d="M856 540 C540 540 322 470 322 310"/><path d="M322 310 C322 160 560 82 856 82"/></g>
+        <g fill="#f4efe6" stroke="#1f1a14" stroke-width="2">
+          <rect x="650" y="35" width="412" height="96"/><rect x="1180" y="260" width="420" height="100"/>
+          <rect x="650" y="492" width="412" height="96"/><rect x="112" y="260" width="420" height="100"/>
+        </g>
+        <g font-family="Georgia" font-size="27" text-anchor="middle" fill="#1f1a14"><text x="856" y="92">vendas e lucros</text><text x="1390" y="320">balanços e dívida</text><text x="856" y="550">PIB, preços e estoques</text><text x="322" y="320">novas expectativas</text></g>
+      </svg>
+      <div class="loop-center"><strong>Novo estado</strong><span>transações realizadas atualizam estoques, fluxos e posições financeiras</span></div>
+    </div>
+    <footer class="source"><span>Fonte: <code>src/one_step.jl</code> · bloco <strong>FINAL GENERAL ACCOUNTING</strong></span><span>11 / 15</span></footer>
+  </section>
+
+  <section class="slide" aria-label="Slide 12 de 15">
+    <div class="chapter">Previsão estocástica</div>
+    <h1>Uma previsão é uma distribuição, não uma trajetória</h1>
+    <div class="fan-layout">
+      <div class="fan-chart" aria-label="Esquema de múltiplas trajetórias formando uma distribuição">
+        <svg viewBox="0 0 1180 560">
+          <g fill="none" stroke="#766b5e" stroke-width="2" opacity=".36"><path d="M0 400 C180 370 250 330 390 345 C580 365 720 190 1160 120"/><path d="M0 400 C180 370 250 330 390 345 C600 300 760 360 1160 260"/><path d="M0 400 C180 370 250 330 390 345 C590 420 850 320 1160 410"/><path d="M0 400 C180 370 250 330 390 345 C610 230 840 175 1160 200"/><path d="M0 400 C180 370 250 330 390 345 C550 390 800 480 1160 470"/></g>
+          <path d="M390 345 C610 180 800 115 1160 85 L1160 485 C820 500 610 440 390 345Z" fill="#8c3324" opacity=".10"/>
+          <path d="M0 400 C180 370 250 330 390 345 C610 330 820 290 1160 280" fill="none" stroke="#8c3324" stroke-width="5"/>
+          <line x1="390" y1="45" x2="390" y2="520" stroke="#1f1a14" stroke-width="1" stroke-dasharray="7 8"/>
+          <g font-family="Arial" font-size="17" fill="#766b5e"><text x="20" y="535">histórico</text><text x="415" y="535">horizonte de previsão</text><text x="414" y="72">início das simulações</text></g>
+        </svg>
+      </div>
+      <aside class="fan-notes"><div class="big">N × T</div><p>Várias simulações ao longo de vários trimestres produzem intervalos, riscos e resultados setoriais.</p><small>Esquema conceitual — sem escala numérica.</small></aside>
+    </div>
+    <footer class="source"><span>Fonte: <code>Bit.<strong>ensemblerun!</strong></code> · <code>src/utils/data.jl</code></span><span>12 / 15</span></footer>
+  </section>
+
+  <section class="slide" aria-label="Slide 13 de 15">
+    <div class="chapter">Experimentos</div>
+    <h1>A mesma máquina avalia choques contrafactuais</h1>
+    <div class="fork">
+      <svg viewBox="0 0 1712 590" aria-hidden="true"><defs><marker id="arrow13" viewBox="0 0 10 6" markerWidth="10" markerHeight="6" refX="9" refY="3" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L0,6 L10,3 z" fill="#8c3324"/></marker></defs><g fill="none" stroke="#8c3324" stroke-width="3" marker-end="url(#arrow13)"><path d="M330 270 C470 270 470 125 590 125"/><path d="M330 270 C470 270 470 407 590 407"/><path d="M900 125 C1130 125 1130 270 1320 270"/><path d="M900 407 C1130 407 1130 270 1320 270"/></g></svg>
+      <div class="fork-node start"><strong>Mesmo estado inicial</strong><span>agentes, parâmetros e horizonte</span></div>
+      <div class="fork-node base"><strong>Trajetória base</strong><span>nenhuma intervenção adicional</span></div>
+      <div class="fork-node shock"><strong>Trajetória com choque</strong><span><code>shock!</code> entra antes do planejamento</span></div>
+      <div class="shock-list"><span>juros</span><span>fiscal</span><span>produtividade</span><span>consumo</span></div>
+      <div class="fork-node compare"><strong>Distribuição da diferença</strong><span>efeito agregado, setorial e temporal</span></div>
+    </div>
+    <footer class="source"><span>Fonte: <code>src/shocks/<strong>shocks.jl</strong></code> · <code>src/one_step.jl</code></span><span>13 / 15</span></footer>
+  </section>
+
+  <section class="slide" aria-label="Slide 14 de 15">
+    <div class="chapter">Software de pesquisa</div>
+    <h1>BeforeIT torna o modelo inspecionável e extensível</h1>
+    <div class="implementation">
+      <div class="terminal"><div class="dots">● ● ●</div><pre><span class="kw">using</span> BeforeIT
+
+parameters = Bit.AUSTRIA2010Q1.parameters
+initial = Bit.AUSTRIA2010Q1.initial_conditions
+
+model = Bit.Model(parameters, initial)
+Bit.run!(model, 20)</pre></div>
+      <div class="benchmark">
+        <div class="speed"><strong>17×</strong><span>Matlab · calibração pequena</span></div>
+        <div class="speed"><strong>4×</strong><span>C gerado pelo Matlab · pequena</span></div>
+        <div class="speed"><strong>35×</strong><span>Matlab · modelo grande</span></div>
+        <div class="speed"><strong>10×</strong><span>C gerado pelo Matlab · grande</span></div>
+        <div class="benchmark-note">Velocidade abre espaço para ensembles, calibração e contrafactuais.</div>
+      </div>
+    </div>
+    <footer class="source"><span>Fonte: Glielmo et al. (2025), seções 2–4 · API: <strong>README.md</strong></span><span>14 / 15</span></footer>
+  </section>
+
+  <section class="slide closing" aria-label="Slide 15 de 15">
+    <div class="chapter">Próximo passo</div>
+    <h1>Leia <code>step!</code>, rode uma base e aplique um choque</h1>
+    <div class="cta-steps">
+      <div class="cta-step"><span>01</span><strong>Narre a ordem causal do trimestre</strong></div>
+      <div class="cta-step"><span>02</span><strong>Observe uma distribuição de previsões</strong></div>
+      <div class="cta-step"><span>03</span><strong>Compare base e contrafactual</strong></div>
+    </div>
+    <div class="bibliography">
+      <div><strong>Paper econômico</strong><br>Poledna, S.; Miess, M.; Hommes, C.; Rabitsch, K. “Economic forecasting with an agent-based model.” <em>European Economic Review</em> 151, 104306, 2023.</div>
+      <div><strong>Paper de software</strong><br>Glielmo et al. “BeforeIT.jl: High-Performance Agent-Based Macroeconomics Made Easy.” arXiv:2502.13267, 2025. Código e tutorial: repositório BeforeIT.jl.</div>
+    </div>
+  </section>
+</main>
+
+<nav class="nav" aria-label="Navegação dos slides"><button id="prev" aria-label="Slide anterior">←</button><button id="next" aria-label="Próximo slide">→</button></nav>
+<div class="progress" aria-hidden="true"><span></span></div>
+<script>
+  const slides = [...document.querySelectorAll('.slide')];
+  const progress = document.querySelector('.progress span');
+  let current = 0;
+  function fit() {
+    const scale = Math.min(innerWidth / 1920, innerHeight / 1080);
+    document.documentElement.style.setProperty('--deck-scale', scale);
+    console.assert(Number.isFinite(scale) && scale > 0, 'Escala inválida');
+  }
+  function go(index) {
+    current = Math.max(0, Math.min(slides.length - 1, index));
+    slides.forEach((slide, i) => slide.classList.toggle('active', i === current));
+    progress.style.width = `${((current + 1) / slides.length) * 100}%`;
+    history.replaceState(null, '', `#${current + 1}`);
+    fit();
+  }
+  document.getElementById('prev').addEventListener('click', () => go(current - 1));
+  document.getElementById('next').addEventListener('click', () => go(current + 1));
+  document.addEventListener('keydown', event => {
+    if (event.key === 'ArrowRight' || event.key === ' ' || event.key === 'PageDown') go(current + 1);
+    if (event.key === 'ArrowLeft' || event.key === 'PageUp') go(current - 1);
+    if (event.key === 'Home') go(0);
+    if (event.key === 'End') go(slides.length - 1);
+  });
+  addEventListener('resize', fit);
+  const start = Number(location.hash.slice(1));
+  go(start >= 1 && start <= slides.length ? start - 1 : 0);
+</script>
+</body>
+</html>

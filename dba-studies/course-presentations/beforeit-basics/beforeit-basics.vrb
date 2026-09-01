@@ -1,0 +1,27 @@
+\frametitle{BeforeIT como software de pesquisa}
+\begin{columns}[T]
+    \begin{column}{0.60\textwidth}
+\scriptsize
+\begin{verbatim}
+using BeforeIT
+
+parameters = Bit.AUSTRIA2010Q1.parameters
+initial = Bit.AUSTRIA2010Q1.initial_conditions
+
+model = Bit.Model(parameters, initial)
+Bit.run!(model, 20)
+\end{verbatim}
+    \end{column}
+    \begin{column}{0.36\textwidth}
+      \begin{itemize}
+        \item hipóteses inspecionáveis;
+        \item API reproduzível;
+        \item simulações rápidas;
+        \item suporte a ensembles e contrafactuais.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+  \begin{block}{Desempenho reportado}
+    Ganhos entre $4\times$ e $35\times$, conforme a implementação e o tamanho do modelo.
+  \end{block}
+  \source{Glielmo et al. (2025), seções 2--4; \textbf{README.md}.}
