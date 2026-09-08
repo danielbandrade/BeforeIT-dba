@@ -1,0 +1,4598 @@
+Introducão
+
+Este exercício tem dois propósitos:
+Conhecer o funcionamento da simulação do Before.IT a partir das condições iniciais da
+parte 1.
+Entender como as modificações que foram introduzidas para transferir dinheiro da
+população mais pobre para a mais rica afetam a simulação.
+Para isso, vamos começar importando e iniciando o modelo.
+import BeforeIT as Bit # importando o modelo
+using DataFrames
+using Plots
+using StatsBase
+using Random
+Random.seed!(123)
+model = Bit.Model(
+Bit.AUSTRIA2010Q1.parameters, # parametros das regras necessárias para
+rodar o modelo
+Bit.AUSTRIA2010Q1.initial_conditions, # condições iniciais analisadas abaixo
+);
+
+Step de simulação e suas funções
+
+Na implementação do Before.IT, função Bit.step! é responsável por rodar a simulação por
+um passo temporal, saindo do tempo t para o tempo t+1 , sendo a unidade temporal um
+trimestre.
+A função Bit.step! é composta por outras 48 funções que são chamadas sequencialmente.
+Iremos explorar estas funções uma por uma, expliciantando como elas alteram o estado do
+modelo.
+
+Refinanciamento das empresas insolventes
+
+A função Bit.finance_insolvent_firms!(model) identifica empresas que possuem
+simultaneamente depósitos ( D_i ) e patrimônio líquido negativos ( E_i ). Para cada empresa
+insolvente, o banco absorve a perda, recapitaliza a empresa, zera seus depósitos e ajusta sua
+dívida ao valor do capital usado como garantia.
+Essa operação representa a resolução da insolvência antes do início das demais atividades do
+trimestre. Nas condições iniciais do modelo, nenhuma empresa está insolvente e, portanto, a
+função não provoca alterações.
+1 / 46
+
+firms = model.firms
+ids_before = findall((firms.D_i .< 0) .& (firms.E_i .< 0))
+bank_equity_before = model.bank.E_k
+Bit.finance_insolvent_firms!(model)
+ids_after = findall((firms.D_i .< 0) .& (firms.E_i .< 0))
+DataFrame(
+moment = ["before", "after"],
+insolvent_firms = [length(ids_before), length(ids_after)],
+bank_equity = [bank_equity_before, model.bank.E_k],
+)
+
+Formação das expectativas agreagadas de crescimento e inflação
+A função Bit.set_growth_inflation_expectations!(model) estima o PIB, o
+crescimento econômico e a inflação esperados para o próximo trimestre. Essa expectativa é
+compartilhada entre todos os agentes e será utiliada nos próximos passos.
+Primeiro, define-se o logaritmo do PIB:
+yt = log(Yt )
+
+O valor esperado é estimado por um processo autorregressivo AR(1):
+y
+
+e
+t
+
+= αY yt−1 + βY + εY ,t
+
+Convertendo novamente para o nível do PIB:
+Y
+
+e
+t
+
+e
+
+= exp(y )
+t
+
+A taxa de crescimento esperada é:
+γ
+
+e
+t
+
+Y
+=
+
+e
+t
+
+− 1
+
+Yt−1
+
+Para a inflação, o modelo também estima um processo AR(1):
+q
+
+e
+t
+
+= απ qt−1 + βπ + επ,t
+e
+
+e
+
+πt = exp(qt ) − 1
+
+Os parâmetros e são estimados a partir dos dados históricos. Os termos representam
+choques aleatórios nas expectativas.
+A função atualiza model.agg.Y_e , model.agg.gamma_e e model.agg.pi_e . Ela altera
+somente as expectativas; o PIB e a inflação efetivamente realizados ainda não são modificados.
+α
+
+β
+
+ε
+
+expectations_before = (
+expected_gdp = model.agg.Y_e,
+expected_growth = model.agg.gamma_e,
+
+2 / 46
+
+expected_inflation = model.agg.pi_e,
+)
+Bit.set_growth_inflation_expectations!(model)
+DataFrame(
+moment = ["before", "after"],
+expected_gdp = [
+expectations_before.expected_gdp,
+model.agg.Y_e,
+],
+expected_growth = [
+expectations_before.expected_growth,
+model.agg.gamma_e,
+],
+expected_inflation = [
+expectations_before.expected_inflation,
+model.agg.pi_e,
+],
+)
+
+Como e são calculados?
+α
+
+β
+
+Os parâmetros não são fixos. Eles são reestimados em cada trimestre usando todo o histórico
+disponível até aquele momento.
+Para uma série
+, o modelo estima a regressão autorregressiva:
+z1 , … , zn
+
+zt = αzt−1 + β + ut
+
+A estimação usa os pares:
+(z1 , z2 ), (z2 , z3 ), … , (zn−1 , zn )
+
+que podem ser escritos como:
+⎡
+
+z2
+
+⎤
+
+⎡
+
+⎢ z3 ⎥
+⎥,
+y = ⎢
+⎢
+⎥
+⎢ ⋮ ⎥
+⎣
+
+zn
+
+⎢
+
+X = ⎢
+⎢
+⎢
+
+⎦
+
+⎣
+
+z1
+
+1
+
+z2
+
+1⎥
+⎥
+⎥
+⋮ ⎥
+
+⋮
+zn−1
+
+1
+
+⎤
+
+⎦
+
+Os valores de e são escolhidos para minimizar a soma dos erros quadráticos:
+α
+
+β
+
+n
+
+^) = argmin ∑ (z − αz
+(^
+α, β
+− β)
+t
+t−1
+α,β
+
+t=2
+
+Em forma matricial:
+α
+^
+[
+
+^
+β
+
+] = X
+
+3 / 46
+
++
+
+y
+
+2
+
+onde é a pseudoinversa de , calculada no modelo por decomposição em valores
+singulares, ou SVD.
+A interpretação dos parâmetros é:
+mede a persistência da série;
+é o intercepto ou deslocamento médio;
+representa a parte que a regressão não conseguiu explicar.
+Após a estimação, calcula-se a variância dos resíduos:
+X
+
++
+
+X
+
+α
+^
+
+^
+β
+
+ut
+
+2
+
+σ
+^t )
+^u = Var(u
+
+e sorteia-se um novo choque:
+2
+
+εt ∼ N (0, σ
+^u )
+
+A previsão seguinte é então:
+z
+
+e
+n+1
+
+^ + ε
+= ^
+αzn + β
+t
+
+Para o PIB, o modelo aplica esse procedimento sobre
+aplicado à série histórica de inflação.
+
+zt = log(Yt )
+
+. O mesmo processo é
+
+Sorteio dos choques externos
+
+A próxima função, Bit.set_epsilon!(model) , sorteia três choques aleatórios:
+: choque sobre o PIB da área do euro;
+: choque sobre a demanda por exportações;
+: choque sobre a oferta de importações.
+Durante a calibração, o modelo estima uma matriz de covariância a partir dos resíduos
+históricos dessas três variáveis:
+εY ,EA
+εE
+εI
+
+C
+
+C = Cov(εY ,EA , εE , εI )
+
+Essa matriz preserva tanto a volatilidade individual de cada choque quanto suas correlações.
+Por exemplo, uma alteração no PIB da área do euro pode estar associada a uma alteração na
+demanda por exportações.
+O modelo aplica a decomposição de Cholesky:
+C = LL
+
+T
+
+e sorteia três números independentes de uma distribuição normal padrão:
+z ∼ N (0, I)
+
+Os choques correlacionados são obtidos por:
+ε = Lz
+
+4 / 46
+
+onde:
+⎡
+ε = ⎢
+⎣
+
+εY ,EA
+εE
+εI
+
+⎤
+⎥ ∼ N (0, C)
+⎦
+
+A função apenas sorteia e armazena os choques. Seus efeitos serão aplicados posteriormente
+ao PIB da área do euro, às exportações e às importações.
+shocks_before = (
+gdp_euro_area = model.agg.epsilon_Y_EA,
+exports = model.agg.epsilon_E,
+imports = model.agg.epsilon_I,
+)
+Bit.set_epsilon!(model)
+DataFrame(
+shock = [
+"PIB da área do euro",
+"Exportações",
+"Importações",
+],
+before = [
+shocks_before.gdp_euro_area,
+shocks_before.exports,
+shocks_before.imports,
+],
+after = [
+model.agg.epsilon_Y_EA,
+model.agg.epsilon_E,
+model.agg.epsilon_I,
+],
+)
+
+Atualização da economia da área do euro
+
+A função Bit.set_growth_inflation_EA!(model) atualiza o PIB, o crescimento e a
+inflação da área do euro.
+O novo PIB é calculado por um processo AR(1):
+YEA,t = exp(αY ,EA log(YEA,t−1 ) + βY ,EA + εY ,EA,t )
+
+O crescimento realizado da área do euro é:
+YEA,t
+γEA,t =
+
+− 1
+YEA,t−1
+
+Para a inflação, a função sorteia um choque independente:
+επ,EA,t = σπ,EA zt ,
+
+5 / 46
+
+zt ∼ N (0, 1)
+
+A nova inflação é calculada por:
+πEA,t = exp(απ,EA log(1 + πEA,t−1 ) + βπ,EA + επ,EA,t ) − 1
+
+Os parâmetros e são estimados durante a calibração usando dados históricos trimestrais
+da área do euro. Diferentemente das expectativas domésticas, eles não são reestimados a cada
+período.
+O choque
+foi sorteado pela função anterior, enquanto o choque da inflação é sorteado
+nesta função.
+α
+
+β
+
+εY ,EA,t
+
+euro_area_before = (
+gdp = model.rotw.Y_EA,
+growth = model.rotw.gamma_EA,
+inflation = model.rotw.pi_EA,
+)
+Bit.set_growth_inflation_EA!(model)
+DataFrame(
+variable = ["GDP", "Growth", "Inflation"],
+before = [
+euro_area_before.gdp,
+euro_area_before.growth,
+euro_area_before.inflation,
+],
+after = [
+model.rotw.Y_EA,
+model.rotw.gamma_EA,
+model.rotw.pi_EA,
+],
+)
+
+Atualização da taxa básica de juros
+
+A função Bit.set_central_bank_rate!(model) determina a taxa básica de juros do
+novo trimestre por meio de uma regra de Taylor.
+A taxa antes da restrição é:
+r̃ t = ρrt−1 + (1 − ρ) [r
+
+∗
+
++ π
+
+∗
+
+A taxa utilizada pelo modelo é limitada a valores não negativos:
+rt = max(0, r̃ t )
+
+Nessa equação:
+é a taxa básica do trimestre anterior;
+mede a persistência da taxa de juros;
+é a taxa real de equilíbrio;
+é a meta trimestral de inflação;
+rt−1
+ρ
+r
+
+∗
+
+π
+
+∗
+
++ ξπ (πEA,t − π ) + ξγ γEA,t ]
+
+∗
+
+6 / 46
+
+é a inflação atual da área do euro;
+é o crescimento atual da área do euro;
+mede a reação do banco central à inflação;
+mede a reação ao crescimento econômico.
+Quanto maior , mais lentamente o banco central modifica a taxa. Quando a inflação fica acima
+da meta, o componente associado a tende a elevar a taxa.
+Durante a calibração, estima-se inicialmente:
+πEA,t
+γEA,t
+ξπ
+ξγ
+
+ρ
+
+ξπ
+
+rt = ρrt−1 + γ1 πEA,t + γ2 γEA,t + ut
+
+Os pesos da regra de Taylor são obtidos por:
+ξπ =
+
+γ1
+
+e
+
+ξγ =
+
+1 − ρ
+
+γ2
+1 − ρ
+
+A meta trimestral corresponde a uma inflação anual de 2%:
+π
+
+∗
+
+= (1 + 0.02)
+
+1/4
+
+− 1
+
+A função atualiza apenas a taxa básica model.cb.r_bar . A taxa cobrada pelo banco
+comercial será atualizada posteriormente.
+policy_rate_before = model.cb.r_bar
+Bit.set_central_bank_rate!(model)
+DataFrame(
+metric = [
+"Previous policy rate",
+"New policy rate",
+"Policy rate change",
+],
+value = [
+policy_rate_before,
+model.cb.r_bar,
+model.cb.r_bar - policy_rate_before,
+],
+)
+
+Aplicação de um choque de cenário
+
+Neste ponto, o modelo pode receber uma intervenção externa.
+Representando o estado atual do modelo por e o choque por , temos:
+Mt
+
++
+
+Mt
+
+= St (Mt )
+
+Na simulação padrão, utiliza-se NoShock , definido por:
+St (Mt ) = Mt
+
+7 / 46
+
+St
+
+Portanto, nenhuma variável é modificada.
+Esse ponto também permite aplicar cenários alternativos, como uma taxa de juros fixa, uma
+mudança de produtividade ou uma alteração temporária da propensão ao consumo.
+O choque é aplicado depois da regra de Taylor e antes da atualização da taxa do banco
+comercial. Assim, um choque de juros pode substituir a taxa definida anteriormente pelo Banco
+Central.
+shock! = Bit.NoShock()
+shock_result = shock!(model)
+@assert shock_result === nothing
+
+Atualização da taxa de juros do banco comercial
+
+A função Bit.set_bank_rate!(model) calcula a taxa cobrada pelo banco comercial sobre
+empréstimos e posições financeiras negativas.
+A taxa é definida por:
+rt = r̄ t + μ
+
+onde:
+
+é a taxa básica definida pelo Banco Central;
+é o prêmio de risco cobrado pelo banco comercial;
+é a taxa bancária resultante.
+O prêmio de risco é calculado durante a calibração como:
+r̄ t
+μ
+
+rt
+
+juros pagos pelas empresas
+μ =
+
+− r̄
+dívida total das empresas
+
+Assim, qualquer alteração da taxa básica é transmitida diretamente à taxa do banco, mantendo
+constante o prêmio de risco .
+A função atualiza model.bank.r .
+μ
+
+bank_rate_before = model.bank.r
+policy_rate = model.cb.r_bar
+risk_premium = model.prop.mu
+expected_bank_rate = policy_rate + risk_premium
+Bit.set_bank_rate!(model)
+@assert isapprox(model.bank.r, expected_bank_rate)
+DataFrame(
+metric = [
+"Previous bank rate",
+
+8 / 46
+
+"Central bank policy rate",
+"Risk premium",
+"New bank rate",
+],
+value = [
+bank_rate_before,
+policy_rate,
+risk_premium,
+model.bank.r,
+],
+)
+
+Expectativas e decisões das empresas
+
+A função Bit.set_firms_expectations_and_decisions!(model) transforma as
+expectativas macroeconômicas em planos individuais para cada empresa.
+Ela determina:
+a quantidade que a empresa pretende vender;
+o novo preço;
+o investimento desejado;
+a necessidade de insumos;
+o emprego desejado;
+o lucro esperado;
+o valor esperado do capital e da dívida;
+o novo crédito desejado.
+Esses valores são planos. O crédito, as contratações e a produção efetiva acontecem nas
+etapas seguintes.
+
+Quantidade planejada
+
+A empresa parte da demanda observada anteriormente e aplica o crescimento esperado:
+Q
+
+s
+i
+
+e
+
+d
+
+= Q (1 + γ )
+i
+
+Inflação de custos
+
+O índice de custo dos insumos da empresa é:
+P
+
+M
+i
+
+¯
+= ∑ as,Gi P s
+s
+
+A pressão inflacionária causada pelos custos é:
+π
+
+c
+i
+
+= (1 + τSI F )
+
+w̄i
+ᾱi
+
+(
+
+¯
+P
+HH
+Pi
+
+P
+
+1
+− 1) +
+
+(
+βi
+
+M
+i
+
+Pi
+
+− 1) +
+
+δi
+κi
+
+(
+
+¯
+P CF
+
+− 1)
+
+Pi
+
+Os três componentes representam custos de trabalho, insumos intermediários e capital.
+O novo preço combina a inflação de custos da empresa com a inflação agregada esperada:
+9 / 46
+
+e
+
+c
+
+P ′ = Pi (1 + π )(1 + π )
+i
+
+i
+
+Necessidade de capital, insumos e trabalhadores
+
+A produção planejada é limitada pela capacidade do capital existente:
+Q̃
+
+s
+
+= min(Q , Ki κi )
+
+i
+
+i
+
+O investimento desejado é:
+I
+
+d
+i
+
+=
+
+δi
+κi
+
+Q̃i
+
+A quantidade desejada de insumos intermediários é:
+DM
+
+d
+i
+
+=
+
+Q̃i
+βi
+
+O emprego desejado é:
+N
+
+d
+i
+
+= max [1, round(
+
+Q̃i
+ᾱi
+
+)]
+
+O limite inferior igual a um significa que cada empresa deseja manter pelo menos um
+trabalhador.
+
+Lucro esperado
+
+O lucro anterior é ajustado pela inflação e pelo crescimento esperados:
+Π
+
+e
+i
+
+e
+
+e
+
+= Πi (1 + π )(1 + γ )
+
+Variação esperada dos depósitos
+
+A variação esperada dos depósitos considera lucro, amortização da dívida, impostos e
+dividendos:
+DD
+
+e
+i
+
+= Π
+
+e
+i
+
+e
+
+e
+
+i
+
+i
+
+− θLi − τF I RM max(0, Π ) − θDI V (1 − τF I RM ) max(0, Π )
+
+Impostos e dividendos são pagos somente quando o lucro esperado é positivo.
+
+Capital e dívida esperados
+
+O valor monetário esperado do capital é:
+K
+
+e
+i
+
+e
+¯
+= P
+(1 + π )Ki
+CF
+
+A dívida esperada depois da amortização é:
+L
+
+e
+i
+
+= (1 − θ)Li
+
+10 / 46
+
+Crédito desejado
+
+A empresa solicita crédito quando seus depósitos atuais, somados à variação esperada, não
+são suficientes:
+DL
+
+d
+i
+
+= max(0, −DD
+
+e
+i
+
+− Di )
+
+Portanto, se:
+Di + DD
+
+e
+i
+
+≥ 0,
+
+a empresa não solicita um novo empréstimo.
+
+Definição das variáveis
+Símbolo
+
+i
+s
+
+G_i[i]
+
+Gi
+Q
+Q
+γ
+π
+π
+
+índice
+índice
+
+Código
+
+Q_d_i[i]
+
+d
+i
+s
+
+Q_s_i[i]
+
+i
+
+e
+
+model.agg.gamma_e
+
+e
+
+model.agg.pi_e
+
+c
+
+pi_c_i[i]
+
+i
+
+P_i[i]
+
+Pi
+P
+
+′
+
+new_P_i[i]
+
+i
+
+¯
+P
+HH
+
+P_bar_HH
+
+¯
+P CF
+
+P_bar_CF
+
+¯
+P
+s
+
+P_bar_g[s]
+
+as,G
+
+a_sg[s, G_i]
+
+i
+
+w̄i
+
+w_bar_i[i]
+
+ᾱi
+
+alpha_bar_i[i]
+
+βi
+
+beta_i[i]
+
+κi
+
+kappa_i[i]
+
+δi
+
+delta_i[i]
+
+Ki
+
+K_i[i]
+
+I
+
+I_d_i[i]
+
+d
+i
+
+DM
+N
+
+d
+i
+
+N_d_i[i]
+
+d
+i
+
+Pi_i[i]
+
+Πi
+Π
+
+e
+
+Pi_e_i[i]
+
+i
+
+D_i[i]
+
+Di
+DD
+Li
+L
+
+e
+i
+
+DM_d_i[i]
+
+e
+i
+
+variável intermediária
+L_i[i]
+L_e_i[i]
+
+Significado
+
+Empresa analisada
+Produto ou setor fornecedor
+Setor econômico da empresa
+Demanda anteriormente direcionada à empresa
+Quantidade planejada para venda
+Crescimento agregado esperado
+Inflação agregada esperada
+Inflação provocada pelos custos da empresa
+Preço anterior da empresa
+Novo preço da empresa
+Índice de preços do consumo das famílias
+Índice de preços da formação de capital
+Índice de preços do produto do setor
+Participação do produto nos insumos do setor da empresa
+Salário médio de referência
+Produtividade normal do trabalho
+Produtividade dos insumos intermediários
+Produtividade do capital
+Taxa de depreciação do capital
+Estoque físico de capital
+Investimento desejado
+Insumos intermediários desejados
+Número desejado de trabalhadores
+Lucro realizado anteriormente
+Lucro esperado
+Depósitos ou liquidez da empresa
+Variação esperada dos depósitos
+Dívida atual
+Dívida esperada depois da amortização
+s
+
+s
+
+11 / 46
+
+Símbolo
+K
+
+i
+
+DL
+
+Código
+
+Significado
+Valor esperado do capital usado como garantia
+Novo empréstimo desejado
+Contribuição social paga pelo empregador
+Imposto sobre o lucro empresarial
+Parcela trimestral de amortização da dívida
+Parcela do lucro distribuída como dividendos
+
+K_e_i[i]
+
+e
+
+d
+i
+
+DL_d_i[i]
+
+τSI F
+
+tau_SIF
+
+τF I RM
+
+tau_FIRM
+
+θ
+
+theta
+
+θDI V
+
+theta_DIV
+
+firms = model.firms
+price_before = copy(firms.P_i)
+Bit.set_firms_expectations_and_decisions!(model)
+@assert all(firms.N_d_i .>= 1)
+@assert all(firms.DL_d_i .>= 0)
+firm_decisions = DataFrame(
+firm_id = firms.ID,
+sector = firms.G_i,
+target_quantity = firms.Q_s_i,
+price_before = price_before,
+new_price = firms.P_i,
+desired_investment = firms.I_d_i,
+desired_materials = firms.DM_d_i,
+desired_employment = firms.N_d_i,
+expected_profit = firms.Pi_e_i,
+desired_new_loans = firms.DL_d_i,
+expected_capital = firms.K_e_i,
+expected_loans = firms.L_e_i,
+)
+first(firm_decisions, 10)
+
+Mercado de crédito
+
+A função Bit.search_and_matching_credit!(model) determina quanto crédito cada
+empresa efetivamente recebe.
+Primeiro, são selecionadas as empresas que desejam novos empréstimos:
+IF G = {i : ΔL
+
+d
+i
+
+> 0}
+
+A ordem dessas empresas é embaralhada aleatoriamente. Em seguida, o banco avalia cada
+empresa de maneira sequencial.
+O crédito concedido à empresa é:
+i
+
+d
+
+e
+
+i
+
+i
+
+ΔLi = max [0, min (ΔL , ζLT V K
+
+e
+
+− L ,
+
+12 / 46
+
+i
+
+Ek
+ζ
+
+− ∑L
+j
+
+e
+j
+
+− SΔL )]
+
+Essa expressão aplica três limites ao empréstimo:
+1. Demanda da empresa
+ΔLi ≤ ΔL
+
+d
+i
+
+A empresa não recebe mais crédito do que solicitou.
+2. Garantia disponível
+L
+
+e
+i
+
++ ΔLi ≤ ζLT V K
+
+e
+i
+
+A dívida total não pode ultrapassar uma fração do valor esperado do capital da empresa.
+3. Capacidade do banco
+∑L
+
+e
+j
+
+j
+
++ ∑ ΔLj ≤
+j
+
+Ek
+ζ
+
+O total de empréstimos não pode ultrapassar a capacidade permitida pelo patrimônio do
+banco.
+
+Definição das variáveis
+Símbolo
+
+i
+IF G
+ΔL
+
+d
+i
+
+ΔLi
+K
+L
+
+e
+i
+
+e
+i
+
+ζLT V
+Ek
+ζ
+Ek /ζ
+∑
+
+j
+
+L
+
+SΔL
+
+e
+j
+
+Código
+Significado
+índice da empresa Empresa avaliada
+I_FG
+Conjunto de empresas que solicitaram crédito
+DL_d_i[i]
+Novo empréstimo desejado pela empresa
+DL_i[i]
+Novo empréstimo efetivamente concedido
+K_e_i[i]
+Valor esperado do capital usado como garantia
+L_e_i[i]
+Dívida esperada após a amortização programada
+zeta_LTV
+Limite da dívida em relação ao valor da garantia
+E_k
+Patrimônio líquido do banco
+zeta
+Exigência de capital próprio do banco
+—
+Volume máximo de crédito sustentado pelo banco
+s_L_e
+Total das dívidas esperadas antes dos novos empréstimos
+s_DL
+Crédito novo já concedido às empresas anteriores
+
+Como as empresas são atendidas em ordem aleatória, pode ocorrer racionamento de crédito.
+Quando a capacidade do banco é insuficiente, as primeiras empresas avaliadas podem receber
+crédito enquanto as últimas recebem apenas uma parte ou nada.
+A função armazena o crédito concedido em model.firms.DL_i . A dívida total das empresas
+ainda não é atualizada nesta etapa.
+firms = model.firms
+desired_loans = copy(firms.DL_d_i)
+collateral_headroom = max.(
+
+13 / 46
+
+0.0,
+model.prop.zeta_LTV .* firms.K_e_i .- firms.L_e_i,
+)
+bank_credit_capacity = model.bank.E_k / model.prop.zeta
+existing_expected_loans = sum(firms.L_e_i)
+bank_credit_headroom = max(
+0.0,
+bank_credit_capacity - existing_expected_loans,
+)
+Bit.search_and_matching_credit!(model)
+credit_allocation = DataFrame(
+firm_id = firms.ID,
+desired_loan = desired_loans,
+collateral_headroom = collateral_headroom,
+actual_loan = firms.DL_i,
+)
+DataFrame(
+metric = [
+"Bank credit capacity",
+"Existing expected loans",
+"Available credit before allocation",
+"Total desired loans",
+"Total granted loans",
+],
+value = [
+bank_credit_capacity,
+existing_expected_loans,
+bank_credit_headroom,
+sum(desired_loans),
+sum(firms.DL_i),
+],
+)
+
+Mercado de trabalho
+
+A função Bit.search_and_matching_labour!(model) ajusta o número de trabalhadores
+de cada empresa por meio de demissões e contratações.
+Para cada empresa, calcula-se a diferença entre o emprego desejado e o emprego atual:
+Vi = N
+
+d
+i
+
+− Ni
+
+Definição das variáveis
+Símbol
+o
+
+i
+
+h
+
+N
+
+d
+i
+
+Ni
+
+Código
+Significado
+índice da empresa Empresa analisada
+índice do
+Trabalhador analisado
+trabalhador
+N_d_i[i]
+Número de trabalhadores desejado pela empresa
+N_i[i]
+Número atual de trabalhadores da empresa
+14 / 46
+
+Símbol
+o
+
+Código
+
+Vi
+
+V_i[i]
+
+Oh
+
+O_h[h]
+
+HE
+
+H_E
+
+HU
+
+H_U
+
+IV
+
+I_V
+
+Significado
+Número de vagas, quando positivo, ou excesso de trabalhadores,
+quando negativo
+Situação ocupacional do trabalhador
+Conjunto de trabalhadores empregados
+Conjunto de trabalhadores desempregados
+Conjunto de empresas com vagas abertas
+
+A variável de ocupação é interpretada como:
+Oh = {
+
+0,
+
+se o trabalhador está desempregado,
+
+i,
+
+se o trabalhador está empregado na empresa i.
+
+Demissões
+Quando:
+
+Vi < 0,
+
+a empresa possui mais trabalhadores do que deseja. Os trabalhadores empregados são
+visitados em ordem aleatória e demitidos até que o excesso seja eliminado.
+Para cada demissão:
+Oh ← 0
+Ni ← Ni − 1
+Vi ← Vi + 1
+
+Contratações
+
+Depois das demissões, o modelo identifica os trabalhadores desempregados:
+HU = {h : Oh = 0}
+
+e as empresas que ainda possuem vagas:
+IV = {i : Vi > 0}
+
+Para cada contratação:
+Oh ← i
+Ni ← Ni + 1
+Vi ← Vi − 1
+
+O processo termina quando não existem mais trabalhadores desempregados ou empresas com
+vagas:
+HU = ∅
+
+ou
+
+15 / 46
+
+IV = ∅
+
+O pareamento é aleatório: o modelo não considera qualificação, salário, experiência ou
+localização. Ao final, são atualizados o emprego das empresas, N_i , e a ocupação dos
+trabalhadores, O_h .
+O vetor é temporário e não é armazenado no estado do modelo.
+Vi
+
+firms = model.firms
+employment_before = copy(firms.N_i)
+occupation_before = copy(model.w_act.O_h)
+desired_employment = copy(firms.N_d_i)
+Bit.search_and_matching_labour!(model)
+@assert sum(firms.N_i) == count(>(0), model.w_act.O_h)
+firm_employment = DataFrame(
+firm_id = firms.ID,
+desired_employment = desired_employment,
+employment_before = employment_before,
+employment_after = firms.N_i,
+remaining_gap = desired_employment .- firms.N_i,
+)
+DataFrame(
+metric = [
+"Total employment before",
+"Total employment after",
+"Unemployed workers before",
+"Unemployed workers after",
+"Remaining vacancies",
+],
+value = [
+sum(employment_before),
+sum(firms.N_i),
+count(==(0), occupation_before),
+count(==(0), model.w_act.O_h),
+sum(max.(0, desired_employment .- firms.N_i)),
+],
+)
+
+Definição dos salários pelas empresas
+
+A função Bit.set_firms_wages!(model) determina o salário oferecido por cada empresa
+depois das contratações e demissões.
+Primeiro, calcula-se a produção que a empresa deseja realizar e consegue sustentar com seu
+capital e seus insumos:
+˜ = min (Qs , K κ , M β )
+Y
+i
+i
+i
+i
+i
+i
+
+Em seguida, compara-se essa produção com a capacidade normal dos trabalhadores
+empregados:
+16 / 46
+
+mi = min (1.5,
+
+˜
+Y
+i
+
+)
+
+Ni ᾱi
+
+O novo salário da empresa é:
+wi = w̄i mi
+
+Definição das variáveis
+Símbol
+o
+
+i
+
+Código
+índice da empresa
+
+wi
+
+w_i[i]
+
+w̄i
+
+w_bar_i[i]
+
+mi
+
+wage_multiplier[i]
+
+˜
+Y
+i
+
+feasible_output[i]
+
+Q
+
+s
+i
+
+Q_s_i[i]
+
+Ki
+
+K_i[i]
+
+κi
+
+kappa_i[i]
+
+Ki κ i
+
+K_i[i] *
+kappa_i[i]
+
+Mi
+
+M_i[i]
+
+βi
+
+beta_i[i]
+
+Mi βi
+
+M_i[i] * beta_i[i]
+
+Ni
+
+N_i[i]
+
+ᾱi
+
+alpha_bar_i[i]
+
+Ni ᾱi
+
+—
+
+Significado
+
+Empresa analisada
+Novo salário definido pela empresa
+Salário médio de referência da empresa
+Fator de ajuste aplicado ao salário de referência
+Produção desejada que capital e insumos conseguem
+sustentar
+Quantidade que a empresa planeja produzir ou vender
+Estoque de capital da empresa
+Produtividade do capital
+Capacidade produtiva proporcionada pelo capital
+Estoque de insumos intermediários
+Produtividade dos insumos intermediários
+Capacidade produtiva proporcionada pelos insumos
+Número atual de trabalhadores da empresa
+Produtividade normal de cada trabalhador
+Capacidade produtiva normal do trabalho
+
+Interpretação do fator de ajuste
+Quando:
+
+mi < 1,
+
+o salário fica abaixo do valor de referência porque a empresa possui capacidade de trabalho
+superior à produção planejada.
+Quando:
+mi = 1,
+
+o salário é igual ao valor de referência.
+Quando:
+1 < mi ≤ 1.5,
+
+o salário fica acima do valor de referência. O limite de
+salário médio da empresa.
+17 / 46
+
+1.5
+
+impede que ele ultrapasse 150% do
+
+Essa função atualiza model.firms.w_i . Os salários individuais dos trabalhadores,
+model.w_act.w_h , serão atualizados em uma etapa posterior.
+firms = model.firms
+wage_before = copy(firms.w_i)
+feasible_output = min.(
+firms.Q_s_i,
+firms.K_i .* firms.kappa_i,
+firms.M_i .* firms.beta_i,
+)
+labour_capacity = firms.N_i .* firms.alpha_bar_i
+wage_multiplier = min.(
+1.5,
+feasible_output ./ labour_capacity,
+)
+expected_wage = firms.w_bar_i .* wage_multiplier
+Bit.set_firms_wages!(model)
+@assert all(isapprox.(firms.w_i, expected_wage))
+firm_wages = DataFrame(
+firm_id = firms.ID,
+reference_wage = firms.w_bar_i,
+wage_before = wage_before,
+feasible_output = feasible_output,
+labour_capacity = labour_capacity,
+wage_multiplier = wage_multiplier,
+new_wage = firms.w_i,
+)
+first(firm_wages, 10)
+
+Produção das empresas
+
+A função Bit.set_firms_production!(model) calcula quanto cada empresa
+efetivamente produz no trimestre.
+
+Produtividade efetiva do trabalho
+
+Primeiro, calcula-se a produção desejada que pode ser sustentada pelo capital e pelos
+insumos:
+˜ = min (Qs , K κ , M β )
+Y
+i
+i
+i
+i
+i
+i
+
+A produtividade efetiva do trabalho é:
+αi = ᾱi min (1.5,
+
+18 / 46
+
+˜
+Y
+i
+Ni ᾱi
+
+)
+
+O limite de
+normal.
+
+1.5
+
+permite que a produtividade efetiva alcance no máximo 150% da produtividade
+
+Função de produção de Leontief
+
+A produção realizada é determinada pelo recurso mais restritivo:
+s
+
+Yi = min (Q , Ni αi , Ki κi , Mi βi )
+i
+
+Essa é uma função de produção de Leontief. Trabalho, capital e insumos são complementares:
+uma quantidade maior de apenas um recurso não aumenta a produção quando outro recurso
+constitui o gargalo.
+
+Definição das variáveis
+Símbolo
+
+i
+Yi
+Q
+
+s
+i
+
+˜
+Y
+i
+Ni
+ᾱi
+αi
+N i αi
+Ki
+κi
+Ki κ i
+Mi
+βi
+Mi βi
+
+Código
+índice da empresa
+
+Significado
+
+Empresa analisada
+Y_i[i]
+Produção efetivamente realizada
+Q_s_i[i]
+Quantidade que a empresa planeja produzir ou vender
+feasible_output[i]
+Produção desejada limitada por capital e insumos
+N_i[i]
+Número de trabalhadores empregados
+alpha_bar_i[i]
+Produtividade normal de cada trabalhador
+effective_productivity[i] Produtividade efetiva de cada trabalhador
+labour_output[i]
+Capacidade produtiva do trabalho
+K_i[i]
+Estoque de capital
+kappa_i[i]
+Produtividade do capital
+capital_output[i]
+Capacidade produtiva do capital
+M_i[i]
+Estoque de insumos intermediários
+beta_i[i]
+Produtividade dos insumos
+material_output[i]
+Capacidade produtiva dos insumos
+
+A função atualiza model.firms.Y_i . Essa produção ainda não corresponde às vendas: a
+quantidade vendida será determinada posteriormente no mercado de bens.
+firms = model.firms
+@assert all(firms.N_i .> 0)
+production_before = copy(firms.Y_i)
+capital_output = firms.K_i .* firms.kappa_i
+material_output = firms.M_i .* firms.beta_i
+feasible_output = min.(
+firms.Q_s_i,
+capital_output,
+material_output,
+)
+
+19 / 46
+
+productivity_multiplier = min.(
+1.5,
+feasible_output ./ (firms.N_i .* firms.alpha_bar_i),
+)
+effective_productivity =
+firms.alpha_bar_i .* productivity_multiplier
+labour_output = firms.N_i .* effective_productivity
+expected_production = min.(
+firms.Q_s_i,
+labour_output,
+capital_output,
+material_output,
+)
+Bit.set_firms_production!(model)
+@assert all(isapprox.(firms.Y_i, expected_production))
+firm_production = DataFrame(
+firm_id = firms.ID,
+target_quantity = firms.Q_s_i,
+production_before = production_before,
+labour_output = labour_output,
+capital_output = capital_output,
+material_output = material_output,
+actual_production = firms.Y_i,
+)
+first(firm_production, 10)
+
+Atualização dos salários dos trabalhadores
+
+A função Bit.update_workers_wages!(model) transfere o salário definido pelas
+empresas para os trabalhadores empregados.
+Cada trabalhador possui uma variável de ocupação, , que identifica a empresa onde ele
+trabalha:
+Oh
+
+Oh = {
+
+0,
+
+se o trabalhador está desempregado,
+
+i,
+
+se o trabalhador está empregado na empresa i.
+
+Para cada trabalhador empregado, o salário individual passa a ser igual ao salário oferecido por
+sua empresa:
+w
+
+novo
+h
+
+= w Oh ,
+
+Oh ≠ 0
+
+Para os trabalhadores desempregados, a função não modifica o salário armazenado:
+w
+
+novo
+h
+
+= w
+
+anterior
+h
+
+,
+
+20 / 46
+
+Oh = 0
+
+Definição das variáveis
+Símbol
+o
+
+h
+i
+
+Oh
+wi
+
+Significado
+
+Trabalhador analisado
+Empresa analisada
+Empresa que emprega o trabalhador; zero indica
+O_h[h]
+desemprego
+model.firms.w_i[i]
+Salário oferecido pela empresa
+model.w_act.w_h[h]
+Salário individual armazenado para o trabalhador
+model.firms.w_i[O_h[h Salário oferecido pela empresa onde o trabalhador está
+]]
+empregado
+i
+
+wh
+wO
+
+Código
+índice do trabalhador
+índice da empresa
+
+h
+
+h
+
+Todos os trabalhadores de uma mesma empresa recebem o mesmo salário, pois o modelo não
+considera diferenças individuais de qualificação, experiência ou produtividade.
+A função atualiza model.w_act.w_h . Ela não altera o salário definido pelas empresas,
+model.firms.w_i , nem a ocupação dos trabalhadores, model.w_act.O_h .
+previous_wages = copy(model.w_act.w_h)
+employers = copy(model.w_act.O_h)
+Bit.update_workers_wages!(model)
+employed = employers .!= 0
+unemployed = .!employed
+@assert all(
+model.w_act.w_h[employed] .==
+model.firms.w_i[employers[employed]]
+)
+@assert all(
+model.w_act.w_h[unemployed] .==
+previous_wages[unemployed]
+)
+
+Atualização dos benefícios sociais
+
+A função Bit.set_gov_social_benefits!(model) atualiza os benefícios sociais pagos
+pelo governo de acordo com a taxa esperada de crescimento do PIB.
+O benefício social geral é atualizado por:
+other
+
+sbt
+
+= sb
+
+other
+
+e
+
+(1 + γt )
+
+t−1
+
+O benefício adicional destinado às pessoas inativas é atualizado por:
+sb
+
+inact
+t
+
+= sb
+
+inact
+t−1
+
+e
+
+(1 + γ )
+
+21 / 46
+
+t
+
+Definição das variáveis
+Símbolo
+
+Código
+
+model.agg.t
+
+t
+γ
+
+model.agg.gamma_e
+
+e
+t
+
+sb
+sb
+sb
+sb
+
+model.gov.sb_other
+
+other
+t
+
+model.gov.sb_inact
+
+inact
+t
+other
+
+other_benefit_before
+
+t−1
+inact
+
+inactive_benefit_before
+
+t−1
+
+Significado
+Período atual da simulação
+Taxa esperada de crescimento do PIB
+Benefício social geral atualizado
+Benefício adicional destinado às pessoas inativas
+Benefício social geral antes da atualização
+Benefício das pessoas inativas antes da atualização
+
+Quando
+, os benefícios aumentam. Quando
+, eles diminuem.
+As pessoas inativas recebem posteriormente tanto o benefício geral quanto o benefício
+específico para inativos. Essa função apenas atualiza os valores armazenados no governo; os
+pagamentos serão contabilizados nas etapas seguintes.
+γ
+
+e
+
+t
+
+> 0
+
+γ
+
+e
+
+t
+
+< 0
+
+government = model.gov
+expected_growth = model.agg.gamma_e
+other_benefit_before = government.sb_other
+inactive_benefit_before = government.sb_inact
+expected_other_benefit =
+other_benefit_before * (1 + expected_growth)
+expected_inactive_benefit =
+inactive_benefit_before * (1 + expected_growth)
+Bit.set_gov_social_benefits!(model)
+@assert isapprox(
+government.sb_other,
+expected_other_benefit,
+)
+@assert isapprox(
+government.sb_inact,
+expected_inactive_benefit,
+)
+DataFrame(
+benefit_type = [
+"General social benefit",
+"Inactive-person benefit",
+],
+previous_value = [
+other_benefit_before,
+inactive_benefit_before,
+],
+updated_value = [
+government.sb_other,
+government.sb_inact,
+
+22 / 46
+
+],
+)
+
+2×3 DataFrame
+
+Row benefit_type
+String
+1 General social benefit
+2 Inactive-person benefit
+
+previous_value
+Float64
+
+0.590286
+2.23847
+
+updated_value
+Float64
+
+0.586788
+2.2252
+
+Lucro esperado do banco
+
+A função Bit.set_bank_expected_profits!(model) calcula o lucro que o banco espera
+obter no período atual.
+O cálculo parte do lucro realizado no período anterior e aplica dois fatores: a inflação esperada
+e o crescimento econômico esperado.
+Π
+
+e
+k
+
+e
+
+Definição das variáveis
+Símbolo
+
+Π
+
+e
+
+model.bank.Pi_k
+
+Πk
+π
+γ
+
+model.agg.pi_e
+
+e
+
+model.agg.gamma_e
+
+e
+
+1 + π
+1 + γ
+
+Código
+
+model.bank.Pi_e_k
+
+k
+
+e
+
+= Πk (1 + π ) (1 + γ )
+
+e
+
+1 + expected_inflation
+
+e
+
+1 + expected_growth
+
+Significado
+Lucro esperado do banco
+Lucro realizado pelo banco no período anterior
+Taxa de inflação esperada
+Taxa esperada de crescimento do PIB
+Fator de atualização dos preços
+Fator de atualização da atividade econômica
+
+O termo combinado:
+e
+
+e
+
+(1 + π ) (1 + γ )
+
+representa o crescimento nominal esperado da economia. Assim, o modelo pressupõe que o
+lucro do banco acompanha proporcionalmente a variação esperada dos preços e da atividade
+econômica.
+A função atualiza model.bank.Pi_e_k . Esse valor será utilizado posteriormente no cálculo
+da renda e do orçamento do proprietário do banco.
+bank = model.bank
+previous_profit = bank.Pi_k
+expected_inflation = model.agg.pi_e
+expected_growth = model.agg.gamma_e
+nominal_adjustment =
+(1 + expected_inflation) * (1 + expected_growth)
+expected_bank_profit =
+
+23 / 46
+
+previous_profit * nominal_adjustment
+Bit.set_bank_expected_profits!(model)
+@assert isapprox(
+bank.Pi_e_k,
+expected_bank_profit,
+)
+DataFrame(
+previous_profit = [previous_profit],
+expected_inflation = [expected_inflation],
+expected_growth = [expected_growth],
+nominal_adjustment = [nominal_adjustment],
+expected_profit = [bank.Pi_e_k],
+)
+
+1×5 DataFrame
+
+Ro previous_profi expected_inflatio expected_growt nominal_adjustme expected_profi
+wt
+n
+h
+nt
+t
+Float64
+Float64
+Float64
+Float64
+Float64
+1
+6476.29
+0.00223145 -0.00592608
+0.996292
+6452.28
+
+Orçamento dos trabalhadores ativos
+
+A função Bit.set_households_budget_act!(model) calcula os orçamentos desejados
+de consumo e investimento habitacional dos trabalhadores ativos.
+O grupo de trabalhadores ativos inclui tanto os empregados quanto os desempregados.
+
+Renda esperada dos trabalhadores empregados
+Para um trabalhador empregado,
+Y
+
+e
+h
+
+Oh ≠ 0
+
+, a renda esperada é:
+
+= [wh (1 − τSIW − τINC (1 − τSIW )) + sb
+
+other
+
+e
+¯
+] P H H (1 + π )
+
+Renda esperada dos trabalhadores desempregados
+Para um trabalhador desempregado,
+Y
+
+e
+h
+
+Oh = 0
+
+, a renda esperada é:
+
+= (θUB wh + sb
+
+other
+
+e
+
+¯
+)P
+(1 + π )
+HH
+
+Desconto das apostas
+
+Se o trabalhador participa do mercado de apostas, uma parcela de sua renda esperada é
+reservada como aposta:
+Bh = g max (0, Y
+
+Caso não participe:
+Bh = 0
+
+24 / 46
+
+e
+h
+
+)
+
+A renda disponível para a definição dos orçamentos é:
+e
+
+˜ = Y e − B
+Y
+h
+h
+h
+
+Orçamentos desejados
+
+O orçamento desejado de consumo é:
+e
+
+C
+
+d
+h
+
+=
+
+˜
+ψY
+h
+1 + τVAT
+
+O orçamento desejado de investimento habitacional é:
+e
+
+I
+
+d
+h
+
+=
+
+˜
+ψH Y
+h
+1 + τCF
+
+Definição das variáveis
+Símbol
+o
+
+h
+Oh
+Y
+
+e
+h
+
+˜
+Y
+
+e
+h
+
+wh
+τSIW
+τINC
+θUB
+sb
+
+other
+
+¯
+P
+HH
+π
+
+e
+
+g
+
+Bh
+ψ
+
+ψH
+
+τVAT
+τCF
+C
+I
+
+d
+h
+
+d
+h
+
+Código
+índice do trabalhador
+
+Significado
+Trabalhador analisado
+O_h[h]
+Empresa do trabalhador; zero indica desemprego
+expected_income[h]
+Renda esperada do trabalhador
+budget_income[h]
+Renda esperada depois da aposta
+model.w_act.w_h[h]
+Salário do trabalhador
+model.prop.tau_SIW
+Alíquota de contribuição social do trabalhador
+model.prop.tau_INC
+Alíquota do imposto de renda
+model.prop.theta_UB
+Taxa de reposição do seguro-desemprego
+model.gov.sb_other
+Benefício social geral
+model.agg.P_bar_HH
+Índice de preços das famílias
+model.agg.pi_e
+Inflação esperada
+model.prop.gambling_income_sh
+Parcela da renda apostada pelos participantes
+are
+gambling_stakes[h]
+Valor reservado para apostas
+model.prop.psi
+Parcela da renda destinada ao consumo
+Parcela da renda destinada ao investimento
+model.prop.psi_H
+habitacional
+model.prop.tau_VAT
+Alíquota do imposto sobre o consumo
+model.prop.tau_CF
+Alíquota do imposto sobre formação de capital
+model.w_act.C_d_h[h]
+Orçamento desejado de consumo
+model.w_act.I_d_h[h]
+Orçamento desejado de investimento habitacional
+
+A função atualiza model.w_act.C_d_h e model.w_act.I_d_h . Ela apenas define os
+orçamentos desejados; as compras efetivas serão determinadas posteriormente pelo mercado
+de bens.
+25 / 46
+
+active_workers = model.w_act
+expected_income =
+Bit.households_income_act(model; expected = true)
+gambling_stakes, _, _ =
+Bit.gambling_transfers(model; income_act = expected_income)
+budget_income = expected_income - gambling_stakes
+expected_consumption_budget =
+model.prop.psi .* budget_income ./ (1 + model.prop.tau_VAT)
+expected_investment_budget =
+model.prop.psi_H .* budget_income ./ (1 + model.prop.tau_CF)
+Bit.set_households_budget_act!(model)
+@assert all(isapprox.(
+active_workers.C_d_h,
+expected_consumption_budget,
+))
+@assert all(isapprox.(
+active_workers.I_d_h,
+expected_investment_budget,
+))
+active_workers_budget = DataFrame(
+worker_id = active_workers.ID,
+employer_id = active_workers.O_h,
+expected_income = expected_income,
+gambling_stake = gambling_stakes,
+budget_income = budget_income,
+consumption_budget = active_workers.C_d_h,
+investment_budget = active_workers.I_d_h,
+)
+first(active_workers_budget, 10)
+
+26 / 46
+
+10×7 DataFrame
+
+Ro worker employe expected_in gambling_s budget_inc consumption_ investment_b
+w _id r_id
+come
+take
+ome
+budget
+udget
+Int64 Int64 Float64
+Float64 Float64 Float64
+Float64
+1
+1
+0 0.685026
+0.0 0.685026
+0.540518
+0.044877
+2
+2
+0 0.685026
+0.0 0.685026
+0.540518
+0.044877
+3
+3
+0 0.685026
+0.0 0.685026
+0.540518
+0.044877
+4
+4
+0 0.685026
+0.0 0.685026
+0.540518
+0.044877
+5
+5
+0 0.685026
+0.0 0.685026
+0.540518
+0.044877
+6
+6
+0 0.685026
+0.0 0.685026
+0.540518
+0.044877
+7
+7
+0 0.685026
+0.0 0.685026
+0.540518
+0.044877
+8
+8
+0 0.685026
+0.0 0.685026
+0.540518
+0.044877
+9
+9
+0 0.685026
+0.0 0.685026
+0.540518
+0.044877
+10
+10
+0 0.685026
+0.0 0.685026
+0.540518
+0.044877
+
+Orçamento das pessoas inativas
+
+A função Bit.set_households_budget_inact!(model) calcula os orçamentos
+desejados de consumo e investimento habitacional das pessoas economicamente inativas.
+A renda esperada de cada pessoa inativa é formada pelo benefício específico para inativos e
+pelo benefício social geral:
+Y
+
+e
+h
+
+= (sb
+
+inact
+
++ sb
+
+other
+
+e
+¯
+)P
+(1 + π )
+HH
+
+Desconto das apostas
+
+Se a pessoa inativa participa do mercado de apostas, uma parcela de sua renda esperada é
+reservada como aposta:
+Bh = g max (0, Y
+
+e
+h
+
+Caso não participe:
+Bh = 0
+
+A renda disponível para a definição dos orçamentos é:
+e
+
+˜ = Y e − B
+Y
+h
+h
+h
+
+Orçamentos desejados
+
+O orçamento desejado de consumo é:
+e
+
+C
+
+d
+h
+
+=
+
+˜
+ψY
+h
+1 + τVAT
+
+O orçamento desejado de investimento habitacional é:
+27 / 46
+
+)
+
+e
+
+I
+
+d
+h
+
+˜
+ψH Y
+h
+
+=
+
+1 + τCF
+
+Definição das variáveis
+Símbol
+o
+
+h
+Y
+
+e
+h
+
+˜
+Y
+
+e
+h
+
+sb
+sb
+
+inact
+
+other
+
+¯
+P HH
+π
+
+e
+
+g
+
+Bh
+ψ
+
+ψH
+τVAT
+τCF
+C
+I
+
+d
+h
+
+d
+h
+
+Código
+índice da pessoa inativa
+
+Significado
+
+Pessoa analisada
+expected_income[h]
+Renda esperada
+budget_income[h]
+Renda esperada depois da aposta
+model.gov.sb_inact
+Benefício específico para pessoas inativas
+model.gov.sb_other
+Benefício social geral
+model.agg.P_bar_HH
+Índice de preços das famílias
+model.agg.pi_e
+Taxa de inflação esperada
+model.prop.gambling_income_sh
+Parcela da renda apostada pelos participantes
+are
+gambling_stakes[h]
+Valor reservado para apostas
+model.prop.psi
+Parcela da renda destinada ao consumo
+Parcela da renda destinada ao investimento
+model.prop.psi_H
+habitacional
+model.prop.tau_VAT
+Alíquota do imposto sobre consumo
+model.prop.tau_CF
+Alíquota do imposto sobre formação de capital
+model.w_inact.C_d_h[h]
+Orçamento desejado de consumo
+model.w_inact.I_d_h[h]
+Orçamento desejado de investimento habitacional
+
+Antes das apostas, todas as pessoas inativas recebem a mesma renda esperada no modelo.
+Diferenças no orçamento podem surgir quando apenas algumas delas participam do mercado
+de apostas.
+A função atualiza model.w_inact.C_d_h e model.w_inact.I_d_h . As compras efetivas
+serão determinadas posteriormente pelo mercado de bens.
+inactive_workers = model.w_inact
+expected_income =
+Bit.households_income_inact(model; expected = true)
+_, gambling_stakes, _ =
+Bit.gambling_transfers(model; income_inact = expected_income)
+budget_income = expected_income - gambling_stakes
+expected_consumption_budget =
+model.prop.psi .* budget_income ./ (1 + model.prop.tau_VAT)
+expected_investment_budget =
+model.prop.psi_H .* budget_income ./ (1 + model.prop.tau_CF)
+Bit.set_households_budget_inact!(model)
+
+28 / 46
+
+@assert all(isapprox.(
+inactive_workers.C_d_h,
+expected_consumption_budget,
+))
+@assert all(isapprox.(
+inactive_workers.I_d_h,
+expected_investment_budget,
+))
+inactive_workers_budget = DataFrame(
+worker_id = inactive_workers.ID,
+expected_income = expected_income,
+gambling_stake = gambling_stakes,
+budget_income = budget_income,
+consumption_budget = inactive_workers.C_d_h,
+investment_budget = inactive_workers.I_d_h,
+)
+first(inactive_workers_budget, 10)
+
+10×6 DataFrame
+
+Ro worker_ expected_inco gambling_st budget_inco consumption_bu investment_bud
+w id
+me
+ake
+me
+dget
+get
+Int64 Float64
+Float64
+Float64
+Float64
+Float64
+1
+1
+2.81827
+0.0
+2.81827
+2.22375
+0.184628
+2
+2
+2.81827
+0.0
+2.81827
+2.22375
+0.184628
+3
+3
+2.81827
+0.0
+2.81827
+2.22375
+0.184628
+4
+4
+2.81827
+0.0
+2.81827
+2.22375
+0.184628
+5
+5
+2.81827
+0.0
+2.81827
+2.22375
+0.184628
+6
+6
+2.81827
+0.0
+2.81827
+2.22375
+0.184628
+7
+7
+2.81827
+0.0
+2.81827
+2.22375
+0.184628
+8
+8
+2.81827
+0.0
+2.81827
+2.22375
+0.184628
+9
+9
+2.81827
+0.0
+2.81827
+2.22375
+0.184628
+10
+10
+2.81827
+0.0
+2.81827
+2.22375
+0.184628
+
+Orçamento dos proprietários das empresas
+
+A função Bit.set_households_budget_firms!(model) calcula os orçamentos
+desejados de consumo e investimento habitacional dos proprietários das empresas.
+Cada empresa representa também uma família proprietária. Sua renda esperada é composta
+pelos dividendos esperados e pelo benefício social geral:
+Y
+
+O operador
+prejuízo.
+
+e
+i
+
+e
+
+= θDIV (1 − τINC ) (1 − τFIRM ) max (0, Π ) + sb
+i
+
+e
+
+max(0, Π )
+i
+
+other
+
+e
+¯
+P
+(1 + π )
+HH
+
+impede a distribuição de dividendos quando a empresa espera
+
+29 / 46
+
+Receitas provenientes das apostas
+
+As apostas realizadas pelos trabalhadores ativos e pelas pessoas inativas são somadas:
+B = ∑B
+
+act
+h
+
++ ∑B
+
+h
+
+inact
+h
+
+h
+
+Quando a empresa pertence ao conjunto de operadoras do mercado de apostas, ela recebe
+uma parcela igual desse total:
+⎧
+
+B
+,
+
+Ri = ⎨ NG
+⎩
+0,
+
+se a empresa i é uma operadora,
+
+caso contrário.
+
+A renda disponível para definir os orçamentos é:
+e
+
+˜ = Y e + R
+Y
+i
+i
+i
+
+Orçamentos desejados
+
+O orçamento desejado de consumo é:
+e
+
+C
+
+d
+i
+
+˜
+ψY
+i
+=
+
+1 + τVAT
+
+O orçamento desejado de investimento habitacional é:
+e
+
+I
+
+Definição das variáveis
+Símbolo
+
+i
+Y
+
+e
+
+expected_income[i]
+
+e
+
+budget_income[i]
+
+e
+
+model.firms.Pi_e_i[i]
+
+i
+
+˜
+Y
+i
+Π
+
+Código
+índice da empresa
+
+i
+
+θDIV
+
+model.prop.theta_DIV
+
+τFIRM
+
+model.prop.tau_FIRM
+
+τINC
+
+model.prop.tau_INC
+
+sb
+
+other
+
+¯
+P
+HH
+π
+
+e
+
+B
+NG
+
+model.gov.sb_other
+model.agg.P_bar_HH
+model.agg.pi_e
+sum(gambling_receipts)
+
+quantidade de operadoras
+
+Ri
+
+gambling_receipts[i]
+
+ψ
+
+model.prop.psi
+
+ψH
+
+model.prop.psi_H
+
+d
+i
+
+=
+
+˜
+ψH Y
+i
+
+1 + τCF
+
+Significado
+Empresa e família proprietária analisada
+Renda esperada da família proprietária
+Renda esperada incluindo receitas das apostas
+Lucro esperado da empresa
+Parcela do lucro distribuída como dividendos
+Alíquota do imposto sobre o lucro da empresa
+Alíquota do imposto de renda
+Benefício social geral
+Índice de preços das famílias
+Taxa de inflação esperada
+Volume total esperado de apostas
+Número de empresas que recebem as apostas
+Receita da empresa proveniente das apostas
+Parcela da renda destinada ao consumo
+Parcela da renda destinada ao investimento habitacional
+30 / 46
+
+Símbolo
+
+Código
+
+τVAT
+
+model.prop.tau_VAT
+
+τCF
+
+model.prop.tau_CF
+
+C
+I
+
+d
+i
+
+d
+i
+
+model.firms.C_d_h[i]
+model.firms.I_d_h[i]
+
+Significado
+Alíquota do imposto sobre consumo
+Alíquota do imposto sobre formação de capital
+Orçamento desejado de consumo do proprietário
+Orçamento desejado de investimento habitacional
+
+A função atualiza model.firms.C_d_h e model.firms.I_d_h . Ela não altera ainda a
+renda efetiva dos proprietários nem realiza as transferências das apostas.
+firms = model.firms
+active_income =
+Bit.households_income_act(model; expected = true)
+inactive_income =
+Bit.households_income_inact(model; expected = true)
+_, _, gambling_receipts = Bit.gambling_transfers(
+model;
+income_act = active_income,
+income_inact = inactive_income,
+)
+expected_income =
+Bit.households_income_firms(model; expected = true)
+budget_income = expected_income + gambling_receipts
+expected_consumption_budget =
+model.prop.psi .* budget_income ./ (1 + model.prop.tau_VAT)
+expected_investment_budget =
+model.prop.psi_H .* budget_income ./ (1 + model.prop.tau_CF)
+Bit.set_households_budget_firms!(model)
+@assert all(isapprox.(
+firms.C_d_h,
+expected_consumption_budget,
+))
+@assert all(isapprox.(
+firms.I_d_h,
+expected_investment_budget,
+))
+firm_owners_budget = DataFrame(
+firm_id = firms.ID,
+expected_profit = firms.Pi_e_i,
+expected_income = expected_income,
+gambling_receipt = gambling_receipts,
+budget_income = budget_income,
+consumption_budget = firms.C_d_h,
+investment_budget = firms.I_d_h,
+)
+
+31 / 46
+
+first(firm_owners_budget, 10)
+
+10×7 DataFrame
+
+Ro firm_ expected_ expected_in gambling_re budget_in consumption_ investment_b
+w id profit
+come
+ceipt
+come
+budget
+udget
+Int64 Float64 Float64
+Float64
+Float64 Float64
+Float64
+1 1 3.75058
+2.72783
+0.0 2.72783
+2.15239
+0.178704
+2 2 1.25019
+1.30134
+0.0 1.30134
+1.02682 0.0852526
+3 3 1.25019
+1.30134
+0.0 1.30134
+1.02682 0.0852526
+4 4 1.25019
+1.30134
+0.0 1.30134
+1.02682 0.0852526
+5 5 1.25019
+1.30134
+0.0 1.30134
+1.02682 0.0852526
+6 6 1.25019
+1.30134
+0.0 1.30134
+1.02682 0.0852526
+7 7 1.25019
+1.30134
+0.0 1.30134
+1.02682 0.0852526
+8 8 2.50039
+2.01459
+0.0 2.01459
+1.58961
+0.131978
+9 9 1.25019
+1.30134
+0.0 1.30134
+1.02682 0.0852526
+10 10 1.25019
+1.30134
+0.0 1.30134
+1.02682 0.0852526
+
+Orçamento do proprietário do banco
+
+A função Bit.set_households_budget_bank!(model) calcula os orçamentos desejados
+de consumo e investimento habitacional do proprietário do banco.
+Sua renda esperada é formada pelos dividendos esperados do banco e pelo benefício social
+geral:
+Y
+
+e
+k
+
+e
+
+= θDIV (1 − τINC ) (1 − τFIRM ) max (0, Π ) + sb
+
+other
+
+k
+
+e
+¯
+P
+(1 + π )
+HH
+
+O operador:
+e
+
+max (0, Π )
+k
+
+impede a distribuição de dividendos quando o banco espera prejuízo.
+
+Orçamentos desejados
+
+O orçamento desejado de consumo é:
+C
+
+d
+k
+
+ψY
+=
+
+e
+k
+
+1 + τVAT
+
+O orçamento desejado de investimento habitacional é:
+I
+
+Definição das variáveis
+Símbolo
+
+Y
+
+e
+k
+
+Código
+
+expected_income
+
+d
+k
+
+ψH Y
+=
+
+e
+k
+
+1 + τCF
+
+Significado
+Renda esperada do proprietário do banco
+32 / 46
+
+Símbolo
+Π
+
+e
+k
+
+Código
+model.bank.Pi_e_k
+
+θDIV
+
+model.prop.theta_DIV
+
+τFIRM
+
+model.prop.tau_FIRM
+
+τINC
+
+model.prop.tau_INC
+
+sb
+
+other
+
+¯
+P HH
+π
+
+e
+
+model.gov.sb_other
+model.agg.P_bar_HH
+model.agg.pi_e
+
+ψ
+
+model.prop.psi
+
+ψH
+
+model.prop.psi_H
+
+τVAT
+
+model.prop.tau_VAT
+
+τCF
+
+model.prop.tau_CF
+
+C
+I
+
+d
+k
+
+d
+k
+
+model.bank.C_d_h
+model.bank.I_d_h
+
+Significado
+Lucro esperado do banco
+Parcela do lucro distribuída como dividendos
+Alíquota do imposto sobre o lucro
+Alíquota do imposto de renda
+Benefício social geral
+Índice de preços das famílias
+Taxa de inflação esperada
+Parcela da renda destinada ao consumo
+Parcela da renda destinada ao investimento habitacional
+Alíquota do imposto sobre consumo
+Alíquota do imposto sobre formação de capital
+Orçamento desejado de consumo
+Orçamento desejado de investimento habitacional
+
+Diferentemente dos proprietários das empresas, o proprietário do banco não recebe as receitas
+do mercado de apostas.
+A função atualiza model.bank.C_d_h e model.bank.I_d_h . As compras efetivas serão
+determinadas posteriormente pelo mercado de bens.
+bank = model.bank
+expected_income =
+Bit.households_income_bank(model; expected = true)
+expected_consumption_budget =
+model.prop.psi * expected_income / (1 + model.prop.tau_VAT)
+expected_investment_budget =
+model.prop.psi_H * expected_income / (1 + model.prop.tau_CF)
+Bit.set_households_budget_bank!(model)
+@assert isapprox(
+bank.C_d_h,
+expected_consumption_budget,
+)
+@assert isapprox(
+bank.I_d_h,
+expected_investment_budget,
+)
+DataFrame(
+expected_bank_profit = [bank.Pi_e_k],
+expected_owner_income = [expected_income],
+consumption_budget = [bank.C_d_h],
+investment_budget = [bank.I_d_h],
+)
+
+33 / 46
+
+1×4 DataFrame
+
+Ro expected_bank_profi expected_owner_incom consumption_budge investment_budge
+wt
+e
+t
+t
+Float64
+Float64
+Float64
+Float64
+1
+6452.28
+3681.67
+2905.01
+241.191
+
+Orçamento de consumo do governo
+
+A função Bit.set_gov_expenditure!(model) calcula o consumo público agregado e
+distribui seu orçamento igualmente entre os governos locais.
+
+Consumo público agregado
+
+O consumo do governo segue um processo autorregressivo em logaritmos:
+log CG,t = αG log CG,t−1 + βG + εG,t
+
+Consequentemente:
+CG,t = exp(αG log CG,t−1 + βG + εG,t )
+
+O choque do governo é sorteado de uma distribuição normal:
+εG,t ∼ N (0, σ
+
+2
+G
+
+)
+
+Distribuição entre os governos locais
+O orçamento de cada governo local é:
+C
+
+d
+j
+
+CG,t
+=
+J
+
+¯ ) (1 + π )
+(∑ cG,g P
+g
+e
+
+g
+
+Como o orçamento é dividido igualmente, todos os governos locais recebem o mesmo valor.
+
+Definição das variáveis
+Símbol
+o
+
+Código
+
+CG,t
+
+model.gov.C_G
+
+CG,t−1
+
+government_consumption_befor
+e
+
+αG
+
+model.gov.alpha_G
+
+βG
+
+model.gov.beta_G
+
+εG,t
+
+implied_government_shock
+
+σG
+
+model.gov.sigma_G
+
+J
+
+local_government_count
+
+C
+g
+
+d
+j
+
+model.gov.C_d_j[j]
+
+índice do produto
+
+Significado
+Consumo agregado do governo no período atual
+Consumo agregado do governo no período
+anterior
+Coeficiente autorregressivo do consumo público
+Constante do processo de consumo público
+Choque aleatório do consumo público
+Escala do choque aleatório
+Número de governos locais
+Orçamento de consumo do governo local
+Produto analisado
+j
+
+34 / 46
+
+Símbol
+o
+
+Código
+
+cG,g
+
+model.prop.c_G_g[g]
+
+¯
+P
+g
+
+model.agg.P_bar_g[g]
+
+π
+
+e
+
+Significado
+Coeficiente de consumo público do produto
+Índice de preços do produto
+Taxa de inflação esperada
+g
+
+model.agg.pi_e
+
+A função atualiza model.gov.C_G e model.gov.C_d_j . O consumo efetivamente
+realizado será determinado posteriormente pelo mercado de bens.
+Como a função sorteia um novo choque , executá-la novamente produz um novo
+orçamento público.
+εG,t
+
+government = model.gov
+government_consumption_before = government.C_G
+local_government_count = length(government.C_d_j)
+Bit.set_gov_expenditure!(model)
+government_consumption_after = government.C_G
+implied_government_shock =
+log(government_consumption_after) government.alpha_G * log(government_consumption_before) government.beta_G
+government_price_factor =
+sum(model.prop.c_G_g .* model.agg.P_bar_g)
+expected_local_budget =
+government_consumption_after /
+local_government_count *
+government_price_factor *
+(1 + model.agg.pi_e)
+@assert all(isapprox.(
+government.C_d_j,
+expected_local_budget,
+))
+local_government_budget = DataFrame(
+local_government_id = 1:local_government_count,
+aggregate_consumption = fill(
+government_consumption_after,
+local_government_count,
+),
+implied_shock = fill(
+implied_government_shock,
+local_government_count,
+),
+consumption_budget = government.C_d_j,
+)
+local_government_budget
+
+35 / 46
+
+g
+
+156×4 DataFrame
+
+131 rows omitted
+
+Row local_government_id aggregate_consumption implied_shock consumption_budget
+Int64
+Float64
+Float64
+Float64
+1
+1
+14470.2
+-0.021406
+92.9644
+2
+2
+14470.2
+-0.021406
+92.9644
+3
+3
+14470.2
+-0.021406
+92.9644
+4
+4
+14470.2
+-0.021406
+92.9644
+5
+5
+14470.2
+-0.021406
+92.9644
+6
+6
+14470.2
+-0.021406
+92.9644
+7
+7
+14470.2
+-0.021406
+92.9644
+8
+8
+14470.2
+-0.021406
+92.9644
+9
+9
+14470.2
+-0.021406
+92.9644
+10
+10
+14470.2
+-0.021406
+92.9644
+11
+11
+14470.2
+-0.021406
+92.9644
+12
+12
+14470.2
+-0.021406
+92.9644
+13
+13
+14470.2
+-0.021406
+92.9644
+⋮
+
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+
+⋮
+
+⋮
+
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+
+14470.2
+14470.2
+14470.2
+14470.2
+14470.2
+14470.2
+14470.2
+14470.2
+14470.2
+14470.2
+14470.2
+14470.2
+
+⋮
+
+-0.021406
+-0.021406
+-0.021406
+-0.021406
+-0.021406
+-0.021406
+-0.021406
+-0.021406
+-0.021406
+-0.021406
+-0.021406
+-0.021406
+
+Exportações e importações
+
+92.9644
+92.9644
+92.9644
+92.9644
+92.9644
+92.9644
+92.9644
+92.9644
+92.9644
+92.9644
+92.9644
+92.9644
+
+A função Bit.set_rotw_import_export!(model) calcula a demanda externa pelas
+exportações nacionais e a oferta de produtos importados.
+
+Demanda agregada por exportações
+
+A demanda externa segue um processo autorregressivo em logaritmos:
+CE,t = exp(αE log CE,t−1 + βE + εE,t )
+
+O orçamento é dividido igualmente entre os parceiros externos:
+L
+
+C
+
+d
+l
+
+CE,t
+=
+L
+
+e
+¯
+(∑ cE,g P g ) (1 + π )
+g
+
+36 / 46
+
+⋮
+
+Oferta agregada de importações
+
+A oferta de importações também segue um processo autorregressivo:
+YI ,t = exp(αI log YI ,t−1 + βI + εI ,t )
+
+A oferta importada de cada produto é:
+Ym,g = cI ,g YI ,t
+
+O preço dos produtos importados acompanha o índice de preços doméstico e a inflação
+esperada:
+e
+¯
+Pm,g = P g (1 + π )
+
+Definição das variáveis
+Símbolo
+
+Código
+
+CE,t
+
+model.rotw.C_E
+
+CE,t−1
+
+exports_before
+
+αE
+
+model.rotw.alpha_E
+
+βE
+
+model.rotw.beta_E
+
+εE,t
+
+model.agg.epsilon_E
+
+L
+
+export_partner_count
+
+C
+
+d
+l
+
+model.rotw.C_d_l[l]
+
+cE,g
+
+model.prop.c_E_g[g]
+
+YI ,t
+
+model.rotw.Y_I
+
+YI ,t−1
+
+imports_before
+
+αI
+
+model.rotw.alpha_I
+
+βI
+
+model.rotw.beta_I
+
+εI ,t
+
+model.agg.epsilon_I
+
+Ym,g
+
+model.rotw.Y_m[g]
+
+cI ,g
+
+model.prop.c_I_g[g]
+
+Pm,g
+
+model.rotw.P_m[g]
+
+¯
+P
+g
+
+model.agg.P_bar_g[g]
+
+π
+
+e
+
+model.agg.pi_e
+
+Significado
+Demanda externa agregada por exportações
+Demanda externa do período anterior
+Coeficiente autorregressivo das exportações
+Constante do processo das exportações
+Choque sobre a demanda por exportações
+Número de parceiros externos
+Orçamento de exportação do parceiro
+Coeficiente de demanda externa pelo produto
+Oferta agregada de importações
+Oferta agregada de importações do período anterior
+Coeficiente autorregressivo das importações
+Constante do processo das importações
+Choque sobre a oferta de importações
+Oferta importada do produto
+Participação do produto nas importações
+Preço do produto importado
+Índice de preços doméstico do produto
+Taxa de inflação esperada
+l
+
+g
+
+g
+
+g
+
+g
+
+g
+
+Os choques e já foram sorteados anteriormente por Bit.set_epsilon!(model) .
+A função atualiza model.rotw.C_E , model.rotw.C_d_l , model.rotw.Y_I ,
+model.rotw.Y_m e model.rotw.P_m . As exportações e importações efetivamente
+realizadas serão determinadas posteriormente pelo mercado de bens.
+εE,t
+
+εI ,t
+
+rest_of_world = model.rotw
+exports_before = rest_of_world.C_E
+imports_before = rest_of_world.Y_I
+export_partner_count = length(rest_of_world.C_d_l)
+
+37 / 46
+
+expected_exports = exp(
+rest_of_world.alpha_E * log(exports_before) +
+rest_of_world.beta_E +
+model.agg.epsilon_E
+)
+export_price_factor =
+sum(model.prop.c_E_g .* model.agg.P_bar_g)
+expected_export_budget =
+fill(
+expected_exports /
+export_partner_count *
+export_price_factor *
+(1 + model.agg.pi_e),
+export_partner_count,
+)
+expected_imports = exp(
+rest_of_world.alpha_I * log(imports_before) +
+rest_of_world.beta_I +
+model.agg.epsilon_I
+)
+expected_import_supply =
+model.prop.c_I_g .* expected_imports
+expected_import_prices =
+model.agg.P_bar_g .* (1 + model.agg.pi_e)
+Bit.set_rotw_import_export!(model)
+@assert isapprox(rest_of_world.C_E, expected_exports)
+@assert isapprox(rest_of_world.Y_I, expected_imports)
+@assert all(isapprox.(rest_of_world.C_d_l, expected_export_budget))
+@assert all(isapprox.(rest_of_world.Y_m, expected_import_supply))
+@assert all(isapprox.(rest_of_world.P_m, expected_import_prices))
+trade_summary = DataFrame(
+metric = [
+"Aggregate export demand",
+"Aggregate import supply",
+"Export shock",
+"Import shock",
+],
+value = [
+rest_of_world.C_E,
+rest_of_world.Y_I,
+model.agg.epsilon_E,
+model.agg.epsilon_I,
+],
+)
+imports_by_product = DataFrame(
+product_id = eachindex(rest_of_world.Y_m),
+import_supply = rest_of_world.Y_m,
+import_price = rest_of_world.P_m,
+
+38 / 46
+
+)
+display(trade_summary)
+imports_by_product
+
+4×2 DataFrame
+
+Row metric
+String
+1 Aggregate export demand
+2 Aggregate import supply
+3 Export shock
+4 Import shock
+
+value
+Float64
+
+Row product_id
+Int64
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+
+import_price
+Float64
+
+62×3 DataFrame
+
+⋮
+
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+
+import_supply
+Float64
+
+⋮
+
+37 rows omitted
+
+559.916
+136.14
+12.2856
+1937.95
+1630.41
+1561.82
+336.454
+535.123
+12.4475
+1365.89
+2906.92
+1000.47
+1006.14
+⋮
+
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+
+22.8844
+11.7922
+60.3639
+13.3594
+11.5904
+22.1967
+95.1128
+43.5346
+2.1377
+0.0
+1.17848
+6.81424
+
+39 / 46
+
+34686.4
+33307.1
+0.0127531
+0.00277058
+
+1.00223
+1.00223
+1.00223
+1.00223
+1.00223
+1.00223
+1.00223
+1.00223
+1.00223
+1.00223
+1.00223
+1.00223
+1.00223
+⋮
+
+1.00223
+1.00223
+1.00223
+1.00223
+1.00223
+1.00223
+1.00223
+1.00223
+1.00223
+1.00223
+1.00223
+1.00223
+
+Pareamento nos mercados de bens
+
+A função Bit.search_and_matching!(model; parallel = false) realiza as compras
+e vendas de todos os produtos da economia.
+Ela reúne dois mercados:
+1. o mercado entre empresas, no qual são comprados insumos intermediários e bens de
+capital;
+2. o mercado varejista, no qual compram as famílias, o governo e os parceiros externos.
+O algoritmo é executado separadamente para cada produto .
+g
+
+Oferta disponível
+
+A oferta de uma empresa doméstica é formada pela produção atual e pelo estoque acumulado:
+S
+
+f
+
+= Y i + Si
+
+i
+
+A oferta de um produto importado é:
+f
+
+Sm,g = Ym,g
+
+Demanda das empresas
+
+A demanda da empresa pelo produto combina insumos intermediários e investimento
+produtivo:
+i
+
+g
+
+D
+
+F
+i,g
+
+= ag,Gi DM
+
+d
+i
+
+CF
+
++ bg
+
+I
+
+d
+i
+
+A primeira parcela representa os insumos necessários à produção. A segunda representa os
+bens de capital desejados pela empresa.
+
+Demanda do mercado varejista
+
+A demanda da família pelo produto é:
+h
+
+g
+
+D
+
+R
+h,g
+
+HH
+
+= bg
+
+C
+
+d
+h
+
+CF H
+
++ bg
+
+I
+
+d
+h
+
+A demanda dos parceiros externos é:
+D
+
+R
+l,g
+
+E
+
+= cg C
+
+d
+l
+
+A demanda dos governos locais é:
+D
+
+R
+j,g
+
+G
+
+= cg C
+
+d
+j
+
+Os coeficientes de consumo são normalizados pelo índice de preços de cada produto antes do
+pareamento.
+40 / 46
+
+Escolha dos fornecedores
+
+Os compradores são visitados em ordem aleatória. Para cada compra, um fornecedor é
+sorteado utilizando um peso que combina preço e tamanho da oferta:
+exp(−2Pf )
+ωf =
+
+Sf
++
+
+∑
+
+r
+
+exp(−2Pr )
+
+∑
+
+r
+
+Sr
+
+Assim, fornecedores maiores e com preços menores possuem maior probabilidade de serem
+escolhidos.
+A compra continua até que a demanda do comprador seja atendida ou a oferta disponível
+termine. Quando necessário, uma segunda rodada considera a capacidade produtiva adicional
+das empresas.
+
+Vendas realizadas
+
+As vendas de cada empresa doméstica são limitadas por sua oferta e pela demanda recebida:
+d
+
+Qi = min (Yi + Si , Q )
+i
+
+As vendas dos produtos importados são:
+d
+
+Qm,g = min (Ym,g , Qm,g )
+
+Definição das variáveis
+Símbolo
+
+g
+i
+f
+h
+j
+l
+Yi
+Si
+Pf
+DM
+I
+
+d
+i
+
+d
+i
+
+ag,G
+
+i
+
+CF
+
+bg
+C
+I
+
+d
+h
+
+d
+h
+
+HH
+
+bg
+
+CF H
+
+bg
+
+G
+
+cg
+
+Código
+índice do produto
+índice da empresa
+índice do fornecedor
+índice da família
+índice do governo local
+índice do parceiro externo
+
+Significado
+
+Produto negociado
+Empresa doméstica
+Empresa doméstica ou fornecedor estrangeiro
+Família compradora
+Governo comprador
+Comprador estrangeiro
+model.firms.Y_i[i]
+Produção atual da empresa
+model.firms.S_i[i]
+Estoque de produtos da empresa
+preços domésticos e importados Preço do fornecedor
+model.firms.DM_d_i[i]
+Demanda desejada por insumos
+model.firms.I_d_i[i]
+Investimento produtivo desejado
+model.prop.a_sg[g, G_i]
+Necessidade do produto como insumo
+model.prop.b_CF_g[g]
+Participação do produto no investimento empresarial
+orçamento de consumo
+Consumo desejado da família
+orçamento de investimento
+Investimento habitacional desejado
+model.prop.b_HH_g[g]
+Participação do produto no consumo familiar
+model.prop.b_CFH_g[g]
+Participação do produto no investimento habitacional
+model.prop.c_G_g[g]
+Participação do produto no consumo público
+g
+
+g
+
+g
+g
+g
+
+41 / 46
+
+Símbolo
+E
+cg
+
+Q
+
+d
+i
+
+Código
+model.prop.c_E_g[g]
+
+g
+
+model.firms.Q_d_i[i]
+
+Qi
+
+model.firms.Q_i[i]
+
+Ym,g
+
+model.rotw.Y_m[g]
+
+Qm,g
+
+model.rotw.Q_d_m[g]
+
+Qm,g
+
+model.rotw.Q_m[g]
+
+d
+
+Significado
+Participação do produto nas exportações
+Demanda total recebida pela empresa
+Vendas realizadas pela empresa
+Oferta disponível de importações
+Demanda por importações
+Vendas realizadas de importações
+
+A função também atualiza o consumo e o investimento realizados pelas famílias, as compras de
+insumos e capital das empresas, o consumo público, as exportações e diversos preços médios.
+O investimento habitacional realizado é acrescentado ao estoque de capital das famílias:
+K
+
+novo
+h
+
+= K
+
+anterior
+h
+
++ Ih
+
+Como o pareamento contém sorteios, executar novamente essa função pode produzir
+fornecedores e resultados diferentes. O argumento parallel = false mantém o
+processamento sequencial dos produtos.
+firms = model.firms
+rest_of_world = model.rotw
+active_workers = model.w_act
+inactive_workers = model.w_inact
+bank = model.bank
+domestic_supply_before =
+copy(firms.Y_i .+ firms.S_i)
+import_supply_before =
+copy(rest_of_world.Y_m)
+active_capital_before =
+copy(active_workers.K_h)
+inactive_capital_before =
+copy(inactive_workers.K_h)
+firm_owner_capital_before =
+copy(firms.K_h)
+bank_owner_capital_before =
+bank.K_h
+Bit.search_and_matching!(model; parallel = false)
+expected_domestic_sales =
+min.(domestic_supply_before, firms.Q_d_i)
+expected_import_sales =
+min.(import_supply_before, rest_of_world.Q_d_m)
+@assert all(isapprox.(
+firms.Q_i,
+
+42 / 46
+
+expected_domestic_sales,
+))
+@assert all(isapprox.(
+rest_of_world.Q_m,
+expected_import_sales,
+))
+@assert all(isapprox.(
+active_workers.K_h,
+active_capital_before .+ active_workers.I_h,
+))
+@assert all(isapprox.(
+inactive_workers.K_h,
+inactive_capital_before .+ inactive_workers.I_h,
+))
+@assert all(isapprox.(
+firms.K_h,
+firm_owner_capital_before .+ firms.I_h,
+))
+@assert isapprox(
+bank.K_h,
+bank_owner_capital_before + bank.I_h,
+)
+market_summary = DataFrame(
+metric = [
+"Domestic supply",
+"Domestic firm sales",
+"Import supply",
+"Import sales",
+"Household consumption",
+"Household investment",
+"Government consumption",
+"Exports",
+],
+value = [
+sum(domestic_supply_before),
+sum(firms.Q_i),
+sum(import_supply_before),
+sum(rest_of_world.Q_m),
+sum(active_workers.C_h) +
+sum(inactive_workers.C_h) +
+sum(firms.C_h) +
+bank.C_h,
+sum(active_workers.I_h) +
+sum(inactive_workers.I_h) +
+sum(firms.I_h) +
+bank.I_h,
+model.gov.C_j,
+rest_of_world.C_l,
+],
+)
+market_summary
+
+43 / 46
+
+8×2 DataFrame
+
+Row metric
+String
+1 Domestic supply
+2 Domestic firm sales
+3 Import supply
+4 Import sales
+5 Household consumption
+6 Household investment
+7 Government consumption
+8 Exports
+
+value
+Float64
+
+1.34636e5
+128277.0
+33307.1
+32048.4
+28527.9
+2368.54
+14502.4
+34736.4
+
+Inflação e índice geral de preços
+
+A função Bit.set_inflation_priceindex!(model) calcula o novo índice geral de
+preços e a inflação realizada no período.
+
+Índice geral de preços
+
+O índice é uma média dos preços das empresas ponderada por suas produções:
+¯ =
+P
+t
+
+∑ Pi Yi
+i
+
+∑ Yi
+i
+
+Empresas com maior produção possuem maior peso no índice.
+
+Inflação realizada
+
+A inflação é calculada como a variação logarítmica entre o índice atual e o índice anterior:
+πt = log(
+
+¯
+P
+t
+¯
+P
+t−1
+
+)
+
+Definição das variáveis
+Símbol
+o
+
+i
+Pi
+Yi
+Pi Y i
+¯
+P
+t−1
+¯
+P
+t
+
+πt
+
+π
+
+e
+
+Código
+índice da empresa
+
+Significado
+Empresa analisada
+model.firms.P_i[i]
+Preço definido pela empresa
+model.firms.Y_i[i]
+Produção realizada pela empresa
+price[i] * production[i]
+Valor nominal da produção da empresa
+price_index_before
+Índice geral de preços anterior
+model.agg.P_bar
+Novo índice geral de preços
+model.agg.pi_[inflation_position
+Inflação realizada no período
+]
+Inflação esperada calculada no início do
+model.agg.pi_e
+período
+44 / 46
+
+Quando:
+¯
+¯
+P t > P t−1 ,
+
+a inflação é positiva. Quando o novo índice é menor que o anterior, a inflação é negativa.
+A função acrescenta a inflação realizada ao histórico model.agg.pi_ e atualiza
+model.agg.P_bar .
+Esse índice utiliza a produção doméstica, Y_i , como ponderação. As quantidades importadas
+e as vendas efetivamente realizadas não entram diretamente nesse cálculo.
+aggregate = model.agg
+firms = model.firms
+price_index_before = aggregate.P_bar
+inflation_history_length_before = length(aggregate.pi_)
+prices = copy(firms.P_i)
+production = copy(firms.Y_i)
+nominal_production =
+sum(prices .* production)
+total_production =
+sum(production)
+expected_price_index =
+nominal_production / total_production
+expected_inflation =
+log(expected_price_index / price_index_before)
+inflation_position =
+model.prop.T_prime + aggregate.t
+Bit.set_inflation_priceindex!(model)
+@assert isapprox(
+aggregate.P_bar,
+expected_price_index,
+)
+@assert isapprox(
+aggregate.pi_[inflation_position],
+expected_inflation,
+)
+@assert length(aggregate.pi_) ==
+inflation_history_length_before + 1
+price_contributions = DataFrame(
+firm_id = firms.ID,
+price = prices,
+production = production,
+nominal_production = prices .* production,
+
+45 / 46
+
+production_weight = production ./ total_production,
+)
+inflation_summary = DataFrame(
+metric = [
+"Previous price index",
+"Current price index",
+"Realized inflation",
+"Expected inflation",
+],
+value = [
+price_index_before,
+aggregate.P_bar,
+aggregate.pi_[inflation_position],
+aggregate.pi_e,
+],
+)
+display(inflation_summary)
+first(price_contributions, 10)
+
+4×2 DataFrame
+
+Row metric
+String
+1 Previous price index
+2 Current price index
+3 Realized inflation
+4 Expected inflation
+
+value
+Float64
+
+10×5 DataFrame
+
+1.0
+1.00223
+0.00222896
+0.00223145
+
+Row firm_id price
+production nominal_production
+production_weight
+Int64 Float64 Float64
+Float64
+Float64
+1
+1 1.00223
+32.4661
+32.5385
+0.00024114
+2
+2 1.00223
+10.822
+10.8462
+8.038e-5
+3
+3 1.00223
+10.822
+10.8462
+8.038e-5
+4
+4 1.00223
+10.822
+10.8462
+8.038e-5
+5
+5 1.00223
+10.822
+10.8462
+8.038e-5
+6
+6 1.00223
+10.822
+10.8462
+8.038e-5
+7
+7 1.00223
+10.822
+10.8462
+8.038e-5
+8
+8 1.00223
+21.6441
+21.6924
+0.00016076
+9
+9 1.00223
+10.822
+10.8462
+8.038e-5
+10
+10 1.00223
+10.822
+10.8462
+8.038e-5
+
+46 / 46
+
+

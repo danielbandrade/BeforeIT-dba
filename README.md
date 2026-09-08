@@ -1,185 +1,91 @@
+# BeforeIT-dba
 
-[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://bancaditalia.github.io/BeforeIT.jl/stable/)
-[![](https://img.shields.io/badge/docs-dev-blue.svg)](https://bancaditalia.github.io/BeforeIT.jl/dev/)
-[![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
-[![code style: runic](https://img.shields.io/badge/code_style-%E1%9A%B1%E1%9A%A2%E1%9A%BE%E1%9B%81%E1%9A%B2-black)](https://github.com/fredrikekre/Runic.jl)
+Versão pessoal de **Daniel Andrade** do modelo [BeforeIT.jl](https://github.com/bancaditalia/BeforeIT.jl), destinada a estudos exploratórios de macroeconomia baseada em agentes.
 
-<div align='center'>
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/bancaditalia/BeforeIT.jl/main/docs/logo/logo_white_text.png">
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/bancaditalia/BeforeIT.jl/main/docs/logo/logo_black_text.png">
-  <img alt="Logo adapts to light and dark modes" src="https://raw.githubusercontent.com/bancaditalia/BeforeIT.jl/main/docs/logo/logo_black_text.png" width="500">
-</picture>
-<sup><a href="#footnote-1">*</a></sup>
-</div>
+> Este é um repositório independente para aprendizado e experimentação. Ele não é a distribuição oficial do BeforeIT.jl e não representa a Banca d'Italia nem os autores do projeto original.
 
-# Behavioural agent-based economic forecasting
+## Objetivo
 
-Welcome to BeforeIT.jl, a package for **B**ehavioural agent-based **e**conomic **fore**casting,
-from the **IT** research unit of the Bank of Italy.
+Este repositório é utilizado para:
 
-BeforeIT.jl is a Julia-based framework based on the agent-based model presented in 
-[_Economic forecasting with an agent-based model_](https://www.sciencedirect.com/science/article/pii/S0014292122001891),
-the first ABM matching the forecasting performance of traditional economic tools.
+- estudar os agentes, mercados e mecanismos internos do BeforeIT;
+- documentar as condições iniciais e a dinâmica do modelo;
+- desenvolver extensões e cenários contrafactuais;
+- executar experimentos reproduzíveis;
+- analisar resultados econômicos e distributivos.
 
-With BeforeIT.jl, you can perform economic forecasting and explore different counterfactual scenarios.
-Thanks to its modular design, the package is also a great starting point for anyone looking to extend its
-capabilities or integrate it with other tools.
+## Estudos disponíveis
 
-Developed in Julia, a language known for its efficiency, BeforeIT.jl is both fast and user-friendly,
-making it accessible whether you're an expert programmer or just starting out.
+- [Mercado de apostas](dba-studies/gambling-market/): extensão que representa transferências recorrentes de renda de trabalhadores para proprietários de empresas, acompanhada de notebooks, testes e experimentos pareados.
+- [Mecânica do modelo](dba-studies/model-mechanics/): mapas e explicações sobre as etapas de uma simulação.
+- [Machine learning](dba-studies/machine-learning/): estudos sobre modelos substitutos e aplicações de aprendizado de máquina.
+- [Experimentos de escala](dba-studies/scaling-experiments/): testes com diferentes populações de agentes.
+- [Apresentações](dba-studies/course-presentations/): materiais didáticos sobre o BeforeIT.
 
-The package currently contains the original parametrisation for Austria, as well as a parametrisation for Italy.
-Recalibrating the model on other nations is possible of course. 
-For instance, the [CalibrateBeforeIT.jl](https://github.com/ViennaInstitute/CalibrateBeforeIT.jl) package can be used to initialise the model for all 27 EU member states.
-This is still work in progress, so get in touch if you are interested!
+## Instalação
 
-## Julia installation
+O projeto requer [Julia](https://julialang.org/downloads/) 1.9 ou superior.
 
-To run this software, you will need a working Julia installation on your machine.
-If you don't have Julia installed already, simply follow the short instructions
-available [here](https://julialang.org/downloads/).
-
-## Installation
-
-To be able to run the model, you can activate a new Julia environment in any folder from the terminal by typing
-
+```bash
+git clone https://github.com/danielbandrade/BeforeIT-dba.git
+cd BeforeIT-dba
+julia --project=. -e 'using Pkg; Pkg.instantiate()'
 ```
+
+## Execução básica
+
+Abra o ambiente Julia do projeto:
+
+```bash
 julia --project=.
 ```
 
-Then, whithin the Julia environment, you can install BeforeIT.jl as
-
-```julia
-using Pkg
-Pkg.add("BeforeIT")
-```
-
-You can ensure to have installed all dependencies via
-
-```julia
-Pkg.instantiate()
-```
-
-Now you should be able to run the the following code
+Em seguida:
 
 ```julia
 import BeforeIT as Bit
 
-parameters = Bit.AUSTRIA2010Q1.parameters
-initial_conditions = Bit.AUSTRIA2010Q1.initial_conditions
+model = Bit.Model(
+    Bit.AUSTRIA2010Q1.parameters,
+    Bit.AUSTRIA2010Q1.initial_conditions,
+)
 
-T = 20
-model = Bit.Model(parameters, initial_conditions)
-Bit.run!(model, T)
+Bit.run!(model, 20)
 ```
 
-This will simulate the model with the original Austrian parametrisation for 20 quarters and save the results in the `data` object.
-To plot the time series within the `data` object, make sure you install Plots.jl in the same environment using
+Para executar o script principal diretamente:
 
-```julia
-Pkg.add("Plots")
-```
-
-and then try running
-
-```julia
-using Plots
-
-plot(model.data.real_gdp)
-```
-
-In you want to run the script without opening a REPL, you can copy and paste the above lines into a file,
-say `main.jl`, and run it directly from the terminal by typing
-
-```
+```bash
 julia --project=. main.jl
 ```
 
+## Testes
 
-## Docs
-
-Extensive documentation on how to use the package is available [here](https://bancaditalia.github.io/BeforeIT.jl/dev/).
-We suggest following the steps in [this tutorial](https://bancaditalia.github.io/BeforeIT.jl/dev/examples/basic_example.html) to quickly learn the basics.
-
-Furthermore, we suggest reading the software description available [here](https://arxiv.org/abs/2502.13267).
-
-## Download Source Code and Run Tests
-
-### Clone the Repository
 ```bash
-git clone https://github.com/bancaditalia/BeforeIT.jl.git
-cd BeforeIT.jl
+julia --project=. test/runtests.jl
 ```
 
-### Activate and Instantiate the Environment
-```bash
-julia -e 'using Pkg; Pkg.activate("."); Pkg.instantiate();'
+## Estrutura
+
+```text
+src/          implementação do modelo e extensões
+test/         testes automatizados
+data/         calibrações e condições iniciais
+examples/     exemplos de uso
+dba-studies/  estudos, notebooks e experimentos pessoais
 ```
 
-### Run Tests
-```bash
-julia --proj test/runtests.jl
-```
+## Projeto original
 
-### Format the Package
-```bash
-julia --proj format.jl
-```
+O BeforeIT.jl é um modelo macroeconômico baseado em agentes desenvolvido a partir do trabalho dos autores do projeto original. Consulte:
 
-## Current Authors
+- [Repositório oficial](https://github.com/bancaditalia/BeforeIT.jl)
+- [Documentação oficial](https://bancaditalia.github.io/BeforeIT.jl/dev/)
+- [Descrição do software](https://arxiv.org/abs/2502.13267)
+- [Economic forecasting with an agent-based model](https://www.sciencedirect.com/science/article/pii/S0014292122001891)
 
+As modificações, análises e conclusões presentes neste repositório são de responsabilidade de **Daniel Andrade**.
 
-<table>
-  <tr>
-  <td align="center">
-      <a href="https://github.com/Tortar">
-        <img src="https://avatars.githubusercontent.com/Tortar" width="100px;" alt="Adriano Meligrana"/><br />
-        <sub><b>Adriano Meligrana</b></sub>
-      </a><br />
-      <p>University of Turin</p>
-      <p>Email: <a href="mailto:adrianomeligrana@proton.me:">adrianomeligrana@proton.me</a></p>
-    </td>
-    <td align="center">
-      <a href="https://devetak.github.io/">
-        <img src="https://avatars.githubusercontent.com/Devetak" width="100px;" alt="Mitja Devetak"/><br />
-        <sub><b>Mitja Devetak</b></sub>
-      </a><br />
-      <p>Paris 1: Pantheon - Sorbonne</p>
-    </td>
-    <td align="center">
-      <a href="https://github.com/aldoglielmo">
-        <img src="https://avatars.githubusercontent.com/aldoglielmo" width="100px;" alt="Aldo Glielmo"/><br />
-        <sub><b>Aldo Glielmo</b></sub>
-      </a><br />
-      <p>Banca d'Italia </p>
-      <p>Email: <a href="mailto:aldo.glielmo@bancaditalia.it:">aldo.glielmo@bancaditalia.it</a></p>
-    </td>
-  </tr>
-</table>
+## Licença
 
-## Citing _BeforeIT_
-
-If you found _BeforeIT_ useful for your research, please cite the following software description
-
-```bib
-@article{glielmo2025beforeit,
-  title={BeforeIT.jl: High-Performance Agent-Based Macroeconomics Made Easy},
-  author={Glielmo, Aldo and Devetak, Mitja and Meligrana, Adriano and Poledna, Sebastian},
-  journal={arXiv preprint arXiv:2502.13267},
-  year={2025}
-}
-```
-
-and do not hesitate to get in touch to include your extension in the next release of the package and software description.
-
-## Disclaimer
-
-This package is an outcome of a research project. All errors are those of
-the authors. All views expressed are personal views, not those of Bank of Italy.
-
----
-
-<p id="footnote-1">
-* Credits to <a href="https://www.bankit.art/people/sara-corbo">Sara Corbo</a>  for the logo and to <a href="https://www.bankit.art/people/andrea-gentili">Andrea Gentili</a> for the name suggestion.
-</p>
+Este repositório preserva a licença Apache 2.0 do projeto original. Consulte [LICENSE](LICENSE).
