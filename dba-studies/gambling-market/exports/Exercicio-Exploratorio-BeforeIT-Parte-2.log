@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999998 (TeX Live 2026) (preloaded format=xelatex 2026.7.8)  7 SEP 2026 21:01
+This is XeTeX, Version 3.141592653-2.6-0.999998 (TeX Live 2026) (preloaded format=xelatex 2026.7.8)  7 SEP 2026 21:24
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1167,8 +1167,8 @@ Package: mathrsfs 1996/01/01 Math RSFS package v1.0 (jk)
 \pandoc@box=\box96
 \Wrappedcontinuationbox=\box97
 \Wrappedvisiblespacebox=\box98
-Package hyperref Info: Option `breaklinks' set `true' on input line 402.
-Package hyperref Info: Option `colorlinks' set `true' on input line 402.
+Package hyperref Info: Option `breaklinks' set `true' on input line 404.
+Package hyperref Info: Option `colorlinks' set `true' on input line 404.
 
 (./Exercicio-Exploratorio-BeforeIT-Parte-2.aux
 
@@ -1993,26 +1993,26 @@ LaTeX Warning: Label `campos-atualizados-e-usos-posteriores' multiply defined.
 )
 \openout1 = `Exercicio-Exploratorio-BeforeIT-Parte-2.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 409.
-LaTeX Font Info:    ... okay on input line 409.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 409.
-LaTeX Font Info:    ... okay on input line 409.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 409.
-LaTeX Font Info:    ... okay on input line 409.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 409.
-LaTeX Font Info:    ... okay on input line 409.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 409.
-LaTeX Font Info:    ... okay on input line 409.
-LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 409.
-LaTeX Font Info:    ... okay on input line 409.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 409.
-LaTeX Font Info:    ... okay on input line 409.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 409.
-LaTeX Font Info:    ... okay on input line 409.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 409.
-LaTeX Font Info:    ... okay on input line 409.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 409.
-LaTeX Font Info:    ... okay on input line 409.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 411.
+LaTeX Font Info:    ... okay on input line 411.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 411.
+LaTeX Font Info:    ... okay on input line 411.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 411.
+LaTeX Font Info:    ... okay on input line 411.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 411.
+LaTeX Font Info:    ... okay on input line 411.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 411.
+LaTeX Font Info:    ... okay on input line 411.
+LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 411.
+LaTeX Font Info:    ... okay on input line 411.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 411.
+LaTeX Font Info:    ... okay on input line 411.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 411.
+LaTeX Font Info:    ... okay on input line 411.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 411.
+LaTeX Font Info:    ... okay on input line 411.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 411.
+LaTeX Font Info:    ... okay on input line 411.
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: float package is loaded.
 Package caption Info: hyperref package is loaded.
@@ -2057,19 +2057,19 @@ Package caption Info: End \AtBeginDocument code.
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
 LaTeX Font Info:    Overwriting math alphabet `\mathrm' in version `normal'
-(Font)                  OT1/cmr/m/n --> TU/lmr/m/n on input line 409.
+(Font)                  OT1/cmr/m/n --> TU/lmr/m/n on input line 411.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `normal'
-(Font)                  OT1/cmr/m/it --> TU/lmr/m/it on input line 409.
+(Font)                  OT1/cmr/m/it --> TU/lmr/m/it on input line 411.
 LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `normal'
-(Font)                  OT1/cmr/bx/n --> TU/lmr/bx/n on input line 409.
+(Font)                  OT1/cmr/bx/n --> TU/lmr/bx/n on input line 411.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `normal'
-(Font)                  OT1/cmss/m/n --> TU/lmss/m/n on input line 409.
+(Font)                  OT1/cmss/m/n --> TU/lmss/m/n on input line 411.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
-(Font)                  OT1/cmss/bx/n --> TU/lmss/bx/n on input line 409.
+(Font)                  OT1/cmss/bx/n --> TU/lmss/bx/n on input line 411.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `normal'
-(Font)                  OT1/cmtt/m/n --> TU/lmtt/m/n on input line 409.
+(Font)                  OT1/cmtt/m/n --> TU/lmtt/m/n on input line 411.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
-(Font)                  OT1/cmtt/m/n --> TU/lmtt/bx/n on input line 409.
+(Font)                  OT1/cmtt/m/n --> TU/lmtt/bx/n on input line 411.
 
 Package fontspec Info: 
 (fontspec)             Font family 'latinmodern-math.otf(0)' created for font
@@ -2108,16 +2108,16 @@ Style=MathScript},{Size=-6.57,Font=latinmodern-math.otf,Style=MathScriptScript}
 "
 
 LaTeX Font Info:    Encoding `OT1' has changed to `TU' for symbol font
-(Font)              `operators' in the math version `normal' on input line 409.
+(Font)              `operators' in the math version `normal' on input line 411.
 
 LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
 (Font)                  OT1/cmr/m/n --> TU/latinmodern-math.otf(1)/m/n on input
- line 409.
+ line 411.
 LaTeX Font Info:    Encoding `OT1' has changed to `TU' for symbol font
-(Font)              `operators' in the math version `bold' on input line 409.
+(Font)              `operators' in the math version `bold' on input line 411.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
 (Font)                  OT1/cmr/bx/n --> TU/latinmodern-math.otf(1)/b/n on inpu
-t line 409.
+t line 411.
 
 Package fontspec Info: 
 (fontspec)             latinmodern-math scale = 1.0001.
@@ -2170,15 +2170,15 @@ language=dflt;+ssty=1;"
 uage=dflt;"
 
 LaTeX Font Info:    Encoding `OMS' has changed to `TU' for symbol font
-(Font)              `symbols' in the math version `normal' on input line 409.
+(Font)              `symbols' in the math version `normal' on input line 411.
 LaTeX Font Info:    Overwriting symbol font `symbols' in version `normal'
 (Font)                  OMS/cmsy/m/n --> TU/latinmodern-math.otf(2)/m/n on inpu
-t line 409.
+t line 411.
 LaTeX Font Info:    Encoding `OMS' has changed to `TU' for symbol font
-(Font)              `symbols' in the math version `bold' on input line 409.
+(Font)              `symbols' in the math version `bold' on input line 411.
 LaTeX Font Info:    Overwriting symbol font `symbols' in version `bold'
 (Font)                  OMS/cmsy/b/n --> TU/latinmodern-math.otf(2)/b/n on inpu
-t line 409.
+t line 411.
 
 Package fontspec Info: 
 (fontspec)             latinmodern-math scale = 0.9999.
@@ -2226,48 +2226,48 @@ uage=dflt;"
 
 LaTeX Font Info:    Encoding `OMX' has changed to `TU' for symbol font
 (Font)              `largesymbols' in the math version `normal' on input line 4
-09.
+11.
 LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `normal'
 (Font)                  OMX/cmex/m/n --> TU/latinmodern-math.otf(3)/m/n on inpu
-t line 409.
+t line 411.
 LaTeX Font Info:    Encoding `OMX' has changed to `TU' for symbol font
-(Font)              `largesymbols' in the math version `bold' on input line 409
+(Font)              `largesymbols' in the math version `bold' on input line 411
 .
 LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `bold'
 (Font)                  OMX/cmex/m/n --> TU/latinmodern-math.otf(3)/b/n on inpu
-t line 409.
-Package hyperref Info: Link coloring ON on input line 409.
+t line 411.
+Package hyperref Info: Link coloring ON on input line 411.
 (./Exercicio-Exploratorio-BeforeIT-Parte-2.out)
 (./Exercicio-Exploratorio-BeforeIT-Parte-2.out)
 \@outlinefile=\write5
 \openout5 = `Exercicio-Exploratorio-BeforeIT-Parte-2.out'.
 
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 12.00128pt on input line 411.
+(Font)              scaled to size 12.00128pt on input line 413.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 8.00085pt on input line 411.
+(Font)              scaled to size 8.00085pt on input line 413.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 6.00064pt on input line 411.
+(Font)              scaled to size 6.00064pt on input line 413.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 11.99872pt on input line 411.
+(Font)              scaled to size 11.99872pt on input line 413.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 7.99915pt on input line 411.
+(Font)              scaled to size 7.99915pt on input line 413.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 5.99936pt on input line 411.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 411
+(Font)              scaled to size 5.99936pt on input line 413.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 413
 .
 
 (/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 411
+LaTeX Font Info:    Trying to load font information for U+msb on input line 413
 .
 
 (/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 LaTeX Font Info:    Trying to load font information for U+rsfs on input line 41
-1.
+3.
 
 (/usr/local/texlive/2026/texmf-dist/tex/latex/jknapltx/ursfs.fd
 File: ursfs.fd 1998/03/24 rsfs font definition file (jk)
@@ -2276,290 +2276,290 @@ File: ursfs.fd 1998/03/24 rsfs font definition file (jk)
 LaTeX Warning: No \author given.
 
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 5.00053pt on input line 427.
+(Font)              scaled to size 5.00053pt on input line 436.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 4.99947pt on input line 427.
+(Font)              scaled to size 4.99947pt on input line 436.
 LaTeX Font Info:    Font shape `TU/lmtt/bx/n' in size <10.95> not available
-(Font)              Font shape `TU/lmtt/b/n' tried instead on input line 428.
+(Font)              Font shape `TU/lmtt/b/n' tried instead on input line 437.
 
-Underfull \hbox (badness 2293) in paragraph at lines 456--458
+Underfull \hbox (badness 2293) in paragraph at lines 465--467
 \TU/lmr/m/n/10.95 Cada link leva à seção didática da função correspondente, na 
 ordem de execução de
  []
 
 
 LaTeX Warning: Hyper reference `finance-insolvent-firms' on page 1 undefined on
- input line 465.
-
-
-LaTeX Warning: Hyper reference `set-growth-inflation-expectations' on page 1 un
-defined on input line 467.
-
-
-LaTeX Warning: Hyper reference `set-epsilon' on page 1 undefined on input line 
-469.
+ input line 474.
 
 [1
 
 ]
 
+LaTeX Warning: Hyper reference `set-growth-inflation-expectations' on page 2 un
+defined on input line 476.
+
+
+LaTeX Warning: Hyper reference `set-epsilon' on page 2 undefined on input line 
+478.
+
+
 LaTeX Warning: Hyper reference `set-growth-inflation-ea' on page 2 undefined on
- input line 471.
+ input line 480.
 
 
 LaTeX Warning: Hyper reference `set-central-bank-rate' on page 2 undefined on i
-nput line 473.
+nput line 482.
 
 
-LaTeX Warning: Hyper reference `shock' on page 2 undefined on input line 475.
+LaTeX Warning: Hyper reference `shock' on page 2 undefined on input line 484.
 
 
 LaTeX Warning: Hyper reference `set-bank-rate' on page 2 undefined on input lin
-e 477.
+e 486.
 
 
 LaTeX Warning: Hyper reference `set-firms-expectations-and-decisions' on page 2
- undefined on input line 486.
+ undefined on input line 495.
 
 
 LaTeX Warning: Hyper reference `search-and-matching-credit' on page 2 undefined
- on input line 488.
+ on input line 497.
 
 
 LaTeX Warning: Hyper reference `search-and-matching-labour' on page 2 undefined
- on input line 490.
+ on input line 499.
 
 
 LaTeX Warning: Hyper reference `set-firms-wages' on page 2 undefined on input l
-ine 492.
+ine 501.
 
 
 LaTeX Warning: Hyper reference `set-firms-production' on page 2 undefined on in
-put line 494.
+put line 503.
 
 
 LaTeX Warning: Hyper reference `update-workers-wages' on page 2 undefined on in
-put line 496.
+put line 505.
 
 
 LaTeX Warning: Hyper reference `set-gov-social-benefits' on page 2 undefined on
- input line 505.
+ input line 514.
 
 
 LaTeX Warning: Hyper reference `set-bank-expected-profits' on page 2 undefined 
-on input line 507.
+on input line 516.
 
 
 LaTeX Warning: Hyper reference `set-households-budget-act' on page 2 undefined 
-on input line 509.
+on input line 518.
 
 
 LaTeX Warning: Hyper reference `set-households-budget-inact' on page 2 undefine
-d on input line 511.
+d on input line 520.
 
 
 LaTeX Warning: Hyper reference `set-households-budget-firms' on page 2 undefine
-d on input line 513.
+d on input line 522.
 
 
 LaTeX Warning: Hyper reference `set-households-budget-bank' on page 2 undefined
- on input line 515.
+ on input line 524.
 
 
 LaTeX Warning: Hyper reference `set-gov-expenditure' on page 2 undefined on inp
-ut line 524.
+ut line 533.
 
 
 LaTeX Warning: Hyper reference `set-rotw-import-export' on page 2 undefined on 
-input line 526.
+input line 535.
 
 
 LaTeX Warning: Hyper reference `search-and-matching' on page 2 undefined on inp
-ut line 528.
+ut line 537.
 
 
 LaTeX Warning: Hyper reference `set-inflation-priceindex' on page 2 undefined o
-n input line 537.
+n input line 546.
 
 
 LaTeX Warning: Hyper reference `set-sector-specific-priceindex' on page 2 undef
-ined on input line 539.
+ined on input line 548.
 
 
 LaTeX Warning: Hyper reference `set-capital-formation-priceindex' on page 2 und
-efined on input line 541.
+efined on input line 550.
 
 
 LaTeX Warning: Hyper reference `set-households-priceindex' on page 2 undefined 
-on input line 543.
+on input line 552.
 
 
 LaTeX Warning: Hyper reference `set-firms-stocks' on page 2 undefined on input 
-line 545.
+line 554.
 
 
 LaTeX Warning: Hyper reference `set-firms-profits' on page 2 undefined on input
- line 554.
+ line 563.
 
 
 LaTeX Warning: Hyper reference `set-bank-profits' on page 2 undefined on input 
-line 556.
+line 565.
 
 
 LaTeX Warning: Hyper reference `set-bank-equity' on page 2 undefined on input l
-ine 558.
+ine 567.
 
 
 LaTeX Warning: Hyper reference `set-households-income-act' on page 2 undefined 
-on input line 560.
+on input line 569.
 
 
 LaTeX Warning: Hyper reference `set-households-income-inact' on page 2 undefine
-d on input line 562.
+d on input line 571.
 
 
 LaTeX Warning: Hyper reference `set-households-income-firms' on page 2 undefine
-d on input line 564.
+d on input line 573.
 
 
 LaTeX Warning: Hyper reference `set-households-income-bank' on page 2 undefined
- on input line 566.
+ on input line 575.
 
 
 LaTeX Warning: Hyper reference `set-gambling-transfers' on page 2 undefined on 
-input line 568.
-
-
-LaTeX Warning: Hyper reference `set-households-deposits-act' on page 2 undefine
-d on input line 577.
+input line 577.
 
 [2]
 
+LaTeX Warning: Hyper reference `set-households-deposits-act' on page 3 undefine
+d on input line 586.
+
+
 LaTeX Warning: Hyper reference `set-households-deposits-inact' on page 3 undefi
-ned on input line 579.
+ned on input line 588.
 
 
 LaTeX Warning: Hyper reference `set-households-deposits-firms' on page 3 undefi
-ned on input line 581.
+ned on input line 590.
 
 
 LaTeX Warning: Hyper reference `set-households-deposits-bank' on page 3 undefin
-ed on input line 583.
+ed on input line 592.
 
 
 LaTeX Warning: Hyper reference `set-central-bank-equity' on page 3 undefined on
- input line 585.
+ input line 594.
 
 
 LaTeX Warning: Hyper reference `set-gov-revenues' on page 3 undefined on input 
-line 587.
+line 596.
 
 
 LaTeX Warning: Hyper reference `set-gov-loans' on page 3 undefined on input lin
-e 589.
+e 598.
 
 
 LaTeX Warning: Hyper reference `set-firms-deposits' on page 3 undefined on inpu
-t line 591.
+t line 600.
 
 
 LaTeX Warning: Hyper reference `set-firms-loans' on page 3 undefined on input l
-ine 593.
+ine 602.
 
 
 LaTeX Warning: Hyper reference `set-firms-equity' on page 3 undefined on input 
-line 595.
+line 604.
 
 
 LaTeX Warning: Hyper reference `set-rotw-deposits' on page 3 undefined on input
- line 597.
+ line 606.
 
 
 LaTeX Warning: Hyper reference `set-bank-deposits' on page 3 undefined on input
- line 599.
+ line 608.
 
 
 LaTeX Warning: Hyper reference `set-gross-domestic-product' on page 3 undefined
- on input line 608.
+ on input line 617.
 
 
-LaTeX Warning: Hyper reference `set-time' on page 3 undefined on input line 610
+LaTeX Warning: Hyper reference `set-time' on page 3 undefined on input line 619
 .
 
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 10.95116pt on input line 631.
+(Font)              scaled to size 10.95116pt on input line 640.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 7.6658pt on input line 631.
+(Font)              scaled to size 7.6658pt on input line 640.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 5.47559pt on input line 631.
+(Font)              scaled to size 5.47559pt on input line 640.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 10.94882pt on input line 631.
+(Font)              scaled to size 10.94882pt on input line 640.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 7.66417pt on input line 631.
+(Font)              scaled to size 7.66417pt on input line 640.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 5.47441pt on input line 631.
+(Font)              scaled to size 5.47441pt on input line 640.
 
 LaTeX Font Warning: Font shape `U/rsfs/m/n' in size <5.475> not available
-(Font)              size <5> substituted on input line 631.
+(Font)              size <5> substituted on input line 640.
 
 
 ignored: Infinite glue shrinkage found in box being split [3] [4]
-Overfull \hbox (23.89333pt too wide) in paragraph at lines 805--805
+Overfull \hbox (23.89333pt too wide) in paragraph at lines 814--814
 []|\TU/lmtt/m/n/10.95 model.agg.Y[model.prop.T_prime 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 831--834
+Underfull \hbox (badness 10000) in paragraph at lines 840--843
  []\TU/lmr/bx/n/10.95 Campos atualizados e usos posteriores[] \TU/lmr/m/n/10.95
  A função atualiza \TU/lmtt/m/n/10.95 model.agg.Y_e\TU/lmr/m/n/10.95 ,
  []
 
 
-Underfull \hbox (badness 1033) in paragraph at lines 831--834
+Underfull \hbox (badness 1033) in paragraph at lines 840--843
 \TU/lmtt/m/n/10.95 model.agg.gamma_e \TU/lmr/m/n/10.95 e \TU/lmtt/m/n/10.95 mod
 el.agg.pi_e\TU/lmr/m/n/10.95 . Ela altera somente as expectativas; o PIB e a
  []
 
 [5] [6] [7]
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/b/n' will be
-(Font)              scaled to size 10.95116pt on input line 1040.
+(Font)              scaled to size 10.95116pt on input line 1049.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/b/n' will be
-(Font)              scaled to size 7.6658pt on input line 1040.
+(Font)              scaled to size 7.6658pt on input line 1049.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/b/n' will be
-(Font)              scaled to size 5.47559pt on input line 1040.
+(Font)              scaled to size 5.47559pt on input line 1049.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/b/n' will be
-(Font)              scaled to size 10.94882pt on input line 1040.
+(Font)              scaled to size 10.94882pt on input line 1049.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/b/n' will be
-(Font)              scaled to size 7.66417pt on input line 1040.
+(Font)              scaled to size 7.66417pt on input line 1049.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/b/n' will be
-(Font)              scaled to size 5.47441pt on input line 1040.
+(Font)              scaled to size 5.47441pt on input line 1049.
  [8] [9]
-Underfull \hbox (badness 10000) in paragraph at lines 1272--1276
+Underfull \hbox (badness 10000) in paragraph at lines 1281--1285
  []\TU/lmr/bx/n/10.95 Campos atualizados e usos posteriores[] \TU/lmr/m/n/10.95
  São atualizados \TU/lmtt/m/n/10.95 model.rotw.Y_EA\TU/lmr/m/n/10.95 ,
  []
 
 
-Underfull \hbox (badness 1466) in paragraph at lines 1272--1276
+Underfull \hbox (badness 1466) in paragraph at lines 1281--1285
 \TU/lmtt/m/n/10.95 model.rotw.gamma_EA \TU/lmr/m/n/10.95 e \TU/lmtt/m/n/10.95 m
 odel.rotw.pi_EA\TU/lmr/m/n/10.95 . Crescimento e inflação externos alimentam a
  []
 
 [10] [11]
-Underfull \hbox (badness 2970) in paragraph at lines 1442--1444
+Underfull \hbox (badness 2970) in paragraph at lines 1451--1453
  []\TU/lmr/bx/n/10.95 Campos atualizados e usos posteriores[] \TU/lmr/m/n/10.95
  A função atualiza apenas a taxa básica
  []
 
 [12] [13]
-Underfull \hbox (badness 2057) in paragraph at lines 1554--1559
+Underfull \hbox (badness 2057) in paragraph at lines 1563--1568
  []\TU/lmr/bx/n/10.95 Campos atualizados e usos posteriores[] \TU/lmr/m/n/10.95
  Os campos atualizados dependem do tipo
  []
 
 [14] [15] [16]
 ignored: Infinite glue shrinkage found in box being split [17] [18]
-Overfull \hbox (92.48616pt too wide) in paragraph at lines 2015--2031
+Overfull \hbox (92.48616pt too wide) in paragraph at lines 2024--2040
 [][] 
  []
 
@@ -2567,23 +2567,23 @@ Overfull \hbox (92.48616pt too wide) in paragraph at lines 2015--2031
 ignored: Infinite glue shrinkage found in box being split [20] [21]
 ignored: Infinite glue shr
 inkage found in box being split [22] [23]
-Underfull \hbox (badness 10000) in paragraph at lines 2394--2397
+Underfull \hbox (badness 10000) in paragraph at lines 2403--2406
  []\TU/lmr/bx/n/10.95 Campos atualizados e usos posteriores[] \TU/lmr/m/n/10.95
  São atualizados \TU/lmtt/m/n/10.95 model.firms.N_i \TU/lmr/m/n/10.95 e
  []
 
 [24] [25] [26]
-Overfull \hbox (52.48698pt too wide) in paragraph at lines 2642--2658
+Overfull \hbox (52.48698pt too wide) in paragraph at lines 2651--2667
 [][] 
  []
 
 [27] [28] [29]
-Overfull \hbox (75.95284pt too wide) in paragraph at lines 2840--2856
+Overfull \hbox (75.95284pt too wide) in paragraph at lines 2849--2865
 [][] 
  []
 
 
-Underfull \hbox (badness 1960) in paragraph at lines 2865--2867
+Underfull \hbox (badness 1960) in paragraph at lines 2874--2876
  []\TU/lmr/bx/n/10.95 Objetivo econômico[] \TU/lmr/m/n/10.95 A função \TU/lmtt/
 m/n/10.95 Bit.update_workers_wages!(model) \TU/lmr/m/n/10.95 transfere o salári
 o
@@ -2591,81 +2591,81 @@ o
 
 [30] [31]
 ignored: Infinite glue shrinkage found in box being split [32] [33] [34]
-Overfull \hbox (32.13681pt too wide) in paragraph at lines 3223--3230
+Overfull \hbox (32.13681pt too wide) in paragraph at lines 3232--3239
 [][] 
  []
 
 [35]
-Overfull \hbox (35.39082pt too wide) in paragraph at lines 3367--3367
+Overfull \hbox (35.39082pt too wide) in paragraph at lines 3376--3376
 []|\TU/lmtt/m/n/10.95 model.prop.gambling_income_share|  
  []
 
 
 ignored: Infinite glue shrinkage found in box being split [36]
-Underfull \hbox (badness 3849) in paragraph at lines 3396--3400
+Underfull \hbox (badness 3849) in paragraph at lines 3405--3409
  []\TU/lmr/bx/n/10.95 Campos atualizados e usos posteriores[] \TU/lmr/m/n/10.95
  A função atualiza \TU/lmtt/m/n/10.95 model.w_act.C_d_h \TU/lmr/m/n/10.95 e
  []
 
 [37]
-Overfull \hbox (94.42546pt too wide) in paragraph at lines 3449--3465
+Overfull \hbox (94.42546pt too wide) in paragraph at lines 3458--3474
 [][] 
  []
 
 [38]
-Overfull \hbox (35.39082pt too wide) in paragraph at lines 3571--3571
+Overfull \hbox (35.39082pt too wide) in paragraph at lines 3580--3580
 []|\TU/lmtt/m/n/10.95 model.prop.gambling_income_share|  
  []
 
 
 ignored: Infinite glue shrinkage found in box being split [39]
-Underfull \hbox (badness 1845) in paragraph at lines 3604--3607
+Underfull \hbox (badness 1845) in paragraph at lines 3613--3616
  []\TU/lmr/bx/n/10.95 Campos atualizados e usos posteriores[] \TU/lmr/m/n/10.95
  A função atualiza \TU/lmtt/m/n/10.95 model.w_inact.C_d_h \TU/lmr/m/n/10.95 e
  []
 
 [40]
-Overfull \hbox (104.0114pt too wide) in paragraph at lines 3655--3671
+Overfull \hbox (104.0114pt too wide) in paragraph at lines 3664--3680
 [][] 
  []
 
 [41]
 ignored: Infinite glue shrinkage found in box being split [42]
-Underfull \hbox (badness 3849) in paragraph at lines 3828--3831
+Underfull \hbox (badness 3849) in paragraph at lines 3837--3840
  []\TU/lmr/bx/n/10.95 Campos atualizados e usos posteriores[] \TU/lmr/m/n/10.95
  A função atualiza \TU/lmtt/m/n/10.95 model.firms.C_d_h \TU/lmr/m/n/10.95 e
  []
 
 [43]
-Overfull \hbox (105.94487pt too wide) in paragraph at lines 3889--3905
+Overfull \hbox (105.94487pt too wide) in paragraph at lines 3898--3914
 [][] 
  []
 
 [44] [45]
-Underfull \hbox (badness 5245) in paragraph at lines 4026--4029
+Underfull \hbox (badness 5245) in paragraph at lines 4035--4038
  []\TU/lmr/bx/n/10.95 Campos atualizados e usos posteriores[] \TU/lmr/m/n/10.95
  A função atualiza \TU/lmtt/m/n/10.95 model.bank.C_d_h \TU/lmr/m/n/10.95 e
  []
 
 
-Overfull \hbox (19.1294pt too wide) in paragraph at lines 4068--4075
+Overfull \hbox (19.1294pt too wide) in paragraph at lines 4077--4084
 [][] 
  []
 
 [46]
-Overfull \hbox (18.14458pt too wide) in paragraph at lines 4168--4168
+Overfull \hbox (18.14458pt too wide) in paragraph at lines 4177--4177
 []|\TU/lmtt/m/n/10.95 government_consumption_before|  
  []
 
 [47]
-Underfull \hbox (badness 10000) in paragraph at lines 4201--4204
+Underfull \hbox (badness 10000) in paragraph at lines 4210--4213
  []\TU/lmr/bx/n/10.95 Campos atualizados e usos posteriores[] \TU/lmr/m/n/10.95
  A função atualiza \TU/lmtt/m/n/10.95 model.gov.C_G \TU/lmr/m/n/10.95 e
  []
 
 [48] [49]
 ignored: Infinite glue shrinkage found in box being split [50]
-Underfull \hbox (badness 10000) in paragraph at lines 4447--4451
+Underfull \hbox (badness 10000) in paragraph at lines 4456--4460
  []\TU/lmr/bx/n/10.95 Campos atualizados e usos posteriores[] \TU/lmr/m/n/10.95
  A função atualiza \TU/lmtt/m/n/10.95 model.rotw.C_E\TU/lmr/m/n/10.95 ,
  []
@@ -2673,78 +2673,78 @@ Underfull \hbox (badness 10000) in paragraph at lines 4447--4451
 [51] [52] [53] [54]
 ignored: Infinite glue shrinkage found in box being split [55] [56] [
 57] [58]
-Overfull \hbox (41.13959pt too wide) in paragraph at lines 5017--5017
+Overfull \hbox (41.13959pt too wide) in paragraph at lines 5026--5026
 []|\TU/lmtt/m/n/10.95 model.agg.pi_[inflation_position]|  
  []
 
 [59] [60] [61] [62] [63]
-Overfull \hbox (12.29076pt too wide) in paragraph at lines 5385--5401
+Overfull \hbox (12.29076pt too wide) in paragraph at lines 5394--5410
 [][] 
  []
 
 [64]
-Overfull \hbox (12.39583pt too wide) in paragraph at lines 5489--5490
+Overfull \hbox (12.39583pt too wide) in paragraph at lines 5498--5499
 []|\TU/lmtt/m/n/10.95 capital_formation_weights[g] 
  []
 
 
 ignored: Infinite glue shrinkage found in box being split [65]
-Underfull \hbox (badness 7981) in paragraph at lines 5523--5524
+Underfull \hbox (badness 7981) in paragraph at lines 5532--5533
  []\TU/lmr/bx/n/10.95 Campos atualizados e usos posteriores[] \TU/lmr/m/n/10.95
  A função atualiza somente o escalar
  []
 
 [66] [67] [68]
-Overfull \hbox (35.39082pt too wide) in paragraph at lines 5734--5735
+Overfull \hbox (35.39082pt too wide) in paragraph at lines 5743--5744
 []|\TU/lmtt/m/n/10.95 household_consumption_weights[g] 
  []
 
 [69] [70] [71]
 ignored: Infinite glue shrinkage found in box being split [72] [73] [74] [
 75]
-Overfull \hbox (32.75981pt too wide) in paragraph at lines 6188--6197
+Overfull \hbox (32.75981pt too wide) in paragraph at lines 6197--6206
 [][] 
  []
 
 [76]
 ignored: Infinite glue shrinkage found in box being split [77] [78] [79] [80] [81]
-Overfull \hbox (23.89333pt too wide) in paragraph at lines 6705--6705
+Overfull \hbox (23.89333pt too wide) in paragraph at lines 6714--6714
 []|\TU/lmtt/m/n/10.95 positive_household_deposits[h]|  
  []
 
 [82] [83] [84] [85] [86] [87] [88] [89] [90] [91]
-Overfull \hbox (104.56519pt too wide) in paragraph at lines 7403--7419
+Overfull \hbox (104.56519pt too wide) in paragraph at lines 7412--7428
 [][] 
  []
 
 [92] [93]
-Underfull \hbox (badness 10000) in paragraph at lines 7536--7540
+Underfull \hbox (badness 10000) in paragraph at lines 7545--7549
 []\TU/lmr/m/n/10.95 Os próprios benefícios já foram atualizados anteriormente p
 or
  []
 
 [94] [95] [96] [97] [98]
-Overfull \hbox (1.79086pt too wide) in paragraph at lines 7928--7944
+Overfull \hbox (1.79086pt too wide) in paragraph at lines 7937--7953
 [][] 
  []
 
 [99] [100] [101] [102]
-Overfull \hbox (35.39082pt too wide) in paragraph at lines 8291--8291
+Overfull \hbox (35.39082pt too wide) in paragraph at lines 8300--8300
 []|\TU/lmtt/m/n/10.95 model.prop.gambling_income_share|  
  []
 
 
-Overfull \hbox (64.13457pt too wide) in paragraph at lines 8293--8293
+Overfull \hbox (64.13457pt too wide) in paragraph at lines 8302--8302
 []|\TU/lmtt/m/n/10.95 model.prop.gambling_active_worker_ids|  
  []
 
 
-Overfull \hbox (75.63206pt too wide) in paragraph at lines 8295--8295
+Overfull \hbox (75.63206pt too wide) in paragraph at lines 8304--8304
 []|\TU/lmtt/m/n/10.95 model.prop.gambling_inactive_worker_ids|  
  []
 
 
-Overfull \hbox (18.14458pt too wide) in paragraph at lines 8297--8297
+Overfull \hbox (18.14458pt too wide) in paragraph at lines 8306--8306
 []|\TU/lmtt/m/n/10.95 model.prop.gambling_owner_ids|  
  []
 
@@ -2752,106 +2752,106 @@ Overfull \hbox (18.14458pt too wide) in paragraph at lines 8297--8297
 ignored: Infinite glue shrinkage found in box being split [
 108] [109] [110] [111] [112] [113] [114]
 [115] [116]
-Underfull \hbox (badness 5578) in paragraph at lines 9233--9236
+Underfull \hbox (badness 5578) in paragraph at lines 9242--9245
 []\TU/lmr/m/n/10.95 A função não calcula um depósito desejado ou esperado. Na c
 élula de código,
  []
 
 [117] [118] [119]
-Underfull \hbox (badness 4634) in paragraph at lines 9522--9525
+Underfull \hbox (badness 4634) in paragraph at lines 9531--9534
 []\TU/lmr/m/n/10.95 O proprietário do banco não paga nem recebe as transferênci
 as implementadas por
  []
 
 [120] [121] [122]
-Overfull \hbox (0.89833pt too wide) in paragraph at lines 9730--9730
+Overfull \hbox (0.89833pt too wide) in paragraph at lines 9739--9739
 []|\TU/lmtt/m/n/10.95 central_bank_equity_before|  
  []
 
 
-Overfull \hbox (12.39583pt too wide) in paragraph at lines 9734--9734
+Overfull \hbox (12.39583pt too wide) in paragraph at lines 9743--9743
 []|\TU/lmtt/m/n/10.95 expected_central_bank_profit|  
  []
 
 
-Overfull \hbox (0.89833pt too wide) in paragraph at lines 9741--9741
+Overfull \hbox (0.89833pt too wide) in paragraph at lines 9750--9750
 []|\TU/lmtt/m/n/10.95 government_interest_income|  
  []
 
 
-Overfull \hbox (18.14458pt too wide) in paragraph at lines 9743--9743
+Overfull \hbox (18.14458pt too wide) in paragraph at lines 9752--9752
 []|\TU/lmtt/m/n/10.95 commercial_bank_interest_term|  
  []
 
 
 ignored: Infinite glue shrinkage found in box being split [123] [124] [125] [126]
-Overfull \hbox (6.64708pt too wide) in paragraph at lines 10030--10030
+Overfull \hbox (6.64708pt too wide) in paragraph at lines 10039--10039
 []|\TU/lmtt/m/n/10.95 total_household_consumption|  
  []
 
 
-Overfull \hbox (0.89833pt too wide) in paragraph at lines 10032--10032
+Overfull \hbox (0.89833pt too wide) in paragraph at lines 10041--10041
 []|\TU/lmtt/m/n/10.95 total_household_investment|  
  []
 
 
 ignored: Infinite glue shrinkage found in box being split [127] [128] [129] [130] [131]
-Overfull \hbox (6.64708pt too wide) in paragraph at lines 10379--10379
+Overfull \hbox (6.64708pt too wide) in paragraph at lines 10388--10388
 []|\TU/lmtt/m/n/10.95 expected_government_balance|  
  []
 
 
 ignored: Infinite glue shrinkage found in box being split [132] [133] [134] [135]
-Overfull \hbox (118.17366pt too wide) detected at line 10663
+Overfull \hbox (118.17366pt too wide) detected at line 10672
 [][][] [] [][] [] [][] [] [][] [] [][] [] [][] [] [][] [] [][] [] [][] [] [][] 
 [] [][] [] [][]
  []
 
 [136] [137] [138] [139] [140] [141] [142] [143] [144] [145]
-Underfull \hbox (badness 1533) in paragraph at lines 11369--11372
+Underfull \hbox (badness 1533) in paragraph at lines 11378--11381
 []\TU/lmr/m/n/10.95 Não existe um patrimônio desejado ou esperado calculado aqu
 i. Na célula de código,
  []
 
 
-Underfull \hbox (badness 4765) in paragraph at lines 11384--11387
+Underfull \hbox (badness 4765) in paragraph at lines 11393--11396
 []\TU/lmr/m/n/10.95 Ela não altera depósitos, empréstimos ou estoques. No iníci
 o do próximo passo,
  []
 
 [146] [147]
-Underfull \hbox (badness 2671) in paragraph at lines 11508--11510
+Underfull \hbox (badness 2671) in paragraph at lines 11517--11519
  []\TU/lmr/bx/n/10.95 Objetivo econômico[] \TU/lmtt/m/n/10.95 Bit.set_rotw_depo
 sits!(model) \TU/lmr/m/n/10.95 acumula o saldo financeiro das
  []
 
 
-Overfull \hbox (41.13959pt too wide) in paragraph at lines 11582--11582
+Overfull \hbox (41.13959pt too wide) in paragraph at lines 11591--11591
 []|\TU/lmtt/m/n/10.95 expected_external_position_change|  
  []
 
 [148]
-Underfull \hbox (badness 10000) in paragraph at lines 11629--11630
+Underfull \hbox (badness 10000) in paragraph at lines 11638--11639
  []\TU/lmr/bx/n/10.95 Valores desejados, esperados e realizados[] \TU/lmr/m/n/1
 0.95 Anteriormente,
  []
 
 [149] [150] [151] [152] [153] [154] [155]
-Underfull \hbox (badness 3417) in paragraph at lines 12176--12179
+Underfull \hbox (badness 3417) in paragraph at lines 12185--12188
 []\TU/lmr/m/n/10.95 Já \TU/lmtt/m/n/10.95 model.data.nominal_gdp \TU/lmr/m/n/10
 .95 e \TU/lmtt/m/n/10.95 model.data.real_gdp \TU/lmr/m/n/10.95 são calculados s
 eparadamente por
  []
 
 [156] [157] [158]
-Underfull \hbox (badness 1648) in paragraph at lines 12391--12395
+Underfull \hbox (badness 1648) in paragraph at lines 12400--12404
 []\TU/lmr/m/n/10.95 As expectativas \TU/lmtt/m/n/10.95 Y_e\TU/lmr/m/n/10.95 , \
 TU/lmtt/m/n/10.95 gamma_e \TU/lmr/m/n/10.95 e \TU/lmtt/m/n/10.95 pi_e \TU/lmr/m
 /n/10.95 armazenadas atualmente pertencem ao passo que
  []
 
 
-Underfull \hbox (badness 1132) in paragraph at lines 12391--12395
+Underfull \hbox (badness 1132) in paragraph at lines 12400--12404
 \TU/lmr/m/n/10.95 acabou de ser concluído. A produção realizada já foi acrescen
 tada a \TU/lmtt/m/n/10.95 model.agg.Y \TU/lmr/m/n/10.95 por
  []
@@ -2874,13 +2874,13 @@ LaTeX Warning: There were multiply-defined labels.
 
 Package rerunfilecheck Info: File `Exercicio-Exploratorio-BeforeIT-Parte-2.out'
  has not changed.
-(rerunfilecheck)             Checksum: 3DE444693497F75BD2E353385C8369B9;13639.
+(rerunfilecheck)             Checksum: DC757C3D85A7972BCE8E944218501226;13642.
  ) 
 Here is how much of TeX's memory you used:
- 33559 strings out of 468168
- 671737 string characters out of 5432816
- 1282105 words of memory out of 5000000
- 61735 multiletter control sequences out of 15000+600000
+ 33558 strings out of 468168
+ 671723 string characters out of 5432816
+ 1282191 words of memory out of 5000000
+ 61734 multiletter control sequences out of 15000+600000
  637568 words of font info for 125 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
  116i,9n,121p,539b,764s stack positions out of 10000i,1000n,20000p,200000b,200000s
