@@ -7,12 +7,28 @@ using Random
 const N_RUNS = 20
 const HORIZON = 16
 const GAMBLING_SHARE = 0.02
-const PARTICIPATION_SHARE = 0.10
+const PARTICIPATION_SHARE = 0.1
 const SELECTION_SEED = 1_000
 const SIMULATION_SEED = 10_000
-const OUTPUT = joinpath(@__DIR__, "paired-results.csv")
-const GDP_OUTPUT = joinpath(@__DIR__, "paired-gdp-paths.csv")
-const TRACE_OUTPUT = joinpath(@__DIR__, "paired-period-trace.csv")
+const DATA_DIR = joinpath(@__DIR__, "data")
+const OUTPUT = joinpath(DATA_DIR, "paired-results.csv")
+const GDP_OUTPUT = joinpath(DATA_DIR, "paired-gdp-paths.csv")
+const TRACE_OUTPUT = joinpath(DATA_DIR, "paired-period-trace.csv")
+
+function gini_coefficient(values)
+    sorted_values = sort(values)
+    total = sum(sorted_values)
+    iszero(total) && return 0.0
+
+    n = length(sorted_values)
+    return sum(
+        (2 * index - n - 1) * value for
+            (index, value) in enumerate(sorted_values)
+    ) / (n * total)
+end
+
+@assert gini_coefficient(fill(1.0, 3)) == 0.0
+@assert isapprox(gini_coefficient([0.0, 0.0, 1.0]), 2 / 3)
 
 function participant_ids(parameters, run)
     rng = MersenneTwister(SELECTION_SEED + run)
@@ -26,13 +42,17 @@ function participant_ids(parameters, run)
         max(1, round(Int, PARTICIPATION_SHARE * number_of_workers))
     selected_workers = randperm(rng, number_of_workers)[1:number_of_gamblers]
 
-    active_ids = sort([
-        id for id in selected_workers if id <= number_of_active_workers
-    ])
-    inactive_ids = sort([
-        id - number_of_active_workers for id in selected_workers if
-            id > number_of_active_workers
-    ])
+    active_ids = sort(
+        [
+            id for id in selected_workers if id <= number_of_active_workers
+        ]
+    )
+    inactive_ids = sort(
+        [
+            id - number_of_active_workers for id in selected_workers if
+                id > number_of_active_workers
+        ]
+    )
 
     number_of_owners =
         max(1, round(Int, PARTICIPATION_SHARE * number_of_firms))
@@ -106,6 +126,53 @@ function period_trace(
         sum(w_act.I_d_h) + sum(w_inact.I_d_h) + sum(firms.I_d_h) + bank.I_d_h
     household_housing_realized =
         sum(w_act.I_h) + sum(w_inact.I_h) + sum(firms.I_h) + bank.I_h
+    household_income_pre_transfer =
+        sum(income_act_pre) + sum(income_inact_pre) + sum(income_owners_pre) + bank.Y_h
+    household_income_post_transfer =
+        sum(w_act.Y_h) + sum(w_inact.Y_h) + sum(firms.Y_h) + bank.Y_h
+    household_income_gini = gini_coefficient(
+        [
+            w_act.Y_h
+            w_inact.Y_h
+            firms.Y_h
+            bank.Y_h
+        ]
+    )
+
+    function purchase_groups(values)
+        return (
+            gambler = values[1],
+            other_worker = values[2],
+            recipient_owner = values[3],
+            other_owner = values[4],
+            bank = values[5],
+        )
+    end
+
+    domestic_quantity = purchase_groups(model.agg.household_domestic_purchase_quantity)
+    imported_quantity = purchase_groups(model.agg.household_imported_purchase_quantity)
+    domestic_expenditure =
+        purchase_groups(model.agg.household_domestic_purchase_expenditure)
+    imported_expenditure =
+        purchase_groups(model.agg.household_imported_purchase_expenditure)
+    unfilled_demand = purchase_groups(model.agg.household_unfilled_purchase_demand)
+
+    if !iszero(period)
+        fulfilled_purchase_expenditure =
+            sum(model.agg.household_domestic_purchase_expenditure) +
+            sum(model.agg.household_imported_purchase_expenditure)
+        @assert isapprox(
+            fulfilled_purchase_expenditure,
+            household_consumption_realized + household_housing_realized;
+            atol = 1.0e-8,
+        )
+        @assert isapprox(
+            fulfilled_purchase_expenditure +
+                sum(model.agg.household_unfilled_purchase_demand),
+            household_consumption_desired + household_housing_desired;
+            atol = 1.0e-8,
+        )
+    end
 
     real_gdp_expenditure_residual =
         data.real_gdp[end] - data.real_household_consumption[end] -
@@ -136,6 +203,9 @@ function period_trace(
         recipient_owner_income_pre = recipients(income_owners_pre),
         recipient_owner_income_post = recipients(firms.Y_h),
         other_owner_income = other_owners(firms.Y_h),
+        household_income_pre_transfer = household_income_pre_transfer,
+        household_income_post_transfer = household_income_post_transfer,
+        household_income_gini = household_income_gini,
         gambler_consumption_desired = gamblers(w_act.C_d_h, w_inact.C_d_h),
         gambler_consumption_realized = gamblers(w_act.C_h, w_inact.C_h),
         other_worker_consumption_desired = other_workers(w_act.C_d_h, w_inact.C_d_h),
@@ -160,6 +230,41 @@ function period_trace(
         household_consumption_realized = household_consumption_realized,
         household_housing_desired = household_housing_desired,
         household_housing_realized = household_housing_realized,
+        household_domestic_purchase_quantity =
+            sum(model.agg.household_domestic_purchase_quantity),
+        household_imported_purchase_quantity =
+            sum(model.agg.household_imported_purchase_quantity),
+        household_domestic_purchase_expenditure =
+            sum(model.agg.household_domestic_purchase_expenditure),
+        household_imported_purchase_expenditure =
+            sum(model.agg.household_imported_purchase_expenditure),
+        household_unfilled_purchase_demand =
+            sum(model.agg.household_unfilled_purchase_demand),
+        gambler_domestic_purchase_quantity = domestic_quantity.gambler,
+        gambler_imported_purchase_quantity = imported_quantity.gambler,
+        gambler_domestic_purchase_expenditure = domestic_expenditure.gambler,
+        gambler_imported_purchase_expenditure = imported_expenditure.gambler,
+        gambler_unfilled_purchase_demand = unfilled_demand.gambler,
+        other_worker_domestic_purchase_quantity = domestic_quantity.other_worker,
+        other_worker_imported_purchase_quantity = imported_quantity.other_worker,
+        other_worker_domestic_purchase_expenditure = domestic_expenditure.other_worker,
+        other_worker_imported_purchase_expenditure = imported_expenditure.other_worker,
+        other_worker_unfilled_purchase_demand = unfilled_demand.other_worker,
+        recipient_owner_domestic_purchase_quantity = domestic_quantity.recipient_owner,
+        recipient_owner_imported_purchase_quantity = imported_quantity.recipient_owner,
+        recipient_owner_domestic_purchase_expenditure = domestic_expenditure.recipient_owner,
+        recipient_owner_imported_purchase_expenditure = imported_expenditure.recipient_owner,
+        recipient_owner_unfilled_purchase_demand = unfilled_demand.recipient_owner,
+        other_owner_domestic_purchase_quantity = domestic_quantity.other_owner,
+        other_owner_imported_purchase_quantity = imported_quantity.other_owner,
+        other_owner_domestic_purchase_expenditure = domestic_expenditure.other_owner,
+        other_owner_imported_purchase_expenditure = imported_expenditure.other_owner,
+        other_owner_unfilled_purchase_demand = unfilled_demand.other_owner,
+        bank_domestic_purchase_quantity = domestic_quantity.bank,
+        bank_imported_purchase_quantity = imported_quantity.bank,
+        bank_domestic_purchase_expenditure = domestic_expenditure.bank,
+        bank_imported_purchase_expenditure = imported_expenditure.bank,
+        bank_unfilled_purchase_demand = unfilled_demand.bank,
         firm_output_desired = sum(firms.Q_s_i),
         firm_output_realized = sum(firms.Y_i),
         firm_sales = sum(firms.Q_i),
@@ -205,6 +310,8 @@ function run_scenario(
         inactive_ids,
         owner_ids,
         simulation_seed,
+        ;
+        horizon = HORIZON,
     )
     parameters = copy(base_parameters)
     initial_conditions = copy(base_initial_conditions)
@@ -232,7 +339,7 @@ function run_scenario(
         ),
     ]
 
-    for period in 1:HORIZON
+    for period in 1:horizon
         Bit.step!(model; parallel = false)
         Bit.collect_data!(model)
         push!(
@@ -350,12 +457,15 @@ function main()
         isapprox.(trace.nominal_gdp_expenditure_residual, 0.0; atol = 1.0e-6),
     )
 
+    mkpath(DATA_DIR)
     CSV.write(OUTPUT, results)
     CSV.write(GDP_OUTPUT, DataFrame(gdp_rows))
     CSV.write(TRACE_OUTPUT, trace)
     println("saved: $OUTPUT")
     println("saved: $GDP_OUTPUT")
-    println("saved: $TRACE_OUTPUT")
+    return println("saved: $TRACE_OUTPUT")
 end
 
-main()
+if abspath(PROGRAM_FILE) == @__FILE__
+    main()
+end

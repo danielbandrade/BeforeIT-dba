@@ -13,9 +13,9 @@ A análise deve reconstruir a sequência entre a renda dos agentes, os gastos de
 
 Os resultados existentes estão em:
 
-- [`paired-results.csv`](paired-results.csv): resultados finais e acumulados de 20 pares de simulações;
-- [`paired-gdp-paths.csv`](paired-gdp-paths.csv): trajetória do PIB real por execução, cenário e período;
-- [`paired-period-trace.csv`](paired-period-trace.csv): rastreamento detalhado da transferência, das famílias, das empresas e dos componentes do PIB em cada período;
+- [`paired-results.csv`](data/paired-results.csv): resultados finais e acumulados de 20 pares de simulações;
+- [`paired-gdp-paths.csv`](data/paired-gdp-paths.csv): trajetória do PIB real por execução, cenário e período;
+- [`paired-period-trace.csv`](data/paired-period-trace.csv): rastreamento detalhado da transferência, das famílias, das empresas e dos componentes do PIB em cada período;
 - [`run-paired-experiment.jl`](run-paired-experiment.jl): configuração e execução do experimento.
 
 O script e os CSVs atuais usam `gambling_income_share = 0.02`. Portanto, os resultados representam uma transferência de 2% da renda dos participantes. O experimento contém 20 pares, dois cenários por par e 17 observações por cenário, incluindo o período inicial. Os arquivos por período possuem, assim, 680 linhas.
@@ -104,7 +104,7 @@ As comparações principais serão:
 
 ## Dados disponíveis no rastreamento
 
-`paired-results.csv` contém apenas depósitos finais, consumo nominal acumulado e volume acumulado de apostas. O caminho completo da renda foi acrescentado em `paired-period-trace.csv`.
+`data/paired-results.csv` contém apenas depósitos finais, consumo nominal acumulado e volume acumulado de apostas. O caminho completo da renda foi acrescentado em `data/paired-period-trace.csv`.
 
 O novo arquivo possui uma linha por execução, cenário e período, com 75 campos organizados nos grupos abaixo.
 
@@ -183,9 +183,9 @@ O rastreamento também exporta os componentes nominais e os resíduos das identi
 
 ## Etapas da análise
 
-### 1. Validação do experimento
+### Pré-condição: validação do experimento
 
-As validações que interrompem o experimento em caso de inconsistência já estão em `run-paired-experiment.jl`. A Parte 4 deve reapresentar as evidências de forma legível antes de interpretar os resultados:
+As validações que interrompem o experimento em caso de inconsistência já estão em `run-paired-experiment.jl`. Como todas passaram na execução atual, elas são tratadas como uma pré-condição e não serão reapresentadas na Parte 4:
 
 1. confirmar a parcela de renda usada na execução;
 2. verificar que os estados iniciais dos cenários são iguais;
@@ -194,9 +194,9 @@ As validações que interrompem o experimento em caso de inconsistência já est
 5. confirmar que ambos os cenários usam a mesma semente e seleção de agentes;
 6. verificar as identidades contábeis do modelo.
 
-O estado inicial deve ser comparado diretamente entre os cenários para cada `run`, usando as variáveis de estoque registradas no período zero. As tabelas de validação devem mostrar o maior desvio encontrado, e não apenas informar que os testes passaram.
+Se os dados forem gerados novamente, essas verificações devem continuar passando antes da execução do notebook.
 
-### 2. Efeito pareado sobre o PIB
+### 1. Efeito pareado sobre o PIB
 
 Construir primeiro uma tabela pareada, juntando `baseline` e `gambling` pelas chaves `run`, `simulation_seed` e `period`. Para toda variável `X`, criar a coluna `delta_X = X_gambling - X_baseline`.
 
@@ -210,7 +210,7 @@ Construir a trajetória de `ΔPIB` para cada execução e resumir:
 
 O gráfico principal deve mostrar a trajetória média de `ΔPIB`, uma faixa de incerteza e a linha de referência em zero.
 
-### 3. Decomposição contábil do PIB
+### 2. Decomposição contábil do PIB
 
 Para cada execução e período, calcular:
 
@@ -232,24 +232,7 @@ Essa decomposição mostrará se a diferença no PIB veio principalmente de:
 
 Não comparar diretamente consumo nominal acumulado com PIB real final. As variáveis devem ter a mesma frequência e a mesma base de preços.
 
-### 4. Caminho da transferência
-
-Depois de identificar os componentes que explicam `ΔPIB`, demonstrar, período a período:
-
-1. quanto saiu dos trabalhadores ativos e inativos;
-2. quanto chegou aos proprietários selecionados;
-3. como mudou a renda disponível de cada grupo;
-4. como mudaram os orçamentos desejados;
-5. quanto desses orçamentos foi realizado no mercado de bens;
-6. como mudaram os depósitos ao final do período.
-
-A apresentação deve usar:
-
-- totais para verificar conservação;
-- valores médios por agente para comparar grupos;
-- diferenças pareadas para remover variações comuns aos dois cenários.
-
-### 5. Propagação para as empresas
+### 3. Propagação para as empresas
 
 Após identificar o componente do PIB responsável pela diferença, analisar a sequência empresarial:
 
@@ -267,7 +250,7 @@ $$
 
 Devem ser comparados os efeitos no próprio período e no período seguinte. Conforme a ordem em [`src/one_step.jl`](../../src/one_step.jl), a produção ocorre antes da transferência realizada. Assim, parte relevante do efeito produtivo deve aparecer com defasagem.
 
-### 6. Robustez estatística
+### 4. Robustez estatística
 
 Com as 20 execuções atuais, apresentar os resultados como exploratórios. Usar diferenças pareadas e reportar:
 
@@ -281,28 +264,22 @@ Se a conclusão substantiva depender de um efeito pequeno ou instável, aumentar
 
 ## Estrutura proposta para a Parte 4
 
-O notebook [`exploracao-beforeIT-pt4.ipynb`](exploracao-beforeIT-pt4.ipynb) deve seguir esta ordem:
+O notebook [`exploracao-beforeIT-aux1_pt4.ipynb`](exploracao-beforeIT-aux1_pt4.ipynb) deve seguir esta ordem:
 
 1. pergunta de pesquisa e hipótese;
 2. descrição do experimento pareado;
-3. validações e conservação da transferência;
-4. construção das diferenças pareadas;
-5. trajetória pareada do PIB;
-6. decomposição do PIB por componentes;
-7. caminho da renda por grupo;
-8. diferença entre gastos desejados e realizados;
-9. efeitos contemporâneos e defasados sobre vendas, lucros, produção e emprego;
-10. robustez entre sementes;
-11. conclusão e limitações.
+3. trajetória pareada do PIB;
+4. decomposição do PIB por componentes;
+5. efeitos contemporâneos e defasados sobre vendas, lucros, produção e emprego;
+6. robustez entre sementes;
+7. conclusão e limitações.
 
 ### Gráficos mínimos
 
 1. Trajetória média de `ΔPIB` com intervalo de confiança.
 2. Distribuição da diferença pareada no PIB final e no PIB médio.
-3. Fluxo da transferência entre grupos com resíduo de conservação.
-4. Gastos desejados e realizados de apostadores e beneficiários.
-5. Trajetórias pareadas de vendas, lucros, produção e emprego.
-6. Decomposição de `ΔPIB` em `ΔC`, `ΔG`, `ΔI`, `ΔX` e `-ΔM`.
+3. Trajetórias pareadas de vendas, lucros, produção e emprego.
+4. Decomposição de `ΔPIB` em `ΔC`, `ΔG`, `ΔI`, `ΔX` e `-ΔM`.
 
 Para ilustrar um caminho individual, usar a execução com efeito mediano, e não a execução de maior crescimento. As conclusões principais devem usar a média e a distribuição dos pares.
 
@@ -315,43 +292,32 @@ A Parte 4 poderá afirmar que o PIB foi maior no cenário com apostas se:
 3. a decomposição dos componentes reconciliar com a diferença do PIB;
 4. as variáveis intermediárias mostrarem uma sequência temporal coerente.
 
-A Parte 4 somente deverá afirmar que identificou o mecanismo se for possível demonstrar numericamente:
-
-1. conservação da transferência;
-2. mudança na distribuição da renda disponível;
-3. mudança nos gastos desejados ou na realização desses gastos;
-4. mudança nas vendas, lucros, estoques ou depósitos;
-5. mudança posterior na produção, emprego ou investimento;
-6. contribuição desses resultados para os componentes do PIB.
-
-Se alguma dessas ligações não aparecer nos dados, a conclusão deve ser limitada a uma associação observada nas simulações, sem atribuir causalidade ao mecanismo proposto.
+Como a Parte 4 não apresentará o caminho detalhado da renda por grupo, sua conclusão deve ser limitada ao efeito pareado, à decomposição contábil e às associações observadas nas empresas, sem afirmar que identificou integralmente o mecanismo causal.
 
 ## Estado da implementação
 
 - [x] Ajustar [`run-paired-experiment.jl`](run-paired-experiment.jl) para executar `Bit.step!` período a período.
 - [x] Coletar os agregados descritos acima após cada passo.
-- [x] Escrever `paired-period-trace.csv` ao final do experimento.
+- [x] Escrever `data/paired-period-trace.csv` ao final do experimento.
 - [x] Manter os CSVs anteriores para comparabilidade.
 - [x] Executar 20 pares com `gambling_income_share = 0.02`.
 - [x] Validar a conservação da transferência e as identidades contábeis do PIB.
 - [x] Construir a tabela de diferenças pareadas na Parte 4.
 - [x] Produzir a trajetória e a decomposição de `ΔPIB`.
-- [x] Reconstruir o caminho da renda pelas famílias e empresas.
 - [x] Avaliar efeitos contemporâneos e defasados.
 - [x] Redigir conclusões e limitações.
 
 ## Análise implementada
 
-A análise foi implementada em [`exploracao-beforeIT-pt4.ipynb`](exploracao-beforeIT-pt4.ipynb):
+A análise foi implementada em [`exploracao-beforeIT-aux1_pt4.ipynb`](exploracao-beforeIT-aux1_pt4.ipynb):
 
-1. carregar `paired-period-trace.csv`;
-2. verificar e apresentar as validações do experimento;
-3. juntar os cenários por `run`, `simulation_seed` e `period`;
-4. calcular as diferenças `gambling - baseline`;
-5. apresentar a trajetória de `ΔPIB`;
-6. reconciliar `ΔPIB` com `ΔC + ΔG + ΔI + ΔX - ΔM`.
+1. carregar `data/paired-period-trace.csv`;
+2. juntar os cenários por `run`, `simulation_seed` e `period`;
+3. calcular as diferenças `gambling - baseline`;
+4. apresentar a trajetória de `ΔPIB`;
+5. reconciliar `ΔPIB` com `ΔC + ΔG + ΔI + ΔX - ΔM`.
 
-A reconciliação é seguida pela análise da renda dos grupos, dos gastos desejados e realizados, da propagação pelas empresas e das associações contemporâneas e defasadas. O notebook foi executado integralmente e preserva as tabelas e os gráficos produzidos.
+A reconciliação é seguida pela análise da propagação pelas empresas e das associações contemporâneas e defasadas. O notebook foi executado integralmente e preserva as tabelas e os gráficos produzidos.
 
 A primeira versão deve evitar mudanças no núcleo do modelo. Novos campos em `Data` ou `Aggregates` só devem ser adicionados se os valores necessários não puderem ser coletados externamente pelo experimento.
 

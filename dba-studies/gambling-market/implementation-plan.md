@@ -549,9 +549,10 @@ Version 1 is complete when all of the following are true:
 Run paired simulations using the same simulation seed and recipient selection:
 
 - baseline: `gambling_income_share = 0.0`;
-- low: `gambling_income_share = 0.01`;
-- medium: `gambling_income_share = 0.02`;
-- high: `gambling_income_share = 0.05`.
+- current benchmark: `gambling_income_share = 0.02`;
+- higher: `gambling_income_share = 0.05`;
+- high: `gambling_income_share = 0.10`;
+- stress: `gambling_income_share = 0.20`.
 
 Hold one seeded gambler set at approximately 10% of all eligible workers and the
 recipient set at 10% of firm owners. Repeat with several independently chosen,
@@ -610,3 +611,381 @@ At that point, money should flow first to gambling firms and reach owners throug
 the existing profit, corporate-tax, dividend, and owner-income pipeline. Do not
 credit owners directly in that version, because doing both would double-count the
 same gambling revenue.
+
+## 13. Post-implementation analysis and parameter-grid experiment
+
+### 13.1 Status and execution gate
+
+Version 1, the 20-run paired benchmark, period-level tracing, and the comparative
+income Gini are now implemented. The next phase has two objectives:
+
+1. trace how the redistribution of income changes demand, market transactions,
+   firm outcomes, imports, and GDP in the current 2% income-share/10%
+   participation benchmark;
+2. run a factorial experiment with increasing gambling-income shares and worker
+   participation shares.
+
+This section supersedes the narrower experiment proposed in Section 10. The
+choices in Section 13.10 were approved and the experiment was completed on
+2026-09-16.
+
+Execution status:
+
+- origin-of-purchase observability added and reconciled;
+- 2%/10% benchmark regenerated with 20 paired runs;
+- complete 17-scenario design validated in a two-run pilot;
+- full grid completed with 340 simulations and 5,780 period rows;
+- benchmark cell reproduced within numerical tolerance;
+- Parts 4 and 5 executed without notebook errors.
+
+### 13.2 Research questions
+
+The benchmark analysis must answer distinct questions in sequence:
+
+1. Did the transfer reduce participant income and increase recipient-owner income
+   by the same amount?
+2. Did the redistribution change desired spending, realised spending, housing
+   investment, or deposits by household group?
+3. Did it change market transactions, including firm sales, revenue, profit,
+   inventories, and imports?
+4. Did current sales changes precede changes in production, employment, and
+   investment in the following period?
+5. Which expenditure components reconciled the resulting GDP difference?
+6. How do these effects vary with the intensive margin (income share gambled),
+   the extensive margin (share of workers participating), and their interaction?
+
+The Gini is a distributional outcome, not a sufficient explanation of the market
+channel. A small aggregate Gini change can coexist with economically relevant
+redistribution between the selected groups.
+
+### 13.3 Benchmark mechanism analysis
+
+Continue to define every treatment effect as a paired difference using the same
+`run`, `simulation_seed`, and `period`:
+
+```text
+delta_X = X_gambling - X_baseline
+```
+
+Do not treat the 16 periods within a run as 16 independent simulations. For
+horizon summaries, first calculate the final value or 16-period mean within each
+run, then calculate means, medians, standard deviations, confidence intervals,
+and sign counts across the 20 runs.
+
+Add the following analysis to `exploracao-beforeIT-aux1_pt4.ipynb`.
+
+#### A. Redistribution and household responses
+
+Compare the following groups:
+
+- participating workers;
+- other workers;
+- recipient firm owners;
+- other firm owners.
+
+For participants and recipients, report both group totals and values per agent.
+Use the existing participant and recipient counts as denominators. Analyse:
+
+- income before and after the transfer;
+- desired and realised consumption;
+- desired and realised housing investment;
+- deposits;
+- the household-income Gini.
+
+The first check is the direct accounting path:
+
+```text
+participant income loss
+    -> recipient-owner income gain
+    -> group spending and deposit changes
+```
+
+#### B. Aggregate market response
+
+For every period and run, compare:
+
+- desired and realised household consumption;
+- desired and realised household housing investment;
+- firm sales and nominal revenue;
+- firm profit;
+- finished-goods and material inventories;
+- firm deposits and loans;
+- real imports and exports.
+
+Nominal budgets, real quantities, and real GDP components must remain separate.
+Do not subtract desired nominal expenditure directly from realised real
+quantities. When a nominal and real aggregate are both available, calculate and
+label any implied deflator explicitly.
+
+#### C. Contemporaneous and lagged firm response
+
+Analyse the contemporaneous sequence:
+
+```text
+delta realised consumption(t)
+    -> delta firm sales(t)
+    -> delta firm profit(t)
+```
+
+Then analyse the one-period-ahead sequence:
+
+```text
+delta firm sales(t)
+    -> delta production(t+1)
+    -> delta employment(t+1)
+    -> delta investment(t+1)
+```
+
+Plot paired mean trajectories with 95% confidence bands. Correlations and simple
+lagged regressions are descriptive channel evidence; they are not separate
+causal identification. If regressions use all run-period observations, cluster
+uncertainty by `run`. The primary inference remains the distribution of
+run-level paired summaries.
+
+#### D. GDP reconciliation
+
+Retain the exact decomposition:
+
+```text
+delta GDP = delta C + delta G + delta I + delta X - delta M
+```
+
+Connect the household and firm results to this identity, but do not compare
+variables expressed in different units. Report the reconciliation residual and
+keep it within the existing numerical tolerance.
+
+#### E. Minimum benchmark outputs
+
+The notebook should contain:
+
+1. group-level income and spending trajectories, with per-agent values for the
+   treated groups;
+2. a paired market-response table for final and 16-period-average effects;
+3. plots for sales/profit in period `t` and production/employment/investment in
+   period `t+1`;
+4. the GDP-component decomposition;
+5. a short evidence table that labels each proposed link as supported,
+   unsupported, or not observable with the current trace.
+
+### 13.4 Additional observability required before the grid
+
+The current trace is sufficient for aggregate market outcomes but cannot explain
+why imports change or which household group purchases from domestic versus
+foreign suppliers. Add the minimum missing aggregates before running the grid so
+the expensive experiment does not need to be repeated.
+
+Instrument the retail matching code to record, by period and household group:
+
+- realised purchases from domestic firms;
+- realised purchases from import suppliers;
+- unfilled consumption demand after matching;
+- nominal expenditure and purchased quantity by supplier origin;
+- the associated domestic and imported average transaction prices when the
+  denominator is non-zero.
+
+Use the same household groups as Section 13.3.A, plus the bank-owner household so
+totals reconcile. Store only group-by-origin aggregates, not agent-level or
+transaction-level rows. This keeps the CSV small and is sufficient to test the
+import channel.
+
+Implementation locations:
+
+- accumulate origin-specific quantities and expenditure inside
+  `src/markets/search_and_matching.jl`, where the selected supplier is already
+  known;
+- expose the aggregates on the model or return them through the existing market
+  update path;
+- export them from `period_trace` in `run-paired-experiment.jl`;
+- add reconciliation assertions showing that domestic plus imported household
+  purchases equal total recorded household purchases within tolerance.
+
+Run matching sequentially (`parallel = false`) as in the current experiment
+until the new counters have been verified. Do not add a transaction log or a new
+dependency.
+
+### 13.5 Factorial grid design
+
+Use one baseline plus a 4-by-4 treatment grid:
+
+| Dimension | Proposed values |
+|---|---|
+| Gambling income share | `0.02`, `0.05`, `0.10`, `0.20` |
+| Worker participation share | `0.10`, `0.20`, `0.40`, `0.60` |
+| Recipient-owner share | fixed at `0.10` |
+| Runs per cell | `20` |
+| Simulated periods | `16`, plus period zero |
+
+The baseline has `gambling_income_share = 0.0` and is run once per simulation
+seed only as the control required for paired differences. There are no treatment
+cells below the current 2% income share and 10% worker participation benchmark.
+Do not repeat an identical baseline for every grid cell. The full design is
+therefore:
+
+```text
+1 baseline + 16 treatment cells = 17 scenarios per run
+20 runs x 17 scenarios = 340 simulations
+340 simulations x 17 recorded periods = 5,780 trace rows
+```
+
+The current benchmark `(income share = 0.02, participation = 0.10)` is included
+as one grid cell and must reproduce the current paired experiment within
+numerical tolerance.
+
+#### Separate participants from recipients
+
+The current `PARTICIPATION_SHARE` controls both the number of gambling workers
+and the number of recipient owners. That coupling would confound two mechanisms:
+
+- how broadly gambling losses are distributed among workers;
+- how concentrated the receipts are among owners.
+
+Before the grid, replace it at the experiment layer with:
+
+```text
+GAMBLER_PARTICIPATION_SHARES
+RECIPIENT_OWNER_SHARE = 0.10
+```
+
+Keep the recipient-owner share fixed in the main grid. Vary recipient
+concentration only in a later robustness experiment if the main results make it
+necessary.
+
+#### Nested participant samples
+
+For each `run`, generate one independently seeded random permutation of eligible
+workers. Construct each participation treatment from prefixes of that same
+permutation. The 10% participant group is therefore contained in the 20% group,
+which is contained in the 40% and 60% groups.
+
+Use one fixed 10% recipient-owner sample per run for every treatment cell. Reuse
+the same participant set across all income-share values at a given participation
+level. Selection randomness must continue to use `SELECTION_SEED`; model
+randomness must continue to use `SIMULATION_SEED`.
+
+This design makes adjacent grid cells differ only in the intended treatment
+margin.
+
+### 13.6 Script and output structure
+
+Preserve `run-paired-experiment.jl` and its current CSVs as the benchmark. Add a
+separate `run-gambling-grid.jl` for the factorial experiment.
+
+To reuse the existing `gini_coefficient`, `period_trace`, and `run_scenario`
+functions without executing the benchmark on include, guard its entry point:
+
+```julia
+if abspath(PROGRAM_FILE) == @__FILE__
+    main()
+end
+```
+
+The grid script may then include the benchmark script and call the existing
+functions. Pass treatment values explicitly where the current functions rely on
+experiment constants. Do not duplicate the complete experiment implementation.
+
+Write new files and never overwrite the benchmark outputs:
+
+- `data/gambling-grid-results.csv`: one row per run and scenario;
+- `data/gambling-grid-period-trace.csv`: one row per run, scenario, and period;
+- `data/gambling-grid-cell-summary.csv`: derived cell-level statistics;
+- `exploracao-beforeIT-aux2_pt4.ipynb`: grid and dose-response analysis.
+
+Every grid row must identify:
+
+- `run` and `simulation_seed`;
+- a stable `scenario_id`;
+- `gambling_income_share`;
+- target and realised worker participation shares;
+- target and realised recipient-owner shares;
+- participant and recipient counts.
+
+### 13.7 Grid analysis
+
+Join every treatment cell to the single baseline using `run`,
+`simulation_seed`, and `period`. For each primary outcome, calculate the paired
+final effect and paired 16-period mean within each run.
+
+Primary outcomes:
+
+- real GDP and its expenditure components;
+- household-income Gini;
+- group income, consumption, housing investment, and deposits;
+- domestic and imported household purchases;
+- firm sales, profit, output, employment, and investment;
+- real imports;
+- gambling volume as a share of total household income.
+
+Minimum visualisations:
+
+1. dose-response lines over the gambling-income share, one line per worker
+   participation share;
+2. heatmaps for average `delta GDP`, average `delta Gini`, and average
+   `-delta imports`;
+3. interaction plots for sales, output, employment, and investment;
+4. selected time paths for the baseline, current benchmark, and highest
+   treatment cell;
+5. confidence intervals across runs for every grid cell.
+
+Also report effects against realised gambling intensity, defined as cumulative
+gambling volume divided by cumulative pre-transfer household income. This avoids
+treating nominal parameter values as identical exposure when selected workers
+have different incomes.
+
+The grid is exploratory. Report cell estimates and uncertainty without selecting
+only favourable cells. A simple response model with income share, participation
+share, and their interaction may be added as a compact summary, but it must not
+replace the non-parametric cell results.
+
+### 13.8 Execution sequence after plan approval
+
+After the user validates this plan:
+
+1. add and test the origin-of-purchase observability from Section 13.4;
+2. rerun the current 2%/10% benchmark and update the mechanism analysis in Part
+   4;
+3. verify that all existing accounting, transfer, Gini, and period-zero checks
+   pass;
+4. implement the separate grid script and outputs;
+5. run a two-run pilot over the complete 17-scenario design;
+6. verify row counts, nested selections, baseline reuse, output schemas, and all
+   reconciliation assertions;
+7. run the full 20-run grid only after the pilot passes;
+8. create and execute the Part 5 notebook;
+9. report the results and limitations without changing the economic mechanism.
+
+The pilot is a validation step, not an additional user approval gate once this
+plan has been approved. Stop before the full run if any invariant fails.
+
+### 13.9 Acceptance criteria
+
+This phase is complete only when:
+
+- the benchmark notebook traces redistribution, household demand, market
+  transactions, lagged firm responses, and GDP reconciliation;
+- domestic and imported household purchases reconcile with total purchases;
+- the grid contains one baseline and all 16 treatment cells for every run;
+- higher participation sets are nested supersets within each run;
+- recipient-owner identities and their 10% share are fixed across cells within a
+  run;
+- the 2%/10% cell reproduces the existing benchmark;
+- period-zero paired differences are zero;
+- transfer residuals and GDP residuals remain within tolerance;
+- every recorded Gini lies between zero and one;
+- all output files use distinct grid names and the benchmark files are preserved;
+- the Part 5 notebook executes without errors and reports uncertainty across
+  runs.
+
+### 13.10 Decisions to validate before execution
+
+User validation is required for these proposed choices:
+
+1. income-share grid: `2%`, `5%`, `10%`, and `20%`;
+2. worker-participation grid: `10%`, `20%`, `40%`, and `60%`;
+3. recipient-owner share fixed at `10%` rather than varying with worker
+   participation;
+4. `20` runs and `16` simulated periods per cell;
+5. adding aggregate origin-of-purchase instrumentation before the grid;
+6. keeping the benchmark analysis in Part 4 and creating Part 5 for the grid.
+
+No new grid simulation should be started until these six choices are approved or
+revised.

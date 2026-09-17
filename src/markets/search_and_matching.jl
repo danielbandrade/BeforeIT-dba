@@ -23,6 +23,13 @@ function search_and_matching!(model::AbstractModel; parallel = false)
         firms, rotw, prop, agg, w_act, w_inact, gov, bank
     )
 
+    G = size(prop.b_HH_g, 1) # number of goods
+    domestic_quantity_h_g = zeros(typeFloat, H, G)
+    imported_quantity_h_g = zeros(typeFloat, H, G)
+    domestic_expenditure_h_g = zeros(typeFloat, H, G)
+    imported_expenditure_h_g = zeros(typeFloat, H, G)
+    unfilled_demand_h_g = zeros(typeFloat, H, G)
+
     # Create a shared lock for multithreading
     RETAIL_LOCK = ReentrantLock()
 
@@ -43,26 +50,33 @@ function search_and_matching!(model::AbstractModel; parallel = false)
             b_HH_g, b_CFH_g, c_E_g, c_G_g, Q_d_i_g, Q_d_m_g,
             C_h, I_h, C_j_g, C_l_g, P_bar_h_g, P_bar_CF_h_g,
             P_j_g, P_l_g, S_fg, S_fg_, F_g, P_f, S_f, G_f,
-            RETAIL_LOCK, parallel
+            domestic_quantity_h_g, imported_quantity_h_g,
+            domestic_expenditure_h_g, imported_expenditure_h_g,
+            unfilled_demand_h_g, RETAIL_LOCK, parallel
         )
     end
 
-    G = size(prop.b_HH_g, 1) # number of goods
     @maybe_threads parallel for g in 1:G
         perform_market!(g, RETAIL_LOCK)
     end
 
     return update_aggregate_variables!(
-        agg, w_act, w_inact, firms, bank, gov, rotw, P_CF_i_g, I_i_g,
-        P_bar_i_g, DM_i_g, C_h, I_h, Q_d_i_g, Q_d_m_g, C_j_g,
+        agg, prop, w_act, w_inact, firms, bank, gov, rotw, P_CF_i_g, I_i_g,
+        P_bar_i_g, DM_i_g, C_d_h, I_d_h, C_h, I_h, Q_d_i_g, Q_d_m_g, C_j_g,
         C_l_g, P_bar_h_g, P_bar_CF_h_g, P_j_g, P_l_g,
+        domestic_quantity_h_g, imported_quantity_h_g,
+        domestic_expenditure_h_g, imported_expenditure_h_g,
+        unfilled_demand_h_g,
     )
 end
 
 function update_aggregate_variables!(
-        agg, w_act, w_inact, firms, bank, gov, rotw, P_CF_i_g, I_i_g,
-        P_bar_i_g, DM_i_g, C_h, I_h, Q_d_i_g, Q_d_m_g, C_j_g, C_l_g,
+        agg, prop, w_act, w_inact, firms, bank, gov, rotw, P_CF_i_g, I_i_g,
+        P_bar_i_g, DM_i_g, C_d_h, I_d_h, C_h, I_h, Q_d_i_g, Q_d_m_g, C_j_g, C_l_g,
         P_bar_h_g, P_bar_CF_h_g, P_j_g, P_l_g,
+        domestic_quantity_h_g, imported_quantity_h_g,
+        domestic_expenditure_h_g, imported_expenditure_h_g,
+        unfilled_demand_h_g,
     )
 
     I = length(firms)
@@ -94,6 +108,47 @@ function update_aggregate_variables!(
     agg.P_bar_CF_h = sum(I_h) / zero_to_one(agg.P_bar_CF_h)
     gov.P_j = gov.C_j / gov.P_j
     rotw.P_l = rotw.C_l / rotw.P_l
+
+    active_gambler_mask = in.(w_act.ID, Ref(Set(prop.gambling_active_worker_ids)))
+    inactive_gambler_mask = in.(w_inact.ID, Ref(Set(prop.gambling_inactive_worker_ids)))
+    recipient_owner_mask = in.(firms.ID, Ref(Set(prop.gambling_owner_ids)))
+    function purchase_group_totals(values)
+        active_values = @view(values[1:H_W])
+        inactive_values = @view(values[(H_W + 1):(H_W + H_inact)])
+        owner_values = @view(values[(H_W + H_inact + 1):(H - 1)])
+        gambler =
+            sum(active_values[active_gambler_mask]) +
+            sum(inactive_values[inactive_gambler_mask])
+        recipient_owner = sum(owner_values[recipient_owner_mask])
+        return typeFloat[
+            gambler,
+            sum(active_values) + sum(inactive_values) - gambler,
+            recipient_owner,
+            sum(owner_values) - recipient_owner,
+            values[end],
+        ]
+    end
+
+    agg.household_domestic_purchase_quantity .=
+        purchase_group_totals(vec(sum(domestic_quantity_h_g, dims = 2)))
+    agg.household_imported_purchase_quantity .=
+        purchase_group_totals(vec(sum(imported_quantity_h_g, dims = 2)))
+    agg.household_domestic_purchase_expenditure .=
+        purchase_group_totals(vec(sum(domestic_expenditure_h_g, dims = 2)))
+    agg.household_imported_purchase_expenditure .=
+        purchase_group_totals(vec(sum(imported_expenditure_h_g, dims = 2)))
+    agg.household_unfilled_purchase_demand .=
+        purchase_group_totals(vec(sum(unfilled_demand_h_g, dims = 2)))
+
+    fulfilled_expenditure =
+        agg.household_domestic_purchase_expenditure .+
+        agg.household_imported_purchase_expenditure
+    @assert isapprox(sum(fulfilled_expenditure), sum(C_h + I_h); atol = 1.0e-8)
+    @assert isapprox(
+        sum(fulfilled_expenditure + agg.household_unfilled_purchase_demand),
+        sum(C_d_h + I_d_h);
+        atol = 1.0e-8,
+    )
 
     w_act.C_h .= @view(C_h[1:H_W])
     w_inact.C_h .= @view(C_h[(H_W + 1):(H_W + H_inact)])
@@ -294,7 +349,9 @@ function perform_retail_market!(
         g, agg, gov, rotw, I, H, L, J, C_d_h, I_d_h, b_HH_g, b_CFH_g,
         c_E_g, c_G_g, Q_d_i_g, Q_d_m_g, C_h, I_h, C_j_g, C_l_g, P_bar_h_g,
         P_bar_CF_h_g, P_j_g, P_l_g, S_fg, S_fg_, F_g, P_f, S_f, G_f,
-        RETAIL_LOCK, parallel
+        domestic_quantity_h_g, imported_quantity_h_g,
+        domestic_expenditure_h_g, imported_expenditure_h_g,
+        unfilled_demand_h_g, RETAIL_LOCK, parallel
     )
     ###############################
     ######## RETAIL MARKET ########
@@ -319,6 +376,8 @@ function perform_retail_market!(
         for h in H_g
             e = rand(F_g_active)
             f = F_g[e]
+            quantity = min(S_fg[f], C_d_hg[h] / P_f[f])
+            supply_exhausted = false
 
             if S_fg[f] > C_d_hg[h] / P_f[f]
                 S_fg[f] -= C_d_hg[h] / P_f[f]
@@ -329,11 +388,30 @@ function perform_retail_market!(
                 C_real_hg[h] += S_fg[f]
                 S_fg[f] = 0.0
                 F_g_active[e] = 0.0
-                iszero(F_g_active) && break
+                supply_exhausted = iszero(F_g_active)
             end
+
+            if h <= H
+                if f <= I
+                    domestic_quantity_h_g[h, g] += quantity
+                    domestic_expenditure_h_g[h, g] += quantity * P_f[f]
+                else
+                    imported_quantity_h_g[h, g] += quantity
+                    imported_expenditure_h_g[h, g] += quantity * P_f[f]
+                end
+            end
+            supply_exhausted && break
         end
         ufilter!(h -> C_d_hg[h] > 0.0, H_g)
     end
+
+    unfilled_demand_h_g[:, g] .= @view(C_d_hg[1:H])
+    @assert isapprox(
+        sum(@view(domestic_quantity_h_g[:, g])) +
+            sum(@view(imported_quantity_h_g[:, g])),
+        sum(@view(C_real_hg[1:H]));
+        atol = 1.0e-8,
+    )
 
     if !isempty(H_g)
         C_d_hg_ = copy(C_d_hg)

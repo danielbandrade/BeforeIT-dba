@@ -32,9 +32,18 @@ function Aggregates(parameters, initial_conditions)
     epsilon_Y_EA = zero(typeFloat)
     epsilon_E = zero(typeFloat)
     epsilon_I = zero(typeFloat)
+    number_of_household_groups = 5
+    household_domestic_purchase_quantity = zeros(typeFloat, number_of_household_groups)
+    household_imported_purchase_quantity = zeros(typeFloat, number_of_household_groups)
+    household_domestic_purchase_expenditure = zeros(typeFloat, number_of_household_groups)
+    household_imported_purchase_expenditure = zeros(typeFloat, number_of_household_groups)
+    household_unfilled_purchase_demand = zeros(typeFloat, number_of_household_groups)
 
     return Aggregates(
         Y, pi_, P_bar, P_bar_g, P_bar_HH, P_bar_CF, P_bar_h, P_bar_CF_h, Y_e,
         gamma_e, pi_e, epsilon_Y_EA, epsilon_E, epsilon_I, t, gambling_volume,
+        household_domestic_purchase_quantity, household_imported_purchase_quantity,
+        household_domestic_purchase_expenditure, household_imported_purchase_expenditure,
+        household_unfilled_purchase_demand,
     )
 end

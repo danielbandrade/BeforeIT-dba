@@ -327,6 +327,11 @@ Bit.@object mutable struct Aggregates(Object) <: AbstractAggregates
     epsilon_I::Bit.typeFloat
     t::Bit.typeInt
     gambling_volume::Bit.typeFloat
+    household_domestic_purchase_quantity::Vector{Bit.typeFloat}
+    household_imported_purchase_quantity::Vector{Bit.typeFloat}
+    household_domestic_purchase_expenditure::Vector{Bit.typeFloat}
+    household_imported_purchase_expenditure::Vector{Bit.typeFloat}
+    household_unfilled_purchase_demand::Vector{Bit.typeFloat}
 end
 
 """
