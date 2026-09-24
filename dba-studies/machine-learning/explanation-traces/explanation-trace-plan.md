@@ -246,6 +246,21 @@ employment heatmap shows the sign of `N_d_i,t - N_i,t-1`, separating firing,
 unchanged, and hiring decisions without letting a few large changes dominate
 the color scale.
 
+The first network view treats `a_sg[g,s]` as a weighted directed edge from
+supplier sector `g` to buyer sector `s`. It ranks supplier hubs with weighted
+HITS centrality and projects sector reach onto firms. This is a structural
+potential network, not a realized firm-to-firm transaction network: the latter
+would require recording buyer, seller, quantity, and value inside each market
+match.
+
+The network-linked heatmaps aggregate output and employment decisions by
+sector. Beside each direct sector heatmap, a buyer-sector heatmap displays the
+input-weighted supplier signal `sum_g a_sg[g,s] * x[g,t]`. Output is measured as
+percentage change from quarter 0; hiring and firing are net desired employment
+change as a percentage of prior-quarter employment. This exposes upstream
+production-network pressure without claiming that the snapshots contain
+realized firm-to-firm trades.
+
 Quarterly snapshots cannot recover counterparties or transient values that are
 created and discarded within a quarter. Event hooks should be added only if a
 specific later analysis proves that boundary states are insufficient.
