@@ -12,82 +12,81 @@ using .ExplanationTraces
 const PARAMETERS = Bit.AUSTRIA2010Q1.parameters
 const INITIAL_CONDITIONS = Bit.AUSTRIA2010Q1.initial_conditions
 
-function metadata(seed, horizon; role = "baseline", scenario = "baseline")
-    return Dict{String, Any}(
-        "experiment_id" => "test",
-        "research_question" => "test",
-        "calibration_id" => "AUSTRIA2010Q1",
-        "run_id" => "$scenario-seed-$seed",
-        "scenario_id" => scenario,
-        "role" => role,
-        "pair_id" => "seed-$seed",
-        "seed" => seed,
-        "horizon" => horizon,
-    )
-end
-
-@testset "explanation traces" begin
+@testset "complete quarterly model snapshots" begin
     seed, horizon = 91, 2
-    trace, traced_model = simulate_trace(
-        PARAMETERS, INITIAL_CONDITIONS; horizon, seed, metadata = metadata(seed, horizon),
-    )
+    mktempdir() do folder
+        final_model, paths = simulate_snapshots(
+            PARAMETERS, INITIAL_CONDITIONS;
+            horizon,
+            seed,
+            output_directory = joinpath(folder, "snapshots"),
+            experiment_id = "test",
+            run_id = "baseline-seed-$seed",
+            scenario_id = "baseline",
+        )
 
-    @test length(trace["snapshots"]) == horizon + 1
-    @test !isempty(trace["events"])
-    @test validate_trace(trace; horizon) === trace
+        @test length(paths) == horizon + 1
+        snapshots = load_snapshot.(paths)
+        @test [snapshot["quarter"] for snapshot in snapshots] == collect(0:horizon)
+        @test all(snapshot -> snapshot["schema_version"] == SCHEMA_VERSION, snapshots)
+        @test all(snapshot -> typeof(snapshot["model"]) === typeof(final_model), snapshots)
+        @test state_equal(last(snapshots)["model"], final_model)
 
-    inventory_model = Bit.Model(deepcopy(PARAMETERS), deepcopy(INITIAL_CONDITIONS))
-    inventory = field_inventory(inventory_model)
-    expected_fields = sum(
-        length(fieldnames(typeof(getfield(inventory_model, component)))) for component in
-            (:prop, :w_act, :w_inact, :firms, :bank, :cb, :gov, :rotw, :agg, :data)
-    )
-    @test nrow(inventory) == expected_fields
-    @test count(==("runtime_excluded"), inventory.storage_class) == 6
+        open(joinpath(folder, "snapshots", "quarter-9999.jld2.tmp.jld2"), "w") do io
+            write(io, "interrupted write")
+        end
+        @test snapshot_paths(joinpath(folder, "snapshots")) == paths
+        partial_directory = joinpath(folder, "partial")
+        mkpath(partial_directory)
+        cp(first(paths), joinpath(partial_directory, basename(first(paths))))
+        @test_throws ErrorException snapshot_paths(partial_directory)
 
-    Random.seed!(seed)
-    normal_model = Bit.Model(deepcopy(PARAMETERS), deepcopy(INITIAL_CONDITIONS))
-    initial_lengths = Dict("Y" => length(normal_model.agg.Y), "pi_" => length(normal_model.agg.pi_))
-    Bit.run!(normal_model, horizon; parallel = false)
-    @test isequal(snapshot(normal_model, horizon, initial_lengths), last(trace["snapshots"]))
+        initial_deposit = first(snapshots)["model"].firms.D_i[1]
+        final_model.firms.D_i[1] += 1
+        @test load_snapshot(first(paths))["model"].firms.D_i[1] == initial_deposit
+        @test_throws ErrorException save_snapshot(
+            first(paths), final_model;
+            experiment_id = "test", run_id = "duplicate", scenario_id = "baseline",
+            seed, horizon, quarter = 0,
+        )
 
-    trace_again, _ = simulate_trace(
-        PARAMETERS, INITIAL_CONDITIONS; horizon, seed, metadata = metadata(seed, horizon),
-    )
-    @test isequal(trace_again["snapshots"], trace["snapshots"])
-    @test isequal(trace_again["events"], trace["events"])
+        panel = firm_panel(paths; fields = [:Y_i, :credit_gap])
+        matrix = firm_matrix(panel, :Y_i)
+        @test size(matrix.values) == (length(unique(panel.firm_id)), horizon + 1)
+        @test matrix.quarters == collect(0:horizon)
+        @test all(matrix.sectors .== sort(matrix.sectors))
+        @test nrow(panel) == sum(length(snapshot["model"].firms.ID) for snapshot in snapshots)
 
-    first_deposit = trace["snapshots"][1]["firms"]["D_i"][1]
-    traced_model.firms.D_i[1] += 1
-    @test trace["snapshots"][1]["firms"]["D_i"][1] == first_deposit
-
-    expected_stages = [
-        :start, :after_financing, :after_expectations, :after_firm_decisions,
-        :after_credit_market, :after_labour_market, :after_production,
-        :after_budgets, :after_goods_market, :after_accounting,
-    ]
-    Random.seed!(seed)
-    observed_model = Bit.Model(deepcopy(PARAMETERS), deepcopy(INITIAL_CONDITIONS))
-    observed_stages = Symbol[]
-    Bit.step!(observed_model; parallel = false, observer = (stage, _) -> push!(observed_stages, stage))
-    @test observed_stages == expected_stages
+        real_gdp = aggregate_series(paths, :real_gdp)
+        @test real_gdp.quarter == collect(0:horizon)
+        @test all(isfinite, real_gdp.value)
+    end
 
     mktempdir() do folder
-        trace_path = joinpath(folder, "trace.jld2")
-        save_trace(trace_path, trace)
-        @test isequal(load_trace(trace_path), trace)
-        @test_throws ErrorException save_trace(trace_path, trace)
+        Random.seed!(seed)
+        normal_model = Bit.Model(deepcopy(PARAMETERS), deepcopy(INITIAL_CONDITIONS))
+        Bit.run!(normal_model, horizon; parallel = false)
+        recorded_model, _ = simulate_snapshots(
+            PARAMETERS, INITIAL_CONDITIONS;
+            horizon,
+            seed,
+            output_directory = joinpath(folder, "snapshots"),
+            experiment_id = "test",
+            run_id = "recorded-seed-$seed",
+            scenario_id = "baseline",
+        )
+        @test state_equal(normal_model, recorded_model)
+    end
 
+    mktempdir() do folder
         specification = Dict(
             "experiment" => Dict(
-                "id" => "test-experiment",
-                "research_question" => "Does tighter firm loan-to-value reduce credit and GDP?",
+                "id" => "test-quarterly-states",
+                "research_question" => "How do firms change through time?",
                 "calibration" => "AUSTRIA2010Q1",
-                "horizon" => 2,
+                "horizon" => 1,
                 "seeds" => [17],
                 "shock" => "none",
-                "outcomes" => ["real_gdp"],
-                "mechanisms" => ["credit_allocation"],
             ),
             "scenarios" => [
                 Dict("id" => "baseline", "role" => "baseline", "description" => "baseline"),
@@ -95,7 +94,9 @@ end
                     "id" => "lower-zeta-ltv",
                     "role" => "intervention",
                     "description" => "zeta_LTV x 0.5",
-                    "changes" => [Dict("parameter" => "zeta_LTV", "operation" => "multiply", "value" => 0.5)],
+                    "changes" => [
+                        Dict("parameter" => "zeta_LTV", "operation" => "multiply", "value" => 0.5),
+                    ],
                 ),
             ],
         )
@@ -104,22 +105,18 @@ end
             TOML.print(io, specification)
         end
 
-        experiment_dir = generate_experiment(specification_path; output_root = joinpath(folder, "output"))
-        runs = CSV.read(joinpath(experiment_dir, "runs.csv"), DataFrame)
-        periods = CSV.read(joinpath(experiment_dir, "derived", "periods.csv"), DataFrame)
-        firms = CSV.read(joinpath(experiment_dir, "derived", "firms.csv"), DataFrame)
-        households = CSV.read(joinpath(experiment_dir, "derived", "households.csv"), DataFrame)
-        paired = CSV.read(joinpath(experiment_dir, "derived", "paired-differences.csv"), DataFrame)
-
+        output_root = joinpath(folder, "output")
+        experiment_directory = generate_experiment(specification_path; output_root)
+        runs = CSV.read(joinpath(experiment_directory, "runs.csv"), DataFrame)
         @test nrow(runs) == 2
         @test all(runs.success)
-        @test nrow(periods) == 2 * (2 + 1)
-        @test nrow(firms) == 2 * (2 + 1) * length(inventory_model.firms.ID)
-        household_count = length(inventory_model.w_act.ID) + length(inventory_model.w_inact.ID) +
-            length(inventory_model.firms.ID) + 1
-        @test nrow(households) == 2 * (2 + 1) * household_count
-        @test nrow(paired) == 2 + 1
-        @test isfile(joinpath(experiment_dir, "derived", "explanation-summary.md"))
-        @test_throws ErrorException generate_experiment(specification_path; output_root = joinpath(folder, "output"))
+        @test all(runs.snapshots_written .== 2)
+        @test all(runs.total_bytes .> 0)
+        for run in eachrow(runs)
+            paths = snapshot_paths(joinpath(experiment_directory, run.snapshot_directory))
+            @test length(paths) == 2
+            @test all(load_snapshot(path)["run_id"] == run.run_id for path in paths)
+        end
+        @test_throws ErrorException generate_experiment(specification_path; output_root)
     end
 end

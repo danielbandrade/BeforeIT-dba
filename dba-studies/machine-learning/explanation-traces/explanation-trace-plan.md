@@ -1,170 +1,55 @@
-# Plan: BeforeIT explanation traces
+# Plan: complete quarterly model snapshots
 
 ## Objective
 
-Create a comprehensive record of a small, fixed set of BeforeIT simulations so
-that aggregate outcomes can be explained from the agent states, decisions,
-constraints, and market events that produced them.
+Save the complete BeforeIT model state at the end of every simulated quarter so
+that a small, controlled set of simulations can later support comprehensive data
+analysis and machine-learning research.
 
-This is an explanatory dataset, not the input dataset for the large surrogate
-experiment. Storage efficiency is secondary to retaining economically meaningful
-information and unambiguous time and agent identities.
+The raw dataset is an archive of model states. It must not anticipate which
+variables or methods will matter later. Analysts should be able to load any
+quarter and inspect every field that existed in the model at that boundary.
 
-The first version should answer questions such as:
+This dataset is intended for explanation and exploration, not large parameter
+sweeps. Storage efficiency is therefore secondary to completeness and clarity.
 
-- Which agents and sectors initiated a recession or recovery?
-- How did credit rationing propagate into employment and production?
-- Which firm constraints became binding before an aggregate regime changed?
-- How did income, deposits, wealth, and unemployment distributions evolve?
-- Why did a policy or shock produce a different result from its paired baseline?
+The first concrete use case is a time-flowing heatmap of firm behavior: firms on
+the vertical axis, quarters on the horizontal axis, and color representing one
+firm variable. This view should make coordinated changes, heterogeneous
+responses, sector patterns, distress, and recovery visible as they emerge.
 
-The resulting explanations remain conditional on BeforeIT's mechanisms. They do
-not establish that the same causal relationships hold in the real economy.
+## Core decision
 
-## Implemented first experiment
+Create **one immutable JLD2 file per run and quarter**. Each file stores the full
+`model` object rather than a selected-field dictionary.
 
-The version-1 implementation records a paired Austrian 2010Q1 experiment:
-
-- baseline calibration;
-- firm loan-to-value limit `zeta_LTV` multiplied by 0.5;
-- 12 quarters and three common seeds;
-- credit allocation, employment transitions, production constraints, household
-  distributions, and aggregate outcomes.
-
-Run it from the repository root:
-
-```bash
-julia --project=. dba-studies/machine-learning/explanation-traces/run_experiment.jl
-```
-
-Run the focused regression check with:
-
-```bash
-julia --project=. dba-studies/machine-learning/explanation-traces/test/runtests.jl
-```
-
-The implementation lives in `src/explanation_traces.jl`. Generated experiments
-are written under `experiments/` and are ignored by Git through the repository's
-existing CSV and JLD2 rules.
-
-Version 1 records innovations, firm refinancing, credit allocations, worker job
-transitions, and binding production limits. Individual buyer/seller goods-market
-matches remain deferred because the first research question does not require
-them; the existing household-group purchase totals remain present in snapshots.
-
-## Scope
-
-### Included
-
-- A complete initial observation and one observation after every simulated
-  quarter.
-- Every economically meaningful field stored in the model at those observation
-  boundaries.
-- Persistent identities for firms and households.
-- Events whose information is created and discarded within a quarter.
-- Metadata sufficient to reproduce and interpret each run.
-- Derived macroeconomic, distributional, agent-panel, and event datasets.
-- Paired baseline/intervention comparisons using common random seeds.
-
-### Excluded from the first version
-
-- Large parameter sweeps or surrogate training data.
-- Full model snapshots after every function inside `step!`.
-- A generic serialization framework for arbitrary Julia objects.
-- Neural networks or another model chosen before the trace is inspected.
-- Mid-run checkpoint restoration. Re-running from the recorded seed is enough
-  initially.
-
-Intermediate snapshots should only be added if a specific explanation cannot be
-reconstructed from quarter-boundary states and events.
-
-## Experimental design
-
-Use a small, declared collection of scenarios. Each intervention must have a
-paired baseline with the same calibration, initial conditions, horizon, and
-seed. Run with `parallel = false` so event ordering and seeded reproduction are
-unambiguous.
-
-Every experiment specification must declare:
-
-- research question;
-- baseline and intervention scenarios;
-- parameter, policy, or shock difference between each pair;
-- simulation horizon;
-- seed panel;
-- outcomes and mechanisms to explain;
-- expected observation and event coverage.
-
-A single run may be used as a documented case study, but claims about a mechanism
-across stochastic simulations require a small predeclared seed panel. Agent-period
-rows within one run are dependent observations and must not be treated as
-independent simulation replications.
-
-## Observation boundary
-
-The canonical state observation occurs after both calls in the standard run
-loop:
-
-```julia
-Bit.step!(model; parallel = false)
-Bit.collect_data!(model)
-record_snapshot!(trace, model)
-```
-
-The initial observation is recorded immediately after `Bit.Model(...)` returns.
-The constructor already collects the initial macroeconomic data, so a horizon of
-`T` quarters produces exactly `T + 1` observations:
+For a simulation with horizon `T`, write exactly `T + 1` snapshots:
 
 ```text
-t = 0       initialized model
-t = 1..T    post-accounting, post-collection quarter states
+quarter 0      initialized model
+quarter 1..T   model after the quarter and data collection
 ```
 
-Each observation must record both the trace period and `model.agg.t`. Events
-created while advancing from `t - 1` to `t` are assigned to period `t`.
+The initial snapshot makes changes relative to the starting state observable.
 
-This boundary makes consecutive snapshots suitable for state-transition
-analysis. Models of a decision made inside a quarter must use only information
-available before that decision; later state fields cannot be included as
-features.
+## Implemented pipeline
 
-## Raw trace contract
+Schema version 2 implements this contract in `src/explanation_traces.jl`:
 
-Store one raw JLD2 file per run. Save primitive scalars and copied arrays rather
-than serializing the live `Model` object. This prevents mutable aliases between
-periods and reduces coupling to Julia type definitions.
+- `run_experiment.jl` reads `experiment.toml` and writes one snapshot directory
+  per run;
+- every snapshot contains the complete concrete `Model` plus identifying
+  metadata;
+- every write is round-trip validated before its temporary file is renamed;
+- `runs.csv` records coverage, size, runtime, provenance, and failures;
+- firm panels and stable firm-by-quarter matrices are derived directly from the
+  snapshots;
+- `explanation-trace-eda.ipynb` produces the static and time-flowing firm heatmap
+  with a synchronized aggregate trajectory.
 
-### 1. Run metadata
+## What “complete state” means
 
-Record once per run:
-
-- trace schema version;
-- experiment, run, scenario, pair, and calibration identifiers;
-- seed and horizon;
-- baseline or intervention role;
-- complete parameter and initial-condition inputs;
-- declared shock or policy specification;
-- country/calibration source;
-- Git commit and dirty-worktree flag;
-- Julia and BeforeIT versions;
-- serial/parallel execution setting;
-- creation timestamp, runtime, completion status, and failure reason.
-
-### 2. Static model information
-
-Record values that do not change during a run once:
-
-- model properties;
-- initial aggregate history used by expectations;
-- sector and product definitions;
-- initial entity IDs and structural dimensions;
-- field inventory and field classifications used by the extractor.
-
-Do not repeat static parameters inside every period.
-
-### 3. Quarter-boundary snapshots
-
-For every observation, copy the economically meaningful fields of:
+Each snapshot must preserve every field reachable from the model:
 
 - `model.w_act`;
 - `model.w_inact`;
@@ -174,220 +59,279 @@ For every observation, copy the economically meaningful fields of:
 - `model.gov`;
 - `model.rotw`;
 - `model.agg`;
-- the current observation in `model.data`.
+- `model.prop`;
+- `model.data`;
+- all IDs, lookup dictionaries, reference values, arrays, histories, and
+  bookkeeping fields contained in those objects;
+- fields added by supported model extensions through their concrete model type.
 
-Store agent arrays with their persistent `ID` vectors. Never use current vector
-position as agent identity: deletion can swap the last agent into a removed
-position. Store `lastid` when needed to interpret lifecycle events.
+There is no field whitelist and no economic-versus-runtime classification in the
+raw format. If the model owns a field at the observation boundary, the snapshot
+owns it too.
 
-Cumulative histories such as `agg.Y`, `agg.pi_`, and the vectors in `model.data`
-must not be copied in full every quarter. Store the initial prefix once and the
-new observation at each period so the complete histories remain reconstructible.
+“Complete” refers to the model at a quarter boundary. It does not include local
+variables that exist only inside a function during the quarter. It also does not
+make the file a process checkpoint: executable code and Julia's global random
+number generator are outside the `Model` object. The run seed and software
+versions are recorded for reproducibility. Exact mid-run continuation can add an
+RNG checkpoint later if it becomes a requirement.
 
-Runtime bookkeeping such as `id_to_index` may be excluded when it can be rebuilt
-exactly from IDs. Every exclusion must be documented in the field inventory;
-unclassified fields are an error rather than a silent omission.
+## Observation boundary
 
-### 4. Within-quarter events
+Use the existing serial simulation order:
 
-Quarter snapshots cannot recover information held only in local variables. Add
-targeted event recording for:
+```julia
+model = Bit.Model(parameters, initial_conditions)
+save_snapshot!(model, 0)
 
-- exogenous shocks and random innovations;
-- firm insolvency and refinancing;
-- requested, granted, and rationed credit by firm;
-- hires, separations, vacancies, and occupation changes;
-- desired versus realized production inputs and the binding production
-  constraint;
-- domestic and imported purchases, unmet demand, and buyer/seller/product
-  identities where the matching information would otherwise disappear;
-- other state-changing events identified by the reconstructability audit.
-
-Each event must contain:
-
-```text
-run_id, period, stage, event_type,
-actor_type, actor_id, counterparty_type, counterparty_id,
-product_or_sector, quantity, value, reason
+for quarter in 1:horizon
+    Bit.step!(model; parallel = false, shock!)
+    Bit.collect_data!(model)
+    save_snapshot!(model, quarter)
+end
 ```
 
-Only applicable fields need values. Event recording must not draw randomness or
-change execution order.
+This creates a consistent end-of-quarter view after accounting and data
+collection. Snapshot capture must not mutate the model, consume randomness, or
+change simulation order.
+
+## Snapshot file contract
+
+Each JLD2 file contains:
+
+```text
+schema_version
+experiment_id
+run_id
+scenario_id
+seed
+horizon
+quarter
+model_time
+captured_at_utc
+model
+```
+
+`model` is the complete concrete BeforeIT model object at that boundary. The
+other keys let an individual file be identified without consulting a separate
+table.
+
+Files are written to a temporary path, loaded once for validation, and then
+atomically renamed to their final path. A completed snapshot is never silently
+overwritten.
+
+JLD2 is already a project dependency and supports the Julia-native structures
+used by BeforeIT. These files are project artifacts, not a version-independent
+exchange format: loading them requires compatible BeforeIT and Julia code.
+
+## Experiment metadata
+
+Each run also needs enough context to interpret its snapshots:
+
+- experiment and scenario identifiers;
+- research question and scenario description;
+- calibration, parameters, and initial conditions;
+- shock or policy configuration;
+- seed and horizon;
+- Git commit and dirty-worktree flag;
+- Julia and BeforeIT versions;
+- start time, completion status, runtime, and failure reason;
+- expected and successfully written quarters.
+
+Store experiment inputs in a versioned TOML specification and run outcomes in a
+CSV manifest. The model state itself remains in the quarterly JLD2 files.
 
 ## Storage layout
-
-Use dependencies already present in the repository:
-
-- JLD2 for raw per-run traces;
-- CSV for manifests and derived rectangular tables;
-- TOML for experiment specifications.
-
-Planned generated layout:
 
 ```text
 explanation-traces/
 ├── explanation-trace-plan.md
-├── experiments/
-│   └── <experiment-id>/
-│       ├── specification.toml
-│       ├── runs.csv
-│       ├── traces/
-│       │   └── <run-id>.jld2
-│       └── derived/
-│           ├── periods.csv
-│           ├── firms.csv
-│           ├── households.csv
-│           └── events.csv
-└── src/
+├── experiment.toml
+├── run_experiment.jl
+├── src/
+├── test/
+└── experiments/
+    └── <experiment-id>/
+        ├── specification.toml
+        ├── runs.csv
+        ├── snapshots/
+        │   └── <run-id>/
+        │       ├── quarter-0000.jld2
+        │       ├── quarter-0001.jld2
+        │       └── ...
+        └── derived/
 ```
 
-Do not create the empty implementation directories until their phase begins.
-Generated experiment data should be ignored by Git; specifications, schema
-documentation, and analysis code should remain versioned.
+Generated experiments remain ignored by Git. Code, specifications, schema notes,
+and notebooks remain versioned.
 
-## Derived explanation datasets
+## Analysis architecture
 
-Raw traces are immutable. Build task-specific tables from them rather than
-altering or replacing the raw record.
+Raw snapshots are immutable source data. Analysis code loads snapshots and
+creates only the rectangular data needed for a specific question.
 
-### Period table
+The first analysis utilities should provide:
 
-One row per run and quarter containing the existing `model.data` fields plus
-explanatory aggregates such as:
+1. snapshot discovery from `runs.csv`;
+2. loading one run-quarter at a time;
+3. introspection of model components and fields;
+4. conversion of selected components into period, firm, and household tables;
+5. joins across consecutive quarters using persistent IDs;
+6. optional caching of derived tables under `derived/`.
 
-- unemployment and employment rates;
-- bankrupt/refinanced firm count and exposure;
-- requested, granted, and rationed credit;
-- income, deposit, wealth, wage, profit, and firm-size quantiles;
-- Gini or other declared distribution measures;
-- sector concentration and sector growth;
-- shares of firms constrained by demand, labour, capital, and materials;
-- desired-realized gaps for production, employment, investment, and credit.
+Do not make a fixed set of derived CSV files part of the raw schema. They can be
+regenerated as research questions evolve.
 
-### Firm panel
+### Primary view: firm behavior through time
 
-One row per run, quarter, and persistent firm ID. It should support transition
-targets such as insolvency, credit rationing, contraction, recovery, and entry or
-exit without using future information as a feature.
+For a selected run and firm variable, construct a matrix
 
-### Household panel
+```text
+rows       persistent firm IDs
+columns    quarters 0:T
+cells      value of the selected firm variable
+```
 
-One row per run, quarter, household group, and persistent household ID. Firm and
-bank owners must remain identifiable as household roles even though their fields
-are stored inside the firm and bank components.
+Firm rows must use `firms.ID`, not array position. Build the row index from the
+union of IDs across all quarters so entry, exit, or replacement cannot shift one
+firm's history onto another row. Missing firm-quarter combinations remain
+missing and use a distinct neutral color.
 
-### Event table
+Keep row order fixed for the entire plot. The default order is sector
+(`firms.G_i`) followed by firm ID; optional ordering by an initial characteristic
+or clustering may be added for a specific analysis. Never sort rows separately
+in each quarter because that destroys temporal identity.
 
-One row per event. Preserve actor and counterparty IDs so networks, cascades, and
-event sequences can be reconstructed.
+The first useful measures are:
 
-## Candidate explanation methods
+- production `Y_i`;
+- sales and demand `Q_i`, `Q_d_i`;
+- employment and vacancies `N_i`, `V_i`;
+- price `P_i`;
+- profit and equity `Pi_i`, `E_i`;
+- loans and deposits `L_i`, `D_i`;
+- requested and granted new credit `DL_d_i`, `DL_i`;
+- derived credit gap `max(DL_d_i - DL_i, 0)`.
 
-Method choice follows the recorded research question and diagnostics:
+Each heatmap represents one measure. Use raw or log-scaled values to compare
+firms and within-firm changes or standardized values to compare behavioral
+responses. The scale and transformation must be shown in the title or legend.
 
-1. Paired trajectory decomposition for baseline/intervention explanations.
-2. Change-point detection for the start of recessions, recoveries, or cascades.
-3. Clustering of period-level states for descriptive economic regimes.
-4. Interpretable trees or sparse models for early-warning indicators.
-5. Firm or household transition models for bankruptcy, unemployment, and income
-   loss.
-6. Network or cascade analysis when counterparty events are available.
-7. Dimensionality reduction for visualization of high-dimensional state paths.
+Start with a static heatmap containing the entire simulation. The time-flowing
+version reuses the same matrix and progressively reveals quarters or displays a
+moving window. Pair it with a synchronized aggregate trajectory above it and a
+shared quarter marker so firm-level changes can be compared with emergent GDP,
+unemployment, inflation, or credit behavior. Animation is a presentation layer,
+not a different data pipeline.
 
-Validation splits must be made by run or paired scenario, never by randomly
-splitting agent-period rows from the same simulation. Results from a small fixed
-trace collection are explanatory case-study evidence, not a generally validated
-predictive model.
+The snapshot collection can support analyses such as:
+
+- aggregate trajectories and regime changes;
+- firm entry, exit, bankruptcy, production, employment, and credit dynamics;
+- household income, wealth, deposits, consumption, and employment distributions;
+- sector composition and concentration;
+- balance-sheet and accounting relationships;
+- transitions between consecutive quarters;
+- baseline/intervention comparisons with common seeds;
+- dimensionality reduction, clustering, transition prediction, and other ML
+  methods chosen after exploratory analysis.
+
+Quarterly snapshots cannot recover counterparties or transient values that are
+created and discarded within a quarter. Event hooks should be added only if a
+specific later analysis proves that boundary states are insufficient.
 
 ## Implementation phases
 
-### Phase 1 — Inventory and schema
+### Phase 1 — Serialization proof
 
-1. Enumerate every field in the current model components.
-2. Classify each field as static, dynamic, cumulative history, derived runtime
-   bookkeeping, or excluded with rationale.
-3. Define units, entity grain, observation timing, and missing-value rules.
-4. Define the first experiment and paired scenarios.
+1. Construct a real BeforeIT model.
+2. Save the whole model at quarter 0 with JLD2.
+3. Load it and verify its concrete type and every nested field recursively.
+4. Advance one quarter, repeat the round trip, and measure file size and write
+   time.
 
-**Exit condition:** every current field is classified and every exclusion is
-reviewed.
+**Exit condition:** complete models from quarters 0 and 1 round-trip without an
+excluded or changed field.
 
-### Phase 2 — Quarter snapshots
+### Phase 2 — Quarterly writer
 
-1. Implement the smallest study-local snapshot extractor.
-2. Record initialization and post-collection observations around the existing
-   serial simulation loop.
-3. Save one JLD2 trace per run and one CSV run manifest.
-4. Convert one trace into period, firm, and household tables.
+1. Implement one small snapshot writer and loader.
+2. Wrap the existing serial run loop with saves at initialization and after each
+   `collect_data!` call.
+3. Use deterministic run and file names.
+4. Write through temporary files so interrupted saves are not mistaken for
+   completed snapshots.
 
-Do not modify core simulation behavior in this phase.
+**Exit condition:** a seeded `T`-quarter run creates exactly `T + 1` loadable
+files with contiguous quarter metadata.
 
-**Exit condition:** a short seeded run round-trips through JLD2, contains exactly
-`T + 1` observations, and reproduces every included model field at each boundary.
+### Phase 3 — Experiment runner
 
-### Phase 3 — Reconstructability audit and events
+1. Read scenarios, seeds, and horizon from `experiment.toml`.
+2. Create one snapshot directory per run.
+3. Record success, failure, runtime, and snapshot coverage in `runs.csv`.
+4. Refuse accidental overwrites unless an explicit clean rerun is requested.
 
-1. Select one aggregate outcome and trace its mechanism backward through the
-   quarter states.
-2. List causal information that snapshots cannot reconstruct.
-3. Add only the event hooks required to preserve that information.
-4. Reconcile event totals with state changes and accounting aggregates.
+**Exit condition:** every declared run is complete or has a recorded failure and
+partial files cannot appear as completed snapshots.
 
-**Exit condition:** the selected mechanism can be explained from the saved trace
-without inspecting a live model or rerunning it.
+### Phase 4 — Analysis foundation
 
-### Phase 4 — Curated trace generation
+1. Replace the current derived-data reader with a snapshot discovery and loading
+   layer.
+2. Build the firm-by-quarter matrix from persistent firm IDs.
+3. Produce the static firm heatmap and synchronized aggregate plot.
+4. Add progressive reveal or moving-window animation using the same matrix.
+5. Refactor the remaining EDA notebook to derive inputs from complete snapshots.
+6. Document observation timing, missing values, units, and transformations.
 
-1. Freeze the experiment specification and trace schema.
-2. Run every baseline/intervention pair with the declared seed panel.
-3. Preserve failures in the manifest.
-4. Generate derived tables without modifying raw traces.
+**Exit condition:** the notebook can rebuild the firm matrix and visualization
+from raw quarterly files alone, with no dependence on the old curated trace.
 
-**Exit condition:** every expected run is present or has a recorded failure, and
-all paired runs align by seed and period.
+### Phase 5 — Research simulations and ML
 
-### Phase 5 — Explanation analysis
+1. Define a small set of hypotheses and paired scenarios.
+2. Run a fixed seed panel with complete quarterly snapshots.
+3. Perform exploratory, distributional, transition, and accounting analysis.
+4. Choose ML methods based on the observed structure and research question.
+5. Split validation data by simulation run, never by random agent-quarter rows.
 
-1. Produce paired macro and distributional trajectories.
-2. Identify candidate regime transitions or outcome divergences.
-3. Connect each divergence to agent states, constraints, and recorded events.
-4. Apply the simplest candidate method that answers the research question.
-5. Report uncertainty across the seed panel and distinguish recurring mechanisms
-   from single-run events.
-
-**Exit condition:** each reported explanation links an intervention to agent
-decisions or events, distributional changes, and the final aggregate outcome.
+**Exit condition:** reported findings can be traced back to named runs, quarters,
+model components, and fields in the raw snapshots.
 
 ## Required checks
 
-- Tracing enabled and disabled produce identical simulation results.
-- Recording does not consume random numbers.
-- Identically seeded serial runs produce identical traces.
-- Every snapshot owns its arrays; later mutation cannot change earlier periods.
-- All saved agent arrays have the same length as their corresponding ID vector.
-- IDs are unique within entity type and run.
-- Observation times are monotonic and equal the declared horizon.
-- Required numeric values are finite, with documented exceptions.
-- Existing accounting-identity tests still pass.
-- Derived totals reconcile with raw states and recorded events.
-- JLD2 save/load preserves values and types needed by the analysis.
-- A schema change increments the trace schema version and fails clearly when an
-  incompatible reader is used.
+- A completed run contains exactly quarters `0:horizon`.
+- Every snapshot loads as the same concrete model type that was saved.
+- Recursive comparison finds no missing or changed model field after round-trip.
+- Earlier snapshot files do not change when the live model advances.
+- Snapshot metadata agrees with `model.agg.t` and the run manifest.
+- Agent IDs remain present and unique within their model component.
+- Every heatmap cell maps to the same persistent firm ID and recorded quarter as
+  its source snapshot.
+- Missing firms remain missing rather than inheriting another firm's array
+  position.
+- Saving snapshots does not alter seeded simulation results.
+- Interrupted writes leave no valid-looking final file.
+- Unsupported schema or software versions fail with a clear message.
+- One full pilot run stays within an explicitly reported storage and runtime
+  budget; no optimization is required unless that budget is unacceptable.
+
+## Change from the previous implementation
+
+The previous implementation is a curated explanation trace: it omits selected
+runtime fields, stores reduced observations, adds within-quarter event hooks, and
+places all quarters in one file per run. That is not the new raw-data contract.
+
+The refactor replaces it with complete per-quarter model files. Event capture and
+derived CSVs are optional downstream additions. The EDA notebook now reads the
+new snapshots directly.
 
 ## Completion criteria
 
-The first explanation-trace implementation is complete when one predeclared,
-paired experiment can be regenerated from scratch and its aggregate divergence
-can be followed through:
+The refactor is complete when a declared simulation can be run from scratch and
+produces one validated, full-model JLD2 file for initialization and every quarter,
+plus a manifest that lets analysis code discover and interpret those files.
 
-```text
-intervention
-  -> agent decisions and constraints
-  -> market and lifecycle events
-  -> distributional changes
-  -> aggregate outcome
-```
-
-The implementation should stop there. Additional event types, intermediate
-stages, storage formats, and ML methods are added only when a concrete explanation
-cannot be produced from the existing trace.
+Stop there. Add event-level capture, compression, alternative formats, or ML
+pipelines only when the quarterly dataset demonstrates a concrete need.

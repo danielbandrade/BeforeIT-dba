@@ -1,6 +1,6 @@
 [experiment]
-id = "credit-constraint-explanation-v1"
-research_question = "How does a tighter firm loan-to-value limit propagate through credit allocation, employment, production constraints, household outcomes, and real GDP?"
+id = "credit-constraint-quarterly-states-v1"
+research_question = "How does firm behavior evolve quarter by quarter when the firm loan-to-value limit is tightened?"
 calibration = "AUSTRIA2010Q1"
 horizon = 12
 seeds = [4101, 4102, 4103]

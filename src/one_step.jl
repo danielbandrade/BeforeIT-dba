@@ -3,15 +3,12 @@ using CommonSolve: step!
 export step!
 
 """
-    step!(model, T=1; parallel = false, shock! = Bit.NoShock(), observer = nothing)
+    step!(model, T=1; parallel = false, shock! = Bit.NoShock())
 
 This function simulates the economic model for `T` steps, updating various components of the model based 
 the interactions between different economic agents. It accepts a `model` object, which encapsulates the
 state for the simulation, and some optional parameters. `parallel` to enable or disable multi-threading.
 `shock` which can be used to shock the model during the stepping.
-
-When provided, `observer(stage, model)` is called at stable phase boundaries.
-Observers must not mutate the model or consume random numbers.
 
 Key operations performed include:
 - Financial adjustments for firms and banks, including insolvency checks and profit calculations.
@@ -23,17 +20,15 @@ Key operations performed include:
 
 The function updates the model in-place and return the model itself.
 """
-function CommonSolve.step!(model::AbstractModel, T; parallel = false, shock! = NoShock(), observer = nothing)
+function CommonSolve.step!(model::AbstractModel, T; parallel = false, shock! = NoShock())
     for _ in 1:T
-        step!(model; parallel, shock!, observer)
+        step!(model; parallel, shock!)
     end
     return model
 end
-function CommonSolve.step!(model::AbstractModel; parallel = false, shock! = NoShock(), observer = nothing)
+function CommonSolve.step!(model::AbstractModel; parallel = false, shock! = NoShock())
 
-    isnothing(observer) || observer(:start, model)
     Bit.finance_insolvent_firms!(model)
-    isnothing(observer) || observer(:after_financing, model)
 
     ####### GENERAL ESTIMATIONS #######
 
@@ -52,24 +47,20 @@ function CommonSolve.step!(model::AbstractModel; parallel = false, shock! = NoSh
 
     # update rate on loans and morgages
     Bit.set_bank_rate!(model)
-    isnothing(observer) || observer(:after_expectations, model)
 
     ####### FIRM EXPECTATIONS AND DECISIONS #######
 
     # compute firm quantity, price, investment and intermediate-goods, employment decisions,
     # expected profits, and desired/expected loans and capital
     Bit.set_firms_expectations_and_decisions!(model)
-    isnothing(observer) || observer(:after_firm_decisions, model)
 
     ####### CREDIT MARKET, LABOUR MARKET AND PRODUCTION #######
 
     # firms acquire new loans in a search and match market for credit
     Bit.search_and_matching_credit!(model)
-    isnothing(observer) || observer(:after_credit_market, model)
 
     # firms acquire labour in the search and match market for labour
     Bit.search_and_matching_labour!(model)
-    isnothing(observer) || observer(:after_labour_market, model)
 
     # update wages and productivity of labour and compute production function (Leontief technology)
     Bit.set_firms_wages!(model)
@@ -77,7 +68,6 @@ function CommonSolve.step!(model::AbstractModel; parallel = false, shock! = NoSh
 
     # update wages for workers
     Bit.update_workers_wages!(model)
-    isnothing(observer) || observer(:after_production, model)
 
     ####### CONSUMPTION AND INVESTMENT BUDGET #######
 
@@ -100,11 +90,9 @@ function CommonSolve.step!(model::AbstractModel; parallel = false, shock! = NoSh
 
     # compute demand for export and supply of imports
     Bit.set_rotw_import_export!(model)
-    isnothing(observer) || observer(:after_budgets, model)
 
     ####### GENERAL SEARCH AND MATCHING FOR ALL GOODS #######
     Bit.search_and_matching!(model; parallel)
-    isnothing(observer) || observer(:after_goods_market, model)
 
     ####### FINAL GENERAL ACCOUNTING #######
 
@@ -170,7 +158,6 @@ function CommonSolve.step!(model::AbstractModel; parallel = false, shock! = NoSh
 
     # update time step
     Bit.set_time!(model)
-    isnothing(observer) || observer(:after_accounting, model)
 
     return model
 end
