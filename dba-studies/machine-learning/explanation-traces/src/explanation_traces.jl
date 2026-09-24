@@ -9,8 +9,9 @@ using JLD2
 using Random
 using TOML
 
-export SCHEMA_VERSION, aggregate_series, firm_matrix, firm_panel, generate_experiment,
-    load_snapshot, save_snapshot, simulate_snapshots, snapshot_paths, state_equal
+export SCHEMA_VERSION, aggregate_series, firm_matrix, firm_panel, firm_transition_panel,
+    generate_experiment, load_snapshot, save_snapshot, simulate_snapshots, snapshot_paths,
+    state_equal
 
 const SCHEMA_VERSION = 2
 const ROOT = normpath(joinpath(@__DIR__, ".."))
@@ -278,6 +279,46 @@ function firm_panel(paths; fields = [:Y_i, :Q_i, :Q_d_i, :N_i, :V_i, :P_i, :Pi_i
             frame[!, field] = copy(values)
         end
         push!(frames, frame)
+    end
+    return vcat(frames...; cols = :setequal)
+end
+
+"""
+Derive firm transitions from consecutive snapshots. `bankruptcy_trigger` is the
+end-of-quarter insolvency condition refinanced at the start of the next quarter;
+`employment_decision` is desired employment minus prior-quarter employment.
+"""
+function firm_transition_panel(paths)
+    frames = DataFrame[]
+    previous_employment = Dict{Int, Int}()
+    for path in paths
+        snapshot = load_snapshot(path)
+        firms = snapshot["model"].firms
+        count = length(firms.ID)
+        decisions = Union{Missing, Int}[
+            haskey(previous_employment, id) ? firms.N_d_i[index] - previous_employment[id] : missing
+                for (index, id) in enumerate(firms.ID)
+        ]
+        realized_changes = Union{Missing, Int}[
+            haskey(previous_employment, id) ? firms.N_i[index] - previous_employment[id] : missing
+                for (index, id) in enumerate(firms.ID)
+        ]
+        push!(
+            frames,
+            DataFrame(
+                run_id = fill(snapshot["run_id"], count),
+                scenario_id = fill(snapshot["scenario_id"], count),
+                seed = fill(snapshot["seed"], count),
+                quarter = fill(snapshot["quarter"], count),
+                firm_id = copy(firms.ID),
+                sector = copy(firms.G_i),
+                bankruptcy_trigger = (firms.D_i .< 0) .& (firms.E_i .< 0),
+                employment_decision = decisions,
+                employment_decision_direction = [ismissing(value) ? missing : sign(value) for value in decisions],
+                realized_employment_change = realized_changes,
+            ),
+        )
+        previous_employment = Dict(id => firms.N_i[index] for (index, id) in enumerate(firms.ID))
     end
     return vcat(frames...; cols = :setequal)
 end

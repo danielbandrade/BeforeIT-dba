@@ -57,6 +57,25 @@ const INITIAL_CONDITIONS = Bit.AUSTRIA2010Q1.initial_conditions
         @test all(matrix.sectors .== sort(matrix.sectors))
         @test nrow(panel) == sum(length(snapshot["model"].firms.ID) for snapshot in snapshots)
 
+        transitions = firm_transition_panel(paths)
+        @test all(ismissing, transitions[transitions.quarter .== 0, :employment_decision])
+        first_firm = first(snapshots[2]["model"].firms.ID)
+        previous_index = findfirst(==(first_firm), snapshots[1]["model"].firms.ID)
+        current_index = findfirst(==(first_firm), snapshots[2]["model"].firms.ID)
+        first_transition = only(
+            transitions[(transitions.quarter .== 1) .& (transitions.firm_id .== first_firm), :employment_decision],
+        )
+        @test first_transition ==
+            snapshots[2]["model"].firms.N_d_i[current_index] - snapshots[1]["model"].firms.N_i[previous_index]
+        expected_bankruptcies = vcat(
+            [
+                (snapshot["model"].firms.D_i .< 0) .& (snapshot["model"].firms.E_i .< 0)
+                    for snapshot in snapshots
+            ]...
+        )
+        @test transitions.bankruptcy_trigger == expected_bankruptcies
+        @test size(firm_matrix(transitions, :employment_decision_direction).values) == size(matrix.values)
+
         real_gdp = aggregate_series(paths, :real_gdp)
         @test real_gdp.quarter == collect(0:horizon)
         @test all(isfinite, real_gdp.value)

@@ -213,9 +213,12 @@ The first useful measures are:
 - requested and granted new credit `DL_d_i`, `DL_i`;
 - derived credit gap `max(DL_d_i - DL_i, 0)`.
 
-Each heatmap represents one measure. Use raw or log-scaled values to compare
-firms and within-firm changes or standardized values to compare behavioral
-responses. The scale and transformation must be shown in the title or legend.
+Each heatmap represents one measure. For production, default to
+`log(1 + Y_i,t) - log(1 + Y_i,0)` with a symmetric diverging scale centered on
+zero; this removes persistent firm-size differences and exposes expansion and
+contraction. Raw or log-scaled levels remain useful for comparing firms, while
+standardized values compare behavioral responses. The scale and transformation
+must be shown in the title or legend.
 
 Start with a static heatmap containing the entire simulation. The time-flowing
 version reuses the same matrix and progressively reveals quarters or displays a
@@ -235,6 +238,13 @@ The snapshot collection can support analyses such as:
 - baseline/intervention comparisons with common seeds;
 - dimensionality reduction, clustering, transition prediction, and other ML
   methods chosen after exploratory analysis.
+
+The EDA notebook derives two decision heatmaps from these snapshots. A
+bankruptcy trigger is the end-of-quarter insolvency condition `D_i < 0 && E_i <
+0`; the bank refinances the same firm at the start of the next quarter. The
+employment heatmap shows the sign of `N_d_i,t - N_i,t-1`, separating firing,
+unchanged, and hiring decisions without letting a few large changes dominate
+the color scale.
 
 Quarterly snapshots cannot recover counterparties or transient values that are
 created and discarded within a quarter. Event hooks should be added only if a
