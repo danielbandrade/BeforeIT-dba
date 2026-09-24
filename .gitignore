@@ -92,6 +92,7 @@ Temporary Items
 simulation_data/
 /original_paper_data_and_programs/
 /dba-studies/machine-learning/surrogate/data/metadata.toml
+/dba-studies/machine-learning/explanation-traces/experiments/
 
 # data files
 *.csv
