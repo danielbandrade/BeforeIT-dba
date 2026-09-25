@@ -1,0 +1,14 @@
+[experiment]
+id = "consumption-shock-80-quarterly-states-v1"
+research_question = "How does temporarily reducing household propensity to consume to 80% of its calibrated value affect firms through the production network?"
+calibration = "AUSTRIA2010Q1"
+horizon = 12
+seeds = [4101]
+outcomes = ["real_gdp", "unemployment_rate", "household_income_gini"]
+mechanisms = ["household_consumption", "production_network", "employment"]
+
+[[scenarios]]
+id = "consumption-shock-80-percent"
+role = "intervention"
+description = "Native ConsumptionShock multiplies psi by 0.80 at t=1 and keeps it active through the 12-quarter run."
+shock = { type = "consumption", multiplier = 0.80, final_time = 13 }

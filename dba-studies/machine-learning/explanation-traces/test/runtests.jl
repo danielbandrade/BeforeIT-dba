@@ -117,6 +117,14 @@ const INITIAL_CONDITIONS = Bit.AUSTRIA2010Q1.initial_conditions
                         Dict("parameter" => "zeta_LTV", "operation" => "multiply", "value" => 0.5),
                     ],
                 ),
+                Dict(
+                    "id" => "consumption-shock",
+                    "role" => "intervention",
+                    "description" => "psi x 0.8",
+                    "shock" => Dict(
+                        "type" => "consumption", "multiplier" => 0.8, "final_time" => 2,
+                    ),
+                ),
             ],
         )
         specification_path = joinpath(folder, "experiment.toml")
@@ -127,7 +135,7 @@ const INITIAL_CONDITIONS = Bit.AUSTRIA2010Q1.initial_conditions
         output_root = joinpath(folder, "output")
         experiment_directory = generate_experiment(specification_path; output_root)
         runs = CSV.read(joinpath(experiment_directory, "runs.csv"), DataFrame)
-        @test nrow(runs) == 2
+        @test nrow(runs) == 3
         @test all(runs.success)
         @test all(runs.snapshots_written .== 2)
         @test all(runs.total_bytes .> 0)
@@ -136,6 +144,11 @@ const INITIAL_CONDITIONS = Bit.AUSTRIA2010Q1.initial_conditions
             @test length(paths) == 2
             @test all(load_snapshot(path)["run_id"] == run.run_id for path in paths)
         end
+        shock_paths = snapshot_paths(
+            joinpath(output_root, "test-quarterly-states", "snapshots", "consumption-shock-seed-17"),
+        )
+        baseline_psi = load_snapshot(first(shock_paths))["model"].prop.psi
+        @test load_snapshot(last(shock_paths))["model"].prop.psi ≈ 0.8 * baseline_psi
         @test_throws ErrorException generate_experiment(specification_path; output_root)
     end
 end

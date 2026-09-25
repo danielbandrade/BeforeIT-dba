@@ -112,6 +112,7 @@ end
 function simulate_snapshots(
         parameters, initial_conditions;
         horizon::Integer, seed::Integer, output_directory, experiment_id, run_id, scenario_id,
+        shock! = Bit.NoShock(),
     )
     horizon >= 1 || error("horizon must be positive")
     ispath(output_directory) && error("Refusing to overwrite snapshot directory: $output_directory")
@@ -123,7 +124,7 @@ function simulate_snapshots(
         experiment_id, run_id, scenario_id, seed, horizon, quarter = 0,
     )
     for quarter in 1:horizon
-        Bit.step!(model; parallel = false)
+        Bit.step!(model; parallel = false, shock!)
         Bit.collect_data!(model)
         save_snapshot(
             joinpath(output_directory, snapshot_name(quarter)), model;
@@ -131,6 +132,17 @@ function simulate_snapshots(
         )
     end
     return model, snapshot_paths(output_directory)
+end
+
+function configured_shock(scenario)
+    config = get(scenario, "shock", "none")
+    config == "none" && return Bit.NoShock()
+    config isa AbstractDict || error("Invalid shock configuration in scenario $(scenario["id"])")
+    get(config, "type", "") == "consumption" || error("Unsupported shock type: $(get(config, "type", ""))")
+    multiplier, final_time = Float64(config["multiplier"]), Int(config["final_time"])
+    multiplier > 0 || error("Consumption-shock multiplier must be positive")
+    final_time > 1 || error("Consumption-shock final_time must be greater than 1")
+    return Bit.ConsumptionShock(multiplier, final_time)
 end
 
 function calibration(name)
@@ -211,9 +223,11 @@ function generate_experiment(specification_path; output_root = joinpath(ROOT, "e
         paths = String[]
         try
             parameters = apply_changes!(deepcopy(source.parameters), scenario)
+            shock! = configured_shock(scenario)
             _, paths = simulate_snapshots(
                 parameters, source.initial_conditions;
                 horizon, seed, output_directory, experiment_id, run_id, scenario_id,
+                shock!,
             )
         catch exception
             success = false

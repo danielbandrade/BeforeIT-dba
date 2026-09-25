@@ -259,7 +259,13 @@ input-weighted supplier signal `sum_g a_sg[g,s] * x[g,t]`. Output is measured as
 percentage change from quarter 0; hiring and firing are net desired employment
 change as a percentage of prior-quarter employment. This exposes upstream
 production-network pressure without claiming that the snapshots contain
-realized firm-to-firm trades.
+realized firm-to-firm trades. A downstream view reverses the calculation:
+buyer-sector desired material purchases are distributed across supplier
+products with `a_sg`, exposing changes in the demand pressure received by each
+supplier sector. Because quarter 0 precedes the first firm decision, this view
+uses quarter 1 as its comparison baseline.
+Supplier products with zero network demand at that baseline remain blank rather
+than producing undefined percentage changes.
 
 Quarterly snapshots cannot recover counterparties or transient values that are
 created and discarded within a quarter. Event hooks should be added only if a
