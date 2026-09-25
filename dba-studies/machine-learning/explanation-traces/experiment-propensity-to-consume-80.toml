@@ -1,8 +1,8 @@
 [experiment]
-id = "consumption-shock-80-quarterly-states-v1"
+id = "consumption-shock-80-quarterly-states-v2"
 research_question = "How does temporarily reducing household propensity to consume to 80% of its calibrated value affect firms through the production network?"
 calibration = "AUSTRIA2010Q1"
-horizon = 12
+horizon = 30
 seeds = [4101]
 outcomes = ["real_gdp", "unemployment_rate", "household_income_gini"]
 mechanisms = ["household_consumption", "production_network", "employment"]
