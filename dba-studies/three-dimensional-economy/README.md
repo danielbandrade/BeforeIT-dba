@@ -11,7 +11,8 @@ profit (`Pi_i`), and outstanding loans (`L_i`). Heights use a fixed square-root
 scale for each indicator; profit height uses its absolute value, with color
 showing its sign. The side panels show recorded GDP and unemployment among active
 workers. Dragging rotates the scene, scrolling zooms, and clicking selects a
-firm.
+firm. The selected firm shows its sector's NACE code and description from
+[`sector-cheatsheet.md`](../model-mechanics/sector-cheatsheet.md).
 
 The optional gold markers show the selected indicator's **archived Q+1 plan**:
 planned quantity (`Q_s_i`), desired employment (`N_d_i`), expected profit

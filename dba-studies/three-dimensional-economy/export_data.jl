@@ -7,6 +7,16 @@ const SOURCE = joinpath(
     @__DIR__, "..", "machine-learning", "explanation-traces", "experiments",
     EXPERIMENT, "snapshots", RUN,
 )
+const CHEATSHEET = joinpath(@__DIR__, "..", "model-mechanics", "sector-cheatsheet.md")
+
+mapping = split(split(read(CHEATSHEET, String), "## Complete mapping"; limit = 2)[2], "## Interpretation notes"; limit = 2)[1]
+sectors = [
+    (id = parse(Int, match_row[1]), nace = strip(match_row[2]), description = strip(match_row[3]))
+    for line in split(mapping, '\n')
+    for match_row in (match(r"^\|\s*(\d+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|", line),)
+    if match_row !== nothing
+]
+getproperty.(sectors, :id) == collect(1:62) || error("The sector cheatsheet must map every sector from 1 to 62 once")
 
 paths = sort(filter(path -> occursin(r"^quarter-\d{4}\.jld2$", basename(path)), readdir(SOURCE; join = true)))
 isempty(paths) && error("No quarterly snapshots found in $SOURCE")
@@ -14,7 +24,11 @@ isempty(paths) && error("No quarterly snapshots found in $SOURCE")
 output = joinpath(@__DIR__, "data.js")
 temporary = output * ".tmp"
 open(temporary, "w") do io
-    print(io, "window.BEFOREIT_TRACE={experiment:", repr(EXPERIMENT), ",run:", repr(RUN), ",quarters:[")
+    print(io, "window.BEFOREIT_TRACE={experiment:", repr(EXPERIMENT), ",run:", repr(RUN), ",sectors:[null")
+    for sector in sectors
+        print(io, ",[", repr(sector.nace), ',', repr(sector.description), ']')
+    end
+    print(io, "],quarters:[")
     horizon = nothing
     for (index, path) in enumerate(paths)
         snapshot = load_snapshot(path)
@@ -33,6 +47,7 @@ open(temporary, "w") do io
         )) ||
             error("Misaligned firm fields at $path")
         allunique(firms.ID) || error("Repeated firm ID at $path")
+        all(1 <= sector <= length(sectors) for sector in firms.G_i) || error("Unknown firm sector at $path")
 
         gdp = Float64(last(model.data.real_gdp))
         unemployment = count(==(0), model.w_act.O_h) / length(model.w_act.O_h)

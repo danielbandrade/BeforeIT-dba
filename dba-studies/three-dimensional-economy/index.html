@@ -58,6 +58,7 @@
     .firm-title { display:flex; justify-content:space-between; align-items:baseline; gap:8px }
     .firm-title strong { font-size:20px; letter-spacing:-.025em }
     .firm-title span { color:var(--gold); font-size:11px }
+    .sector-description { margin:5px 0 0; color:#c7d9d5; font-size:12px; line-height:1.35 }
     .firm-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px 8px; margin-top:15px }
     .firm-grid label { display:block; color:var(--muted); font-size:11px }
     .firm-grid strong { display:block; font-weight:560; font-variant-numeric:tabular-nums }
@@ -91,7 +92,7 @@
       <aside class="sidebar">
         <section class="card"><h3>Economy / <span id="card-quarter">Quarter 0</span></h3><div class="metric"><label>Real GDP</label><strong id="gdp">—</strong><small id="gdp-change">—</small></div><div class="metric"><label>Active worker unemployment</label><strong id="unemployment">—</strong><small id="unemployment-change">—</small></div><svg id="gdp-chart" class="chart" viewBox="0 0 250 92" role="img" aria-label="Real GDP across all archived quarters"></svg><div class="chart-note"><span>Real GDP trajectory</span><span>Q0—Q30</span></div></section>
         <section class="card"><h3>Firm indicator</h3><div class="choices" id="choices"><button type="button" data-measure="output" aria-pressed="true">Production</button><button type="button" data-measure="jobs" aria-pressed="false">Employment</button><button type="button" data-measure="profit" aria-pressed="false">Profit</button><button type="button" data-measure="loans" aria-pressed="false">Outstanding loans</button></div><p class="measure-note" id="measure-note">Height shows production; color shows each firm's change from Q0.</p><button class="layer-toggle" id="expectation-toggle" type="button" aria-pressed="false"><span>Show archived Q+1 plan</span><span aria-hidden="true">○</span></button><p class="measure-note" id="expectation-note">The gold markers use plans recorded in the next quarter's snapshot.</p></section>
-        <section class="card"><h3>Selected firm</h3><div class="firm-title"><strong id="firm-name">—</strong><span id="firm-sector">—</span></div><div class="firm-grid"><div><label>Production</label><strong id="firm-output">—</strong></div><div><label>Employment</label><strong id="firm-jobs">—</strong></div><div><label>Profit</label><strong id="firm-profit">—</strong></div><div><label>Outstanding loans</label><strong id="firm-loans">—</strong></div></div><svg id="firm-chart" class="chart" viewBox="0 0 250 92" role="img" aria-label="Selected firm's chosen indicator across all quarters"></svg><div class="chart-note"><span id="firm-chart-label">Production history</span><span id="firm-change">—</span></div><div class="expectation-detail" id="expectation-detail" hidden><label id="expected-label">Archived Q+1 plan</label><strong id="expected-value">—</strong><small id="expected-note">—</small></div></section>
+        <section class="card"><h3>Selected firm</h3><div class="firm-title"><strong id="firm-name">—</strong><span id="firm-sector">—</span></div><p class="sector-description" id="sector-description">—</p><div class="firm-grid"><div><label>Production</label><strong id="firm-output">—</strong></div><div><label>Employment</label><strong id="firm-jobs">—</strong></div><div><label>Profit</label><strong id="firm-profit">—</strong></div><div><label>Outstanding loans</label><strong id="firm-loans">—</strong></div></div><svg id="firm-chart" class="chart" viewBox="0 0 250 92" role="img" aria-label="Selected firm's chosen indicator across all quarters"></svg><div class="chart-note"><span id="firm-chart-label">Production history</span><span id="firm-change">—</span></div><div class="expectation-detail" id="expectation-detail" hidden><label id="expected-label">Archived Q+1 plan</label><strong id="expected-value">—</strong><small id="expected-note">—</small></div></section>
       </aside>
     </div>
     <div class="timeline"><div class="time-row"><button class="play" id="play" type="button" aria-label="Play animation">▶</button><div class="time-label"><strong id="time-quarter">Quarter 0</strong><span id="time-stage">End of quarter</span></div><input id="quarter" type="range" min="0" max="30" value="8" step="1" aria-label="Simulation quarter"><span class="time-end">Q30</span></div><div class="ticks"><span>Q0</span><span>Q5</span><span>Q10</span><span>Q15</span><span>Q20</span><span>Q25</span><span>Q30</span></div></div>
@@ -190,8 +191,10 @@
     function updateFirm(map = currentRows(), nextMap = quarter < quarters.length - 1 ? currentRows(quarter+1) : null) {
       const row = map.get(selected), initial = base.get(selected);
       const config = indicators[measure];
+      const sector = trace.sectors[(row ?? initial)?.[1]];
       get('firm-name').textContent = `Firm ${selected}`;
-      get('firm-sector').textContent = row ? `Sector ${row[1]}` : 'Not present';
+      get('firm-sector').textContent = sector ? `Sector ${(row ?? initial)[1]} · ${sector[0]}` : 'Sector unavailable';
+      get('sector-description').textContent = sector?.[1] ?? 'Sector description unavailable';
       get('firm-output').textContent = row ? fmt.format(row[2]) : '—';
       get('firm-jobs').textContent = row ? fmt.format(row[3]) : '—';
       get('firm-profit').textContent = row ? fmt.format(row[4]) : '—';
