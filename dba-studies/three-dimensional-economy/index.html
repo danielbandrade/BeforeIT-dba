@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BeforeIT — Economy in Motion</title>
+  <style>
+    :root { color-scheme: dark; --bg:#07131b; --panel:#10212a; --panel2:#132933; --line:#2b424b; --text:#e8f2ef; --muted:#96abae; --cyan:#6ed8c5; --orange:#ef9275; --gold:#f4cb78; }
+    * { box-sizing:border-box }
+    body { margin:0; min-height:100vh; background:var(--bg); color:var(--text); font:14px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif }
+    button,input { font:inherit }
+    button { cursor:pointer }
+    .shell { max-width:1600px; margin:auto; padding:25px 30px 30px }
+    header { display:flex; align-items:flex-end; justify-content:space-between; gap:24px; padding:0 2px 22px }
+    .eyebrow { color:var(--cyan); font-size:11px; font-weight:700; letter-spacing:.22em; text-transform:uppercase }
+    h1 { margin:5px 0 3px; font-size:clamp(27px,3.1vw,43px); letter-spacing:-.05em; line-height:1.08; font-weight:650 }
+    header p { margin:5px 0 0; color:var(--muted) }
+    .run { max-width:320px; color:var(--muted); text-align:right; font-size:12px }
+    .run strong { display:block; color:var(--text); font-size:13px; font-weight:550 }
+    .layout { display:grid; grid-template-columns:minmax(0,1fr) 306px; gap:14px }
+    .scene { position:relative; min-height:590px; overflow:hidden; border:1px solid var(--line); border-radius:16px; background:radial-gradient(ellipse at 52% 58%,#153441 0%,#0d2530 38%,#091923 72%,#07131b 100%) }
+    .scene::after { content:""; pointer-events:none; position:absolute; inset:0; background:linear-gradient(180deg,transparent 74%,#08172099) }
+    #view { position:absolute; inset:0; display:block; width:100%; height:100%; cursor:grab; touch-action:none }
+    #view.dragging { cursor:grabbing }
+    .scene-top { position:absolute; top:20px; left:22px; z-index:1; pointer-events:none }
+    .scene-top .tag { display:inline-block; margin-bottom:9px; border:1px solid #4e756f; border-radius:100px; padding:4px 10px; background:#18372fbb; color:#9ae2d2; font-size:10px; font-weight:700; letter-spacing:.12em; text-transform:uppercase }
+    .scene-top h2 { margin:0; font-size:23px; letter-spacing:-.035em; font-weight:620 }
+    .scene-top p { max-width:390px; margin:5px 0 0; color:#abc0c2; font-size:12px }
+    .scene-bottom { position:absolute; z-index:1; bottom:20px; left:22px; right:22px; display:flex; gap:12px; align-items:end; justify-content:space-between; pointer-events:none }
+    .legend { display:flex; align-items:center; gap:8px; color:#bfd1d0; font-size:11px }
+    .dot { width:9px; height:9px; border-radius:50%; background:var(--orange) }
+    .dot.positive { background:var(--cyan) }
+    .scene-hint { color:#91a9ae; font-size:11px; text-align:right }
+    .sidebar { display:flex; flex-direction:column; gap:14px }
+    .card { border:1px solid var(--line); border-radius:16px; background:linear-gradient(140deg,var(--panel2),var(--panel)); padding:18px }
+    .card h3 { margin:0 0 15px; color:#a3b9bc; font-size:10px; text-transform:uppercase; letter-spacing:.18em }
+    .metric { padding:2px 0 15px; border-bottom:1px solid var(--line); margin-bottom:15px }
+    .metric:last-child { margin-bottom:0; border-bottom:0; padding-bottom:0 }
+    .metric label { display:block; color:var(--muted); font-size:12px }
+    .metric strong { display:block; margin:4px 0 1px; font-size:29px; line-height:1.1; letter-spacing:-.045em; font-variant-numeric:tabular-nums; font-weight:600 }
+    .metric small { color:var(--muted) }
+    .metric small.down { color:var(--orange) }
+    .metric small.up { color:var(--cyan) }
+    .chart { width:100%; height:92px; display:block; margin-top:12px; overflow:visible }
+    .chart-note { display:flex; justify-content:space-between; color:var(--muted); font-size:10px; margin-top:2px }
+    .choices { display:grid; grid-template-columns:1fr 1fr; gap:7px }
+    .choices button { min-height:37px; border:1px solid #36515a; border-radius:8px; color:#b7c9c9; background:#0a1a23; font-size:11px; text-align:left; padding:7px 9px }
+    .choices button[aria-pressed="true"] { border-color:var(--cyan); color:#dcf9f1; background:#173b39 }
+    .measure-note { color:var(--muted); font-size:11px; margin:12px 0 0 }
+    .layer-toggle { display:flex; align-items:center; justify-content:space-between; gap:10px; width:100%; margin-top:15px; padding:11px 12px; border:1px solid #725e3e; border-radius:9px; background:#2c2a24; color:#f4d99c; text-align:left; font-size:12px }
+    .layer-toggle[aria-pressed="true"] { background:#4a3926; border-color:var(--gold) }
+    .layer-toggle:disabled { opacity:.45; cursor:not-allowed }
+    .layer-toggle span:last-child { font-size:16px }
+    .expectation-detail { margin-top:15px; padding:12px; border:1px solid #6e603e; border-radius:9px; background:#302d25; color:#f1dba8 }
+    .expectation-detail label { display:block; font-size:10px; letter-spacing:.12em; text-transform:uppercase }
+    .expectation-detail strong { display:block; margin-top:4px; font-size:18px; font-variant-numeric:tabular-nums }
+    .expectation-detail small { display:block; color:#c9b995; font-size:10px }
+    .firm-title { display:flex; justify-content:space-between; align-items:baseline; gap:8px }
+    .firm-title strong { font-size:20px; letter-spacing:-.025em }
+    .firm-title span { color:var(--gold); font-size:11px }
+    .firm-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px 8px; margin-top:15px }
+    .firm-grid label { display:block; color:var(--muted); font-size:11px }
+    .firm-grid strong { display:block; font-weight:560; font-variant-numeric:tabular-nums }
+    .timeline { margin-top:14px; border:1px solid var(--line); border-radius:16px; background:var(--panel); padding:16px 20px 14px }
+    .time-row { display:flex; align-items:center; gap:17px }
+    .play { width:38px; height:38px; flex:none; border:1px solid #5aa99d; border-radius:10px; background:#1d544e; color:#eafff8; font-size:17px }
+    .time-label { width:104px; flex:none }
+    .time-label strong { display:block; font-size:17px; line-height:1; font-variant-numeric:tabular-nums }
+    .time-label span { color:var(--muted); font-size:11px }
+    input[type=range] { flex:1; min-width:0; accent-color:var(--cyan); cursor:pointer }
+    .time-end { color:var(--muted); font-size:11px; font-variant-numeric:tabular-nums }
+    .ticks { display:flex; justify-content:space-between; margin:7px 3px 0 159px; color:#779097; font-size:10px }
+    .footer { display:flex; justify-content:space-between; gap:20px; margin-top:15px; color:#78939a; font-size:11px }
+    .footer a { color:#a8d9d1 }
+    @media (max-width:1050px) { .layout { grid-template-columns:1fr } .scene { min-height:550px } .sidebar { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)) } }
+    @media (max-width:710px) { .shell { padding:18px 12px } header { align-items:flex-start; flex-direction:column } .run { text-align:left } .scene { min-height:500px } .sidebar { grid-template-columns:1fr } .scene-bottom { align-items:flex-start; flex-direction:column } .time-row { gap:9px } .time-label { width:75px } .ticks { margin-left:122px } .footer { flex-direction:column } }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div><div class="eyebrow">BeforeIT / Research prototype</div><h1>Economy in motion</h1><p>One simulated economy, viewed quarter by quarter.</p></div>
+      <div class="run"><strong>80% household consumption propensity</strong>Austria 2010Q1 calibration · seed 4101 · 31 archived states</div>
+    </header>
+    <div class="layout">
+      <section class="scene" aria-label="Interactive three-dimensional firm landscape">
+        <canvas id="view" role="img" aria-label="Firm towers. Their heights and colors show the selected indicator; gold markers show archived next-quarter plans when enabled."></canvas>
+        <div class="scene-top"><div class="tag">Archived trace · No live simulation</div><h2>Firm landscape</h2><p id="scene-description">Each tower is one firm. Height shows production; position preserves identity across quarters.</p></div>
+        <div class="scene-bottom"><div class="legend"><span class="dot"></span><span id="legend-left">Lower output</span><span style="margin:0 6px;color:#718f98">—</span><span class="dot positive"></span><span id="legend-right">Higher output</span><span id="expectation-legend" hidden style="margin-left:9px;color:#f4cb78">│ Q+1 plan</span></div><div class="scene-hint">Drag to orbit · Scroll to zoom · Click a tower</div></div>
+      </section>
+      <aside class="sidebar">
+        <section class="card"><h3>Economy / <span id="card-quarter">Quarter 0</span></h3><div class="metric"><label>Real GDP</label><strong id="gdp">—</strong><small id="gdp-change">—</small></div><div class="metric"><label>Active worker unemployment</label><strong id="unemployment">—</strong><small id="unemployment-change">—</small></div><svg id="gdp-chart" class="chart" viewBox="0 0 250 92" role="img" aria-label="Real GDP across all archived quarters"></svg><div class="chart-note"><span>Real GDP trajectory</span><span>Q0—Q30</span></div></section>
+        <section class="card"><h3>Firm indicator</h3><div class="choices" id="choices"><button type="button" data-measure="output" aria-pressed="true">Production</button><button type="button" data-measure="jobs" aria-pressed="false">Employment</button><button type="button" data-measure="profit" aria-pressed="false">Profit</button><button type="button" data-measure="loans" aria-pressed="false">Outstanding loans</button></div><p class="measure-note" id="measure-note">Height shows production; color shows each firm's change from Q0.</p><button class="layer-toggle" id="expectation-toggle" type="button" aria-pressed="false"><span>Show archived Q+1 plan</span><span aria-hidden="true">○</span></button><p class="measure-note" id="expectation-note">The gold markers use plans recorded in the next quarter's snapshot.</p></section>
+        <section class="card"><h3>Selected firm</h3><div class="firm-title"><strong id="firm-name">—</strong><span id="firm-sector">—</span></div><div class="firm-grid"><div><label>Production</label><strong id="firm-output">—</strong></div><div><label>Employment</label><strong id="firm-jobs">—</strong></div><div><label>Profit</label><strong id="firm-profit">—</strong></div><div><label>Outstanding loans</label><strong id="firm-loans">—</strong></div></div><svg id="firm-chart" class="chart" viewBox="0 0 250 92" role="img" aria-label="Selected firm's chosen indicator across all quarters"></svg><div class="chart-note"><span id="firm-chart-label">Production history</span><span id="firm-change">—</span></div><div class="expectation-detail" id="expectation-detail" hidden><label id="expected-label">Archived Q+1 plan</label><strong id="expected-value">—</strong><small id="expected-note">—</small></div></section>
+      </aside>
+    </div>
+    <div class="timeline"><div class="time-row"><button class="play" id="play" type="button" aria-label="Play animation">▶</button><div class="time-label"><strong id="time-quarter">Quarter 0</strong><span id="time-stage">End of quarter</span></div><input id="quarter" type="range" min="0" max="30" value="8" step="1" aria-label="Simulation quarter"><span class="time-end">Q30</span></div><div class="ticks"><span>Q0</span><span>Q5</span><span>Q10</span><span>Q15</span><span>Q20</span><span>Q25</span><span>Q30</span></div></div>
+    <div class="footer"><span>Source: archived quarterly explanation traces · tower heights use a fixed square-root scale for the chosen indicator.</span><span>Gold markers show Q+1 plans with hindsight; between-quarter motion is visual interpolation.</span></div>
+  </div>
+  <script src="data.js"></script>
+  <script>
+  (() => {
+    const trace = window.BEFOREIT_TRACE;
+    if (!trace?.quarters?.length) { document.querySelector('.scene-top p').textContent = 'The archived data could not be loaded. Run export_data.jl to create data.js.'; return; }
+
+    const canvas = document.getElementById('view');
+    const ctx = canvas.getContext('2d');
+    const slider = document.getElementById('quarter');
+    const quarters = trace.quarters;
+    const base = new Map(quarters[0].firms.map(row => [row[0], row]));
+    const allRows = new Map();
+    quarters.forEach(q => q.firms.forEach(row => { if (!allRows.has(row[0])) allRows.set(row[0], row); }));
+    const ordered = [...allRows.values()].sort((a,b) => a[1] - b[1] || a[0] - b[0]);
+    const columns = Math.ceil(Math.sqrt(ordered.length * 1.18));
+    const rows = Math.ceil(ordered.length / columns);
+    const nodes = ordered.map((row, index) => ({
+      id:row[0], sector:row[1], x:index % columns - (columns - 1)/2,
+      z:Math.floor(index / columns) - (rows - 1)/2, height:0, target:0, expectedHeight:0, expectedTarget:0,
+      color:[83,112,130], targetColor:[83,112,130]
+    }));
+    const fmt = new Intl.NumberFormat('en-US',{maximumFractionDigits:0});
+    const pct = n => `${(100*n).toFixed(1)}%`;
+    const clamp = (v,a,b) => Math.min(b,Math.max(a,v));
+    const get = id => document.getElementById(id);
+    const indicators = {
+      output:{field:2,plan:6,label:'Production',planLabel:'Planned quantity',note:'Height shows production; color shows each firm\'s change from Q0.'},
+      jobs:{field:3,plan:7,label:'Employment',planLabel:'Desired employment',note:'Height shows employees; color shows staffing change from Q0.'},
+      profit:{field:4,plan:8,label:'Profit',planLabel:'Expected profit',note:'Height shows the absolute profit amount; coral means loss, teal means profit.'},
+      loans:{field:5,plan:9,label:'Outstanding loans',planLabel:'Expected loan balance',note:'Height shows outstanding loans; color shows change from Q0.'}
+    };
+    const maxValues = Object.fromEntries(Object.entries(indicators).map(([key, config]) => [key,
+      Math.max(1,...quarters.flatMap(q=>q.firms.flatMap(row=>[Math.abs(row[config.field]),Math.abs(row[config.plan])])))
+    ]));
+    const legends = {
+      output:['Lower output','Higher output'], jobs:['Fewer jobs','More jobs'],
+      profit:['Loss','Profit'], loans:['Less credit','More credit']
+    };
+    let quarter = 8, measure = 'output', showExpectations = false;
+    let selected = ordered.reduce((best,row) => row[2] > best[2] ? row : best, ordered[0])[0];
+    let yaw = -.73, pitch = .66, zoom = 1, width = 0, height = 0, scale = 1, playing = null;
+    let pointer = null, moved = false, hitTargets = [];
+
+    function currentRows(q = quarter) { return new Map(quarters[q].firms.map(row => [row[0],row])); }
+    function colorFor(row, initial) {
+      if (!row || !initial) return [45,65,76];
+      let value;
+      if (measure === 'output') value = (Math.log1p(Math.max(0,row[2])) - Math.log1p(Math.max(0,initial[2]))) / .48;
+      else if (measure === 'jobs') value = (row[3] - initial[3]) / Math.max(4,initial[3] * .55);
+      else if (measure === 'loans') value = (Math.log1p(Math.max(0,row[5])) - Math.log1p(Math.max(0,initial[5]))) / .7;
+      else value = Math.asinh(row[4] / 45) / 2.4;
+      value = clamp(value,-1,1);
+      const neutral = [80,106,124], target = value < 0 ? [239,128,103] : [93,214,192];
+      return neutral.map((channel,i) => channel + (target[i] - channel) * Math.abs(value));
+    }
+    function targetHeight(row, field) {
+      return row ? .45 + 10.5 * Math.sqrt(Math.abs(row[field]) / maxValues[measure]) : 0;
+    }
+    function updateQuarter(next) {
+      quarter = clamp(Number(next),0,quarters.length - 1);
+      slider.value = quarter;
+      get('time-quarter').textContent = `Quarter ${quarter}`;
+      get('time-stage').textContent = quarter ? 'End of quarter' : 'Initial state';
+      get('card-quarter').textContent = `Quarter ${quarter}`;
+      const map = currentRows();
+      const nextMap = quarter < quarters.length - 1 ? currentRows(quarter + 1) : null;
+      const config = indicators[measure];
+      nodes.forEach(node => {
+        const row = map.get(node.id);
+        node.target = targetHeight(row,config.field);
+        node.expectedTarget = showExpectations && nextMap ? targetHeight(nextMap.get(node.id),config.plan) : 0;
+        node.targetColor = colorFor(row,base.get(node.id));
+      });
+      get('expectation-toggle').disabled = !nextMap;
+      get('expectation-note').textContent = nextMap
+        ? `Gold markers use ${config.planLabel.toLowerCase()} computed at the start of Q${quarter+1}, retained in that quarter's archive.`
+        : 'No Q31 snapshot is archived.';
+      get('expectation-legend').hidden = !showExpectations || !nextMap;
+      const now = quarters[quarter], start = quarters[0];
+      get('gdp').textContent = fmt.format(now.gdp);
+      const gdpChange = now.gdp / start.gdp - 1;
+      get('gdp-change').textContent = `${gdpChange >= 0 ? '+' : ''}${pct(gdpChange)} from Q0`;
+      get('gdp-change').className = gdpChange < 0 ? 'down' : 'up';
+      get('unemployment').textContent = pct(now.unemployment);
+      const unemploymentChange = 100 * (now.unemployment - start.unemployment);
+      get('unemployment-change').textContent = `${unemploymentChange >= 0 ? '+' : ''}${unemploymentChange.toFixed(1)} percentage points from Q0`;
+      get('unemployment-change').className = unemploymentChange > 0 ? 'down' : 'up';
+      updateFirm(map,nextMap);
+      drawCharts();
+    }
+    function updateFirm(map = currentRows(), nextMap = quarter < quarters.length - 1 ? currentRows(quarter+1) : null) {
+      const row = map.get(selected), initial = base.get(selected);
+      const config = indicators[measure];
+      get('firm-name').textContent = `Firm ${selected}`;
+      get('firm-sector').textContent = row ? `Sector ${row[1]}` : 'Not present';
+      get('firm-output').textContent = row ? fmt.format(row[2]) : '—';
+      get('firm-jobs').textContent = row ? fmt.format(row[3]) : '—';
+      get('firm-profit').textContent = row ? fmt.format(row[4]) : '—';
+      get('firm-loans').textContent = row ? fmt.format(row[5]) : '—';
+      const change = row && initial && initial[config.field] ? row[config.field] / initial[config.field] - 1 : null;
+      const difference = row && initial ? row[config.field] - initial[config.field] : null;
+      get('firm-change').textContent = measure !== 'profit' && change !== null
+        ? `${change >= 0 ? '+' : ''}${pct(change)} vs Q0`
+        : difference === null ? '—' : `${difference >= 0 ? '+' : ''}${fmt.format(difference)} vs Q0`;
+      const planned = nextMap?.get(selected);
+      get('expectation-detail').hidden = !showExpectations || !planned;
+      if (planned) {
+        get('expected-label').textContent = `Q${quarter+1} · ${config.planLabel}`;
+        get('expected-value').textContent = fmt.format(planned[config.plan]);
+        get('expected-note').textContent = 'Computed at the start of that quarter; shown from the archive.';
+      }
+    }
+    function chart(element, values, marker, color) {
+      const valid = values.filter(Number.isFinite), low = Math.min(...valid), high = Math.max(...valid);
+      const gap = Math.max((high-low)*.12, 1), bottom = low-gap, top = high+gap;
+      const points = values.map((value,i) => Number.isFinite(value) ? [6 + i*238/(values.length-1), 84 - (value-bottom)/(top-bottom)*76] : null);
+      const segments = []; let segment = [];
+      points.forEach(point => { if (point) segment.push(point); else if (segment.length) { segments.push(segment); segment=[]; } });
+      if (segment.length) segments.push(segment);
+      const paths = segments.map(s => `<path d="${s.map((p,i) => `${i?'L':'M'}${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(' ')}" fill="none" stroke="${color}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>`).join('');
+      const point = points[marker];
+      element.innerHTML = `<path d="M6 83H244" stroke="#36515a" stroke-width="1"/>${paths}${point ? `<path d="M${point[0]} 7V84" stroke="#a1bab9" stroke-width="1" stroke-dasharray="3 4"/><circle cx="${point[0]}" cy="${point[1]}" r="4.2" fill="${color}" stroke="#d9f8f3" stroke-width="1.4"/>` : ''}`;
+    }
+    function drawCharts() {
+      chart(get('gdp-chart'),quarters.map(q=>q.gdp),quarter,'#73d7c7');
+      const config = indicators[measure];
+      get('firm-chart-label').textContent = `${config.label} history`;
+      chart(get('firm-chart'),quarters.map(q=>q.firms.find(row=>row[0]===selected)?.[config.field] ?? NaN),quarter,'#f0c77b');
+    }
+    function resize() {
+      const bounds = canvas.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1,2);
+      width = bounds.width; height = bounds.height;
+      canvas.width = Math.round(width*dpr); canvas.height = Math.round(height*dpr);
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+      scale = Math.min(width/(columns*1.53),height/(rows*1.35+14))*zoom;
+    }
+    function project(x,y,z) {
+      const c=Math.cos(yaw), s=Math.sin(yaw), sp=Math.sin(pitch), cp=Math.cos(pitch);
+      return [width*.5 + (x*c-z*s)*scale, height*.55 + (x*s*sp+z*c*sp-y*cp)*scale];
+    }
+    function polygon(points,fill,stroke) {
+      ctx.beginPath(); ctx.moveTo(...points[0]);
+      for(let i=1;i<points.length;i++) ctx.lineTo(...points[i]);
+      ctx.closePath(); ctx.fillStyle=fill; ctx.fill();
+      if (stroke) { ctx.strokeStyle=stroke; ctx.lineWidth=1; ctx.stroke(); }
+    }
+    function rgb(color,multiplier=1) { return `rgb(${color.map(v=>Math.round(clamp(v*multiplier,0,255))).join(',')})`; }
+    function ground() {
+      const x0=-columns/2-.6, x1=columns/2+.6, z0=-rows/2-.6, z1=rows/2+.6;
+      polygon([project(x0,0,z0),project(x1,0,z0),project(x1,0,z1),project(x0,0,z1)],'#102c36','#3b5e65');
+      ctx.strokeStyle='#41616a55'; ctx.lineWidth=.7;
+      for(let x=Math.ceil(x0);x<x1;x++) { ctx.beginPath();ctx.moveTo(...project(x,0,z0));ctx.lineTo(...project(x,0,z1));ctx.stroke(); }
+      for(let z=Math.ceil(z0);z<z1;z++) { ctx.beginPath();ctx.moveTo(...project(x0,0,z));ctx.lineTo(...project(x1,0,z));ctx.stroke(); }
+    }
+    function tower(node) {
+      if (node.height < .03) return;
+      const x=node.x,z=node.z,w=.72,h=node.height;
+      const b=[project(x-w/2,0,z-w/2),project(x+w/2,0,z-w/2),project(x+w/2,0,z+w/2),project(x-w/2,0,z+w/2)];
+      const t=[project(x-w/2,h,z-w/2),project(x+w/2,h,z-w/2),project(x+w/2,h,z+w/2),project(x-w/2,h,z+w/2)];
+      const xside=Math.sin(yaw)>=0?[1,2,2,1]:[0,3,3,0];
+      const zside=Math.cos(yaw)>=0?[2,3,3,2]:[0,1,1,0];
+      polygon([b[xside[0]],b[xside[1]],t[xside[2]],t[xside[3]]],rgb(node.color,.58));
+      polygon([b[zside[0]],b[zside[1]],t[zside[2]],t[zside[3]]],rgb(node.color,.78));
+      polygon(t,rgb(node.color,1.16));
+      if (node.id === selected) {
+        ctx.save(); ctx.shadowColor='#f4cd7a';ctx.shadowBlur=16;
+        ctx.strokeStyle='#f6d491';ctx.lineWidth=2;
+        ctx.beginPath();ctx.moveTo(...t[0]);t.slice(1).forEach(p=>ctx.lineTo(...p));ctx.closePath();ctx.stroke();
+        ctx.restore();
+      }
+      if (showExpectations && node.expectedHeight > .03 && quarter < quarters.length - 1) {
+        const markerBase = project(x+w/2+.1,0,z+w/2+.1);
+        const markerTop = project(x+w/2+.1,node.expectedHeight,z+w/2+.1);
+        ctx.save();
+        ctx.globalAlpha = node.id === selected ? .95 : .48;
+        ctx.strokeStyle = '#f4cb78'; ctx.lineWidth = node.id === selected ? 2.2 : 1.2;
+        ctx.beginPath();ctx.moveTo(...markerBase);ctx.lineTo(...markerTop);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(markerTop[0]-scale*.2,markerTop[1]);ctx.lineTo(markerTop[0]+scale*.2,markerTop[1]);ctx.stroke();
+        ctx.restore();
+      }
+      const center=project(x,h/2,z);
+      hitTargets.push({id:node.id,x:center[0],top:Math.min(...t.map(p=>p[1])),bottom:Math.max(...b.map(p=>p[1])),depth:x*Math.sin(yaw)+z*Math.cos(yaw)});
+    }
+    function draw() {
+      ctx.clearRect(0,0,width,height);
+      ground();
+      hitTargets=[];
+      const orderedNodes=[...nodes].sort((a,b) => (a.x-b.x)*Math.sin(yaw)+(a.z-b.z)*Math.cos(yaw));
+      for(const node of orderedNodes) {
+        node.height += (node.target-node.height)*.13;
+        node.expectedHeight += (node.expectedTarget-node.expectedHeight)*.13;
+        node.color=node.color.map((v,i)=>v+(node.targetColor[i]-v)*.13);
+        tower(node);
+      }
+      requestAnimationFrame(draw);
+    }
+    function stop() { if (playing) clearInterval(playing); playing=null; get('play').textContent='▶'; get('play').setAttribute('aria-label','Play animation'); }
+    get('play').addEventListener('click',()=>{
+      if (playing) { stop(); return; }
+      if (quarter === quarters.length-1) updateQuarter(0);
+      get('play').textContent='Ⅱ';get('play').setAttribute('aria-label','Pause animation');
+      playing=setInterval(()=>{ if (quarter===quarters.length-1) stop(); else updateQuarter(quarter+1); },680);
+    });
+    slider.max=quarters.length-1;
+    slider.addEventListener('input',()=>updateQuarter(slider.value));
+    get('choices').addEventListener('click',event=>{
+      const button=event.target.closest('button[data-measure]'); if(!button)return;
+      measure=button.dataset.measure;
+      get('choices').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b===button));
+      get('measure-note').textContent=indicators[measure].note;
+      get('scene-description').textContent=`Each tower is one firm. Height shows ${indicators[measure].label.toLowerCase()}; position preserves identity.`;
+      [get('legend-left').textContent,get('legend-right').textContent]=legends[measure];
+      updateQuarter(quarter);
+    });
+    get('expectation-toggle').addEventListener('click',()=>{
+      showExpectations=!showExpectations;
+      get('expectation-toggle').setAttribute('aria-pressed',showExpectations);
+      get('expectation-toggle').lastElementChild.textContent=showExpectations?'●':'○';
+      updateQuarter(quarter);
+    });
+    canvas.addEventListener('pointerdown',event=>{ pointer=[event.clientX,event.clientY];moved=false;canvas.setPointerCapture(event.pointerId);canvas.classList.add('dragging'); });
+    canvas.addEventListener('pointermove',event=>{
+      if(!pointer)return;
+      const dx=event.clientX-pointer[0],dy=event.clientY-pointer[1];
+      if(Math.abs(dx)+Math.abs(dy)>2)moved=true;
+      if(moved) { yaw+=dx*.006;pitch=clamp(pitch-dy*.004,.28,1.18); }
+      pointer=[event.clientX,event.clientY];
+    });
+    canvas.addEventListener('pointerup',event=>{
+      if(!moved) {
+        const rect=canvas.getBoundingClientRect(),x=event.clientX-rect.left,y=event.clientY-rect.top;
+        const hit=[...hitTargets].reverse().find(item=>Math.abs(x-item.x)<scale*.58 && y>=item.top-scale*.2 && y<=item.bottom+scale*.25);
+        if(hit){selected=hit.id;updateFirm();drawCharts();}
+      }
+      pointer=null;canvas.classList.remove('dragging');
+    });
+    canvas.addEventListener('pointercancel',()=>{pointer=null;canvas.classList.remove('dragging');});
+    canvas.addEventListener('wheel',event=>{event.preventDefault();zoom=clamp(zoom*Math.exp(-event.deltaY*.001),.58,2.3);resize();},{passive:false});
+    window.addEventListener('resize',resize);
+    document.addEventListener('keydown',event=>{if(event.target===slider)return;if(event.key==='ArrowRight')updateQuarter(quarter+1);if(event.key==='ArrowLeft')updateQuarter(quarter-1);});
+    resize();updateQuarter(quarter);draw();
+  })();
+  </script>
+</body>
+</html>

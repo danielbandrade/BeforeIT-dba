@@ -136,6 +136,8 @@ const INITIAL_CONDITIONS = Bit.AUSTRIA2010Q1.initial_conditions
         experiment_directory = generate_experiment(specification_path; output_root)
         runs = CSV.read(joinpath(experiment_directory, "runs.csv"), DataFrame)
         @test nrow(runs) == 3
+        @test runs.experiment_id == fill("test-quarterly-states", 3)
+        @test allunique(runs.run_id)
         @test all(runs.success)
         @test all(runs.snapshots_written .== 2)
         @test all(runs.total_bytes .> 0)
@@ -144,6 +146,15 @@ const INITIAL_CONDITIONS = Bit.AUSTRIA2010Q1.initial_conditions
             @test length(paths) == 2
             @test all(load_snapshot(path)["run_id"] == run.run_id for path in paths)
         end
+        loaded = load_experiment_run(
+            "test-quarterly-states", "baseline-seed-17"; experiment_root = output_root,
+        )
+        @test loaded.run_id == "baseline-seed-17"
+        @test loaded.run.scenario_id == "baseline"
+        @test length(loaded.paths) == 2
+        @test_throws ErrorException load_experiment_run(
+            "test-quarterly-states", "missing"; experiment_root = output_root,
+        )
         shock_paths = snapshot_paths(
             joinpath(output_root, "test-quarterly-states", "snapshots", "consumption-shock-seed-17"),
         )

@@ -10,8 +10,8 @@ using Random
 using TOML
 
 export SCHEMA_VERSION, aggregate_series, firm_matrix, firm_panel, firm_transition_panel,
-    generate_experiment, load_snapshot, save_snapshot, simulate_snapshots, snapshot_paths,
-    state_equal
+    generate_experiment, load_experiment_run, load_snapshot, save_snapshot,
+    simulate_snapshots, snapshot_paths, state_equal
 
 const SCHEMA_VERSION = 2
 const ROOT = normpath(joinpath(@__DIR__, ".."))
@@ -200,14 +200,16 @@ function generate_experiment(specification_path; output_root = joinpath(ROOT, "e
     get(experiment, "shock", "none") == "none" || error("Only unshocked runs are currently supported")
 
     experiment_id = experiment["id"]
+    horizon = Int(experiment["horizon"])
+    seeds = Int.(experiment["seeds"])
+    run_ids = ["$(scenario["id"])-seed-$(seed)" for seed in seeds for scenario in scenarios]
+    allunique(run_ids) || error("Experiment contains duplicate run identities")
     experiment_directory = joinpath(output_root, experiment_id)
     ispath(experiment_directory) && error("Refusing to overwrite experiment directory: $experiment_directory")
     mkpath(joinpath(experiment_directory, "snapshots"))
     cp(specification_path, joinpath(experiment_directory, "specification.toml"))
 
     source = calibration(experiment["calibration"])
-    horizon = Int(experiment["horizon"])
-    seeds = Int.(experiment["seeds"])
     commit, dirty = git_metadata()
     manifest_rows = NamedTuple[]
     manifest_path = joinpath(experiment_directory, "runs.csv")
@@ -238,6 +240,7 @@ function generate_experiment(specification_path; output_root = joinpath(ROOT, "e
         total_bytes = sum(filesize, paths; init = 0)
         push!(
             manifest_rows, (
+                experiment_id,
                 run_id,
                 scenario_id,
                 role,
@@ -260,6 +263,53 @@ function generate_experiment(specification_path; output_root = joinpath(ROOT, "e
     end
     all(row.success for row in manifest_rows) || error("One or more runs failed; see $manifest_path")
     return experiment_directory
+end
+
+"""Load one generated run by its unique `(experiment_id, run_id)` identity."""
+function load_experiment_run(
+        experiment_id, run_id; experiment_root = joinpath(ROOT, "experiments"),
+    )
+    experiment_id, run_id = string(experiment_id), string(run_id)
+    experiment_directory = joinpath(experiment_root, experiment_id)
+    specification_path = joinpath(experiment_directory, "specification.toml")
+    manifest_path = joinpath(experiment_directory, "runs.csv")
+    isfile(specification_path) || error("Missing experiment specification: $specification_path")
+    isfile(manifest_path) || error("Missing experiment manifest: $manifest_path")
+
+    specification = TOML.parsefile(specification_path)
+    archived_id = string(specification["experiment"]["id"])
+    archived_id == experiment_id ||
+        error("Experiment directory $experiment_id contains specification for $archived_id")
+
+    runs = CSV.read(manifest_path, DataFrame)
+    if :experiment_id in propertynames(runs)
+        all(string.(runs.experiment_id) .== experiment_id) ||
+            error("Manifest contains a different experiment_id: $manifest_path")
+    end
+    selected = runs[string.(runs.run_id) .== run_id, :]
+    nrow(selected) == 1 ||
+        error("Expected exactly one run $experiment_id/$run_id; found $(nrow(selected))")
+    run = NamedTuple(only(eachrow(selected)))
+    run.success == true || error("Run $experiment_id/$run_id failed: $(coalesce(run.failure_reason, "unknown"))")
+
+    run_directory = joinpath(experiment_directory, run.snapshot_directory)
+    paths = snapshot_paths(run_directory)
+    snapshots = load_snapshot.(paths)
+    all(
+        snapshot -> snapshot["experiment_id"] == experiment_id &&
+            snapshot["run_id"] == run_id &&
+            snapshot["scenario_id"] == run.scenario_id &&
+            snapshot["seed"] == run.seed &&
+            snapshot["horizon"] == run.horizon,
+        snapshots,
+    ) || error("Snapshot identity does not match manifest for $experiment_id/$run_id")
+    length(paths) == run.snapshots_written == run.horizon + 1 ||
+        error("Snapshot count does not match manifest for $experiment_id/$run_id")
+
+    return (;
+        experiment_id, run_id, experiment_directory, run_directory,
+        specification, runs, run, paths,
+    )
 end
 
 function firm_value(firms, field::Symbol)
