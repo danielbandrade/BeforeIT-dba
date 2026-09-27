@@ -8,15 +8,17 @@
     :root { color-scheme: dark; --bg:#07131b; --panel:#10212a; --panel2:#132933; --line:#2b424b; --text:#e8f2ef; --muted:#96abae; --cyan:#6ed8c5; --orange:#ef9275; --gold:#f4cb78; }
     * { box-sizing:border-box }
     body { margin:0; min-height:100vh; background:var(--bg); color:var(--text); font:14px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif }
-    button,input { font:inherit }
+    button,input,select { font:inherit }
     button { cursor:pointer }
     .shell { max-width:1600px; margin:auto; padding:25px 30px 30px }
     header { display:flex; align-items:flex-end; justify-content:space-between; gap:24px; padding:0 2px 22px }
     .eyebrow { color:var(--cyan); font-size:11px; font-weight:700; letter-spacing:.22em; text-transform:uppercase }
     h1 { margin:5px 0 3px; font-size:clamp(27px,3.1vw,43px); letter-spacing:-.05em; line-height:1.08; font-weight:650 }
     header p { margin:5px 0 0; color:var(--muted) }
-    .run { max-width:320px; color:var(--muted); text-align:right; font-size:12px }
-    .run strong { display:block; color:var(--text); font-size:13px; font-weight:550 }
+    .run { width:min(380px,100%); color:var(--muted); text-align:right; font-size:12px }
+    .run label { display:block; margin-bottom:5px; color:var(--cyan); font-size:10px; font-weight:700; letter-spacing:.16em; text-transform:uppercase }
+    .run select { display:block; width:100%; padding:9px 11px; border:1px solid #43636b; border-radius:9px; background:#10242e; color:var(--text); cursor:pointer }
+    .run strong { display:block; margin-top:8px; color:var(--text); font-size:13px; font-weight:550 }
     .layout { display:grid; grid-template-columns:minmax(0,1fr) 306px; gap:14px }
     .scene { position:relative; min-height:590px; overflow:hidden; border:1px solid var(--line); border-radius:16px; background:radial-gradient(ellipse at 52% 58%,#153441 0%,#0d2530 38%,#091923 72%,#07131b 100%) }
     .scene::after { content:""; pointer-events:none; position:absolute; inset:0; background:linear-gradient(180deg,transparent 74%,#08172099) }
@@ -81,7 +83,7 @@
   <div class="shell">
     <header>
       <div><div class="eyebrow">BeforeIT / Research prototype</div><h1>Economy in motion</h1><p>One simulated economy, viewed quarter by quarter.</p></div>
-      <div class="run"><strong>80% household consumption propensity</strong>Austria 2010Q1 calibration · seed 4101 · 31 archived states</div>
+      <div class="run"><label for="dataset">Experiment dataset</label><select id="dataset" aria-label="Choose an experiment run"></select><strong id="run-title">—</strong><span id="run-meta">—</span></div>
     </header>
     <div class="layout">
       <section class="scene" aria-label="Interactive three-dimensional firm landscape">
@@ -90,35 +92,24 @@
         <div class="scene-bottom"><div class="legend"><span class="dot"></span><span id="legend-left">Lower output</span><span style="margin:0 6px;color:#718f98">—</span><span class="dot positive"></span><span id="legend-right">Higher output</span><span id="expectation-legend" hidden style="margin-left:9px;color:#f4cb78">│ Q+1 plan</span></div><div class="scene-hint">Drag to orbit · Scroll to zoom · Click a tower</div></div>
       </section>
       <aside class="sidebar">
-        <section class="card"><h3>Economy / <span id="card-quarter">Quarter 0</span></h3><div class="metric"><label>Real GDP</label><strong id="gdp">—</strong><small id="gdp-change">—</small></div><div class="metric"><label>Active worker unemployment</label><strong id="unemployment">—</strong><small id="unemployment-change">—</small></div><svg id="gdp-chart" class="chart" viewBox="0 0 250 92" role="img" aria-label="Real GDP across all archived quarters"></svg><div class="chart-note"><span>Real GDP trajectory</span><span>Q0—Q30</span></div></section>
+        <section class="card"><h3>Economy / <span id="card-quarter">Quarter 0</span></h3><div class="metric"><label>Real GDP</label><strong id="gdp">—</strong><small id="gdp-change">—</small></div><div class="metric"><label>Active worker unemployment</label><strong id="unemployment">—</strong><small id="unemployment-change">—</small></div><svg id="gdp-chart" class="chart" viewBox="0 0 250 92" role="img" aria-label="Real GDP across all archived quarters"></svg><div class="chart-note"><span>Real GDP trajectory</span><span id="gdp-chart-end">Q0—Q30</span></div></section>
         <section class="card"><h3>Firm indicator</h3><div class="choices" id="choices"><button type="button" data-measure="output" aria-pressed="true">Production</button><button type="button" data-measure="jobs" aria-pressed="false">Employment</button><button type="button" data-measure="profit" aria-pressed="false">Profit</button><button type="button" data-measure="loans" aria-pressed="false">Outstanding loans</button></div><p class="measure-note" id="measure-note">Height shows production; color shows each firm's change from Q0.</p><button class="layer-toggle" id="expectation-toggle" type="button" aria-pressed="false"><span>Show archived Q+1 plan</span><span aria-hidden="true">○</span></button><p class="measure-note" id="expectation-note">The gold markers use plans recorded in the next quarter's snapshot.</p></section>
         <section class="card"><h3>Selected firm</h3><div class="firm-title"><strong id="firm-name">—</strong><span id="firm-sector">—</span></div><p class="sector-description" id="sector-description">—</p><div class="firm-grid"><div><label>Production</label><strong id="firm-output">—</strong></div><div><label>Employment</label><strong id="firm-jobs">—</strong></div><div><label>Profit</label><strong id="firm-profit">—</strong></div><div><label>Outstanding loans</label><strong id="firm-loans">—</strong></div></div><svg id="firm-chart" class="chart" viewBox="0 0 250 92" role="img" aria-label="Selected firm's chosen indicator across all quarters"></svg><div class="chart-note"><span id="firm-chart-label">Production history</span><span id="firm-change">—</span></div><div class="expectation-detail" id="expectation-detail" hidden><label id="expected-label">Archived Q+1 plan</label><strong id="expected-value">—</strong><small id="expected-note">—</small></div></section>
       </aside>
     </div>
-    <div class="timeline"><div class="time-row"><button class="play" id="play" type="button" aria-label="Play animation">▶</button><div class="time-label"><strong id="time-quarter">Quarter 0</strong><span id="time-stage">End of quarter</span></div><input id="quarter" type="range" min="0" max="30" value="8" step="1" aria-label="Simulation quarter"><span class="time-end">Q30</span></div><div class="ticks"><span>Q0</span><span>Q5</span><span>Q10</span><span>Q15</span><span>Q20</span><span>Q25</span><span>Q30</span></div></div>
-    <div class="footer"><span>Source: archived quarterly explanation traces · tower heights use a fixed square-root scale for the chosen indicator.</span><span>Gold markers show Q+1 plans with hindsight; between-quarter motion is visual interpolation.</span></div>
+    <div class="timeline"><div class="time-row"><button class="play" id="play" type="button" aria-label="Play animation">▶</button><div class="time-label"><strong id="time-quarter">Quarter 0</strong><span id="time-stage">End of quarter</span></div><input id="quarter" type="range" min="0" max="30" value="8" step="1" aria-label="Simulation quarter"><span class="time-end" id="time-end">Q30</span></div><div class="ticks" id="ticks"><span>Q0</span><span>Q5</span><span>Q10</span><span>Q15</span><span>Q20</span><span>Q25</span><span>Q30</span></div></div>
+    <div class="footer"><span id="source-meta">Source: archived quarterly explanation traces · tower heights use a fixed square-root scale for the chosen indicator.</span><span>Gold markers show Q+1 plans with hindsight; between-quarter motion is visual interpolation.</span></div>
   </div>
   <script src="data.js"></script>
   <script>
   (() => {
-    const trace = window.BEFOREIT_TRACE;
-    if (!trace?.quarters?.length) { document.querySelector('.scene-top p').textContent = 'The archived data could not be loaded. Run export_data.jl to create data.js.'; return; }
+    const catalog = window.BEFOREIT_EXPERIMENTS;
+    if (!catalog?.datasets?.length) { document.querySelector('.scene-top p').textContent = 'The archived data could not be loaded. Run export_data.jl to create data.js.'; return; }
 
     const canvas = document.getElementById('view');
     const ctx = canvas.getContext('2d');
     const slider = document.getElementById('quarter');
-    const quarters = trace.quarters;
-    const base = new Map(quarters[0].firms.map(row => [row[0], row]));
-    const allRows = new Map();
-    quarters.forEach(q => q.firms.forEach(row => { if (!allRows.has(row[0])) allRows.set(row[0], row); }));
-    const ordered = [...allRows.values()].sort((a,b) => a[1] - b[1] || a[0] - b[0]);
-    const columns = Math.ceil(Math.sqrt(ordered.length * 1.18));
-    const rows = Math.ceil(ordered.length / columns);
-    const nodes = ordered.map((row, index) => ({
-      id:row[0], sector:row[1], x:index % columns - (columns - 1)/2,
-      z:Math.floor(index / columns) - (rows - 1)/2, height:0, target:0, expectedHeight:0, expectedTarget:0,
-      color:[83,112,130], targetColor:[83,112,130]
-    }));
+    const datasetSelect = document.getElementById('dataset');
     const fmt = new Intl.NumberFormat('en-US',{maximumFractionDigits:0});
     const pct = n => `${(100*n).toFixed(1)}%`;
     const clamp = (v,a,b) => Math.min(b,Math.max(a,v));
@@ -129,18 +120,47 @@
       profit:{field:4,plan:8,label:'Profit',planLabel:'Expected profit',note:'Height shows the absolute profit amount; coral means loss, teal means profit.'},
       loans:{field:5,plan:9,label:'Outstanding loans',planLabel:'Expected loan balance',note:'Height shows outstanding loans; color shows change from Q0.'}
     };
-    const maxValues = Object.fromEntries(Object.entries(indicators).map(([key, config]) => [key,
-      Math.max(1,...quarters.flatMap(q=>q.firms.flatMap(row=>[Math.abs(row[config.field]),Math.abs(row[config.plan])])))
-    ]));
     const legends = {
       output:['Lower output','Higher output'], jobs:['Fewer jobs','More jobs'],
       profit:['Loss','Profit'], loans:['Less credit','More credit']
     };
+    let trace, quarters, base, nodes = [], columns, rows, maxValues, selected;
     let quarter = 8, measure = 'output', showExpectations = false;
-    let selected = ordered.reduce((best,row) => row[2] > best[2] ? row : best, ordered[0])[0];
     let yaw = -.73, pitch = .66, zoom = 1, width = 0, height = 0, scale = 1, playing = null;
     let pointer = null, moved = false, hitTargets = [];
 
+    function loadDataset(index) {
+      stop();
+      trace = catalog.datasets[index];
+      quarters = trace.quarters;
+      base = new Map(quarters[0].firms.map(row => [row[0], row]));
+      const allRows = new Map();
+      quarters.forEach(q => q.firms.forEach(row => { if (!allRows.has(row[0])) allRows.set(row[0], row); }));
+      const ordered = [...allRows.values()].sort((a,b) => a[1] - b[1] || a[0] - b[0]);
+      columns = Math.ceil(Math.sqrt(ordered.length * 1.18));
+      rows = Math.ceil(ordered.length / columns);
+      selected = ordered.some(row => row[0] === selected) ? selected
+        : ordered.reduce((best,row) => row[2] > best[2] ? row : best, ordered[0])[0];
+      nodes = ordered.map((row, position) => ({
+        id:row[0], sector:row[1], x:position % columns - (columns - 1)/2,
+        z:Math.floor(position / columns) - (rows - 1)/2, height:0, target:0,
+        expectedHeight:0, expectedTarget:0, color:[83,112,130], targetColor:[83,112,130]
+      }));
+      maxValues = Object.fromEntries(Object.entries(indicators).map(([key, config]) => [key,
+        Math.max(1,...quarters.flatMap(q=>q.firms.flatMap(row=>[Math.abs(row[config.field]),Math.abs(row[config.plan])])))
+      ]));
+      quarter = Math.min(quarter,quarters.length-1);
+      datasetSelect.value = index;
+      slider.max = quarters.length-1;
+      get('time-end').textContent = `Q${trace.horizon}`;
+      get('gdp-chart-end').textContent = `Q0—Q${trace.horizon}`;
+      get('ticks').innerHTML = Array.from({length:7},(_,i)=>`<span>Q${Math.round(i*trace.horizon/6)}</span>`).join('');
+      get('run-title').textContent = trace.scenario.replaceAll('-',' ');
+      get('run-meta').textContent = `${trace.calibration} · seed ${trace.seed} · ${quarters.length} archived states`;
+      get('source-meta').textContent = `${trace.experiment} / ${trace.run} · tower heights use a fixed square-root scale.`;
+      resize();
+      updateQuarter(quarter);
+    }
     function currentRows(q = quarter) { return new Map(quarters[q].firms.map(row => [row[0],row])); }
     function colorFor(row, initial) {
       if (!row || !initial) return [45,65,76];
@@ -191,7 +211,7 @@
     function updateFirm(map = currentRows(), nextMap = quarter < quarters.length - 1 ? currentRows(quarter+1) : null) {
       const row = map.get(selected), initial = base.get(selected);
       const config = indicators[measure];
-      const sector = trace.sectors[(row ?? initial)?.[1]];
+      const sector = catalog.sectors[(row ?? initial)?.[1]];
       get('firm-name').textContent = `Firm ${selected}`;
       get('firm-sector').textContent = sector ? `Sector ${(row ?? initial)[1]} · ${sector[0]}` : 'Sector unavailable';
       get('sector-description').textContent = sector?.[1] ?? 'Sector description unavailable';
@@ -303,7 +323,21 @@
       get('play').textContent='Ⅱ';get('play').setAttribute('aria-label','Pause animation');
       playing=setInterval(()=>{ if (quarter===quarters.length-1) stop(); else updateQuarter(quarter+1); },680);
     });
-    slider.max=quarters.length-1;
+    const groups = new Map();
+    catalog.datasets.forEach((item,index)=>{
+      let group = groups.get(item.experiment);
+      if (!group) {
+        group = document.createElement('optgroup');
+        group.label = item.experiment.replaceAll('-',' ');
+        datasetSelect.append(group);
+        groups.set(item.experiment,group);
+      }
+      const option = document.createElement('option');
+      option.value = index;
+      option.textContent = `${item.scenario.replaceAll('-',' ')} · seed ${item.seed} · ${item.horizon} quarters`;
+      group.append(option);
+    });
+    datasetSelect.addEventListener('change',()=>loadDataset(Number(datasetSelect.value)));
     slider.addEventListener('input',()=>updateQuarter(slider.value));
     get('choices').addEventListener('click',event=>{
       const button=event.target.closest('button[data-measure]'); if(!button)return;
@@ -340,7 +374,9 @@
     canvas.addEventListener('wheel',event=>{event.preventDefault();zoom=clamp(zoom*Math.exp(-event.deltaY*.001),.58,2.3);resize();},{passive:false});
     window.addEventListener('resize',resize);
     document.addEventListener('keydown',event=>{if(event.target===slider)return;if(event.key==='ArrowRight')updateQuarter(quarter+1);if(event.key==='ArrowLeft')updateQuarter(quarter-1);});
-    resize();updateQuarter(quarter);draw();
+    const initialDataset = catalog.datasets.findIndex(item => item.experiment === 'consumption-shock-80-quarterly-states-v3');
+    loadDataset(initialDataset >= 0 ? initialDataset : 0);
+    draw();
   })();
   </script>
 </body>
