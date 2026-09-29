@@ -66,6 +66,7 @@ open(temporary, "w") do io
             all(length(field) == firm_count for field in (
                 firms.G_i, firms.Y_i, firms.N_i, firms.Pi_i, firms.L_i,
                 firms.Q_s_i, firms.N_d_i, firms.Pi_e_i, firms.L_e_i,
+                firms.P_i, firms.Q_i, firms.S_i,
             )) || error("Misaligned firm fields at $path")
             allunique(firms.ID) || error("Repeated firm ID at $path")
             all(1 <= sector <= length(sectors) for sector in firms.G_i) || error("Unknown firm sector at $path")
@@ -73,16 +74,27 @@ open(temporary, "w") do io
             gdp = Float64(last(model.data.real_gdp))
             unemployment = count(==(0), model.w_act.O_h) / length(model.w_act.O_h)
             isfinite(gdp) && isfinite(unemployment) || error("Nonfinite aggregate at $path")
+            imports = model.rotw
+            all(length(field) == length(sectors) for field in (imports.P_m, imports.Y_m, imports.Q_m)) ||
+                error("Misaligned import fields at $path")
             index > 1 && print(io, ',')
             print(io, "{quarter:", quarter, ",gdp:", repr(gdp), ",unemployment:", repr(unemployment), ",firms:[")
             for i in eachindex(firms.ID)
                 values = (
                     Float64(firms.Y_i[i]), Float64(firms.N_i[i]), Float64(firms.Pi_i[i]), Float64(firms.L_i[i]),
                     Float64(firms.Q_s_i[i]), Float64(firms.N_d_i[i]), Float64(firms.Pi_e_i[i]), Float64(firms.L_e_i[i]),
+                    Float64(firms.P_i[i]), Float64(firms.Q_i[i]), Float64(firms.S_i[i]),
                 )
                 all(isfinite, values) || error("Nonfinite firm value at $path, firm $(firms.ID[i])")
                 i > 1 && print(io, ',')
                 print(io, '[', firms.ID[i], ',', firms.G_i[i], ',', join(repr.(values), ','), ']')
+            end
+            print(io, "],imports:[")
+            for g in eachindex(imports.P_m)
+                values = (Float64(imports.P_m[g]), Float64(imports.Y_m[g]), Float64(imports.Q_m[g]))
+                all(isfinite, values) || error("Nonfinite import value at $path, sector $g")
+                g > 1 && print(io, ',')
+                print(io, '[', join(repr.(values), ','), ']')
             end
             print(io, "]}")
         end

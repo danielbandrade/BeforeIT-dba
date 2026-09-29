@@ -23,8 +23,15 @@ for (const dataset of datasets) {
     const ids = quarter.firms.map(row => row[0]);
     assert.equal(new Set(ids).size, ids.length);
     assert.ok(Number.isFinite(quarter.gdp) && Number.isFinite(quarter.unemployment));
-    assert.ok(quarter.firms.every(row => row.length === 10 && row.every(Number.isFinite)));
+    assert.ok(quarter.firms.every(row => row.length === 13 && row.every(Number.isFinite)));
     assert.ok(quarter.firms.every(row => sectors[row[1]]));
+    assert.equal(quarter.imports.length, 62);
+    assert.ok(quarter.imports.every(row => row.length === 3 && row.every(Number.isFinite)));
+    if (quarter.quarter > 0) {
+      assert.ok(quarter.firms.every(row => row[10] > 0 && row[11] >= 0 && row[12] >= -1e-8));
+      assert.ok(quarter.imports.every(([price, supply, sold]) =>
+        price > 0 && supply >= 0 && sold >= 0 && sold <= supply + 1e-8));
+    }
   }
 }
 console.log(`${datasets.length} experiment runs and 62 sector descriptions validated`);

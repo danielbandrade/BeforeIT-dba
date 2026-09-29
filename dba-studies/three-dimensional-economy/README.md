@@ -1,7 +1,8 @@
 # BeforeIT 3D economy MVP
 
-Open [index.html](index.html) in a browser. The page is self-contained and reads
-the committed `data.js` file; it does not run or connect to a simulation.
+Open [index.html](index.html) for the firm landscape or [market.html](market.html)
+for the goods market. Both pages read the committed `data.js` file; neither runs
+or connects to a simulation.
 
 The experiment selector includes all 11 complete quarterly snapshot runs currently
 available in `explanation-traces/experiments`: the consumption shock and credit
@@ -25,6 +26,14 @@ start of Q+1 and retains them in that quarter's end-of-quarter snapshot. Showing
 them beside Q's realized state is a retrospective comparison, not a forecast
 available at the end of Q. The final quarter of each run has no following marker.
 
+The goods-market view lets you choose a run, quarter, and product sector. It
+shows archived seller prices, domestic sales and ending inventory, import
+supply and sales. Domestic starting supply is reconstructed as sales plus
+ending inventory. The seller draw chance uses the model's price and supply
+weight formula. The example buyer uses the same weighted draw and stock rule
+one match at a time. It is illustrative: the snapshots do not retain actual
+buyer–seller links, and firm input purchases occur before retail matching.
+
 To refresh the bundled data from the archived JLD2 snapshots, run from the
 repository root:
 
@@ -38,7 +47,9 @@ are under `dba-studies/machine-learning/explanation-traces/experiments/` and are
 ignored by Git. The bundled data lets the viewer run even without those local
 snapshots or Julia installed.
 
-Check the bundled data with `node dba-studies/three-dimensional-economy/check_data.mjs`.
+Check the bundled data and market controls with
+`node dba-studies/three-dimensional-economy/check_data.mjs` and
+`node dba-studies/three-dimensional-economy/check_market.mjs`.
 
 Tower positions are an illustrative layout, not geography. Animated changes
 interpolate between quarterly observations; they do not reconstruct activity
