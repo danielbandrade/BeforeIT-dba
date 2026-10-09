@@ -16,8 +16,10 @@ function Bit.gov_expenditure(model::PolicyModel)
 end
 
 function observe(model, quarter)
-    nominal_gdp = last(model.data.nominal_gdp)
-    nominal_gdp > 0 || error("Nominal GDP must be positive")
+    gdp = model.data.nominal_gdp
+    n = min(4, length(gdp))
+    annual_gdp = 4 * sum(gdp[end-n+1:end]) / n
+    annual_gdp > 0 || error("Annualized nominal GDP must be positive")
 
     return (
         quarter = quarter,
@@ -25,7 +27,9 @@ function observe(model, quarter)
         benefit_rate = model.prop.theta_UB,
         real_gdp = last(model.data.real_gdp),
         unemployment_rate = count(iszero, model.w_act.O_h) / length(model.w_act.O_h),
-        debt_to_gdp = model.gov.L_G / nominal_gdp,
+        government_debt = model.gov.L_G,
+        annual_nominal_gdp = annual_gdp,
+        debt_to_gdp = model.gov.L_G / annual_gdp,
         government_revenue = quarter == 0 ? missing : model.gov.Y_G,
         real_government_consumption =
             quarter == 0 ? missing : last(model.data.real_government_consumption),
@@ -102,10 +106,6 @@ function reward_components(model, action, previous_action, cfg)
     household = sum(
         log((c + cfg.c_floor) / cfg.c_ref) for c in real_consumption
     ) / H
-    public = cfg.lambda_g * log(
-        (last(model.data.real_government_consumption) / H + cfg.g_floor) /
-        cfg.g_ref
-    )
     unemployment =
         -cfg.lambda_u * count(iszero, model.w_act.O_h) / length(model.w_act.O_h)
     inflation =
@@ -119,10 +119,10 @@ function reward_components(model, action, previous_action, cfg)
         )^2
     )
 
-    total = household + public + unemployment + inflation + policy_change
+    total = household + unemployment + inflation + policy_change
     isfinite(total) || error("Reward is not finite")
 
-    return (; household, public, unemployment, inflation, policy_change, reward = total)
+    return (; household, unemployment, inflation, policy_change, reward = total)
 end
 
 end
