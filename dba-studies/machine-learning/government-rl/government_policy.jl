@@ -125,4 +125,20 @@ function reward_components(model, action, previous_action, cfg)
     return (; household, unemployment, inflation, policy_change, reward = total)
 end
 
+function episode_score(model, rows, initial_conditions, lambda_d)
+    household = sum(row.household for row in rows)
+    unemployment = sum(row.unemployment for row in rows)
+    inflation = sum(row.inflation for row in rows)
+    policy_change = sum(row.policy_change for row in rows)
+
+    debt_fraction =
+        (model.gov.L_G - initial_conditions["L_G"]) /
+        (4 * first(model.data.nominal_gdp))
+    debt = -lambda_d * debt_fraction
+
+    total = household + unemployment + inflation + policy_change + debt
+    return (; total, household, unemployment, inflation,
+            policy_change, debt, debt_fraction)
+end
+
 end
