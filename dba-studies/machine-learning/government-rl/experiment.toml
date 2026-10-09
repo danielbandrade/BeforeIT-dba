@@ -1,0 +1,13 @@
+[reward]
+c_ref = 4.6042
+g_ref = 1.7102
+c_floor = 1e-6
+g_floor = 1e-6
+lambda_g = 0.1
+lambda_u = 1.0
+lambda_pi = 1.0
+lambda_a = 0.01
+inflation_target = 0.005
+tax_step = 0.01
+benefit_step = 0.01
+spending_step = 0.05
