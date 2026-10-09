@@ -45,8 +45,8 @@ not validate this particular fiscal-policy setup.
    over the best feasible fixed policy and a simple feedback rule at a matched
    simulation budget. If it does not, RL adds no demonstrated value.
 3. **Robustness:** any gain persists under unseen shocks, initial conditions,
-   and plausible parameter perturbations, without worsening predeclared
-   distributional or fiscal guardrails.
+   and plausible parameter perturbations, with acceptable distributional and
+   debt outcomes under predeclared criteria.
 
 ## Sequential decision problem
 
@@ -100,47 +100,49 @@ Check this intervention against the government debt identity before training.
 Choose welfare weights **before** training. One transparent candidate is
 
 $$
-J(\mu)=\mathbb E\!\left[\sum_{t=1}^{T}\gamma^{t-1}
+J(\mu)=\mathbb E\!\left[\sum_{t=1}^{T}
 \left(
 \frac{1}{H}\sum_{h=1}^{H}
 \log\frac{c^{\mathrm{real}}_{h,t}+\epsilon}{c_{\mathrm{ref}}}
-+\lambda_G\log\frac{g^{\mathrm{real}}_t/H+\epsilon_G}{g_{\mathrm{ref}}}
 -\lambda_u u_t
 -\lambda_\pi |\pi_t-\pi^*|
--\lambda_a\lVert a_t-a_{t-1}\rVert
-\right)\right].
+-\lambda_a\left\lVert\frac{a_t-a_{t-1}}{s}\right\rVert_2
+\right)
+-\lambda_D\frac{D_T-D_0}{Y_0^{\mathrm{annual}}}
+\right].
 $$
 
-Here $\mu$ is the government policy rule, $\pi_t$ is the inflation rate, and
-$u_t$ is the unemployment rate among active workers. The term
+Here $\mu$ is the government policy rule, $\pi_t$ is quarterly domestic log
+inflation, and $u_t$ is the unemployment rate among active workers. The term
 $-\lambda_u u_t$, with a predeclared $\lambda_u>0$, penalizes unemployment in
 every quarter's reward.
 $c^{\mathrm{real}}$ is realized household consumption deflated with an
-appropriate price index, $g^{\mathrm{real}}_t$ is realized government
-consumption. The reference values and small offsets
-are fixed from baseline
-data. The government-consumption term is a **proxy** for the value of public
-services: BeforeIT records spending but does not establish its utility or
-quality. Report results with $\lambda_G=0$ and with a predeclared positive
-range, since policy rankings may depend strongly on that assumption. Scale
-components of $a_t-a_{t-1}$ by their allowed adjustment ranges before applying
-the change penalty. Concavity gives greater weight to consumption gains among
-households with less consumption. Check zero consumption and units before using
-the logarithm. The weights, discount factor, inflation target, and reference
-scale are normative research choices, not quantities learned from the data.
+appropriate price index for every represented household. The reference value
+and small offset are fixed from baseline data. Concavity gives greater weight
+to consumption gains among households with less consumption; check zero
+consumption and units before using the logarithm. The vector $s$ contains the
+tax, benefit, and log-spending adjustment steps used to scale policy changes.
+Government consumption remains an action and reported outcome, but has no
+direct reward term: BeforeIT does not measure the value or quality of public
+services. $D_T-D_0$ is the terminal change in nominal government debt, divided
+by initial annualized nominal GDP $Y_0^{\mathrm{annual}}$, computed as four
+times the initial quarterly GDP; $\lambda_D$ sets its cost in the score. The
+weights, inflation target, and reference scale are
+normative research choices, not quantities learned from the data.
 Publish a small, predeclared range of these choices and the resulting trade-offs
 instead of reporting one universal optimum.
 
-Apply hard feasibility rules to rate levels and policy changes. Specify debt and
-deficit guardrails after measuring the baseline distribution, with a terminal
-debt/GDP check so a policy cannot improve near-term welfare solely by shifting
-costs beyond the episode. Report any constraint violation separately from the
-reward. Track the bottom consumption quintile, consumption inequality, employment,
-GDP, realized government consumption, inflation, and debt paths even if they
-are not all reward terms. Define household coverage explicitly, including firm
-and bank owners represented in the model. If the model cannot support a
-credible household welfare measure, use a labeled proxy and narrow the study's
-claim accordingly.
+Apply hard feasibility rules to rate levels and policy changes. For the pilot,
+charge debt in the reward rather than imposing a hard fiscal ceiling. Report
+debt levels, debt divided by annualized nominal GDP, and deficits separately so
+the fiscal trade-off stays visible. Use the latest four quarterly GDP values
+when available, and annualize the mean of available quarters earlier in an
+episode. Track the bottom consumption quintile, consumption inequality,
+employment, GDP, realized government consumption, and inflation even when they
+are not reward terms. Define household coverage explicitly, including firm and
+bank owners represented in the model. If the model cannot support a credible
+household welfare measure, use a labeled proxy and narrow the study's claim
+accordingly.
 
 ## Experimental sequence and decision gates
 
@@ -157,8 +159,8 @@ claim accordingly.
   reward calculations on a few hand-inspected episodes.
 
 **Gate 1:** policy interventions change only the intended variables, the no-op
-wrapper is neutral, and every reward and guardrail can be reconstructed from
-saved run data.
+wrapper is neutral, and every reward and fiscal measure can be reconstructed
+from saved run data.
 
 ### 2. Test policy sensitivity before RL
 
@@ -215,15 +217,15 @@ baseline tuning before final evaluation. Partition by complete simulation
 scenario, not by quarter or household observation. Use separate test seeds,
 shock sequences, initial conditions, and feasible parameter configurations.
 Evaluate all policies on matched test scenarios and report paired differences
-with confidence intervals, tail losses, constraint-violation rates, and paths
+with confidence intervals, tail losses, debt outcomes, and paths
 for every welfare component. Test several predeclared welfare weights, longer
 horizons, and weaker/stronger behavioral responses. Do not select a winner from
 the held-out set and then reuse it as an unbiased test.
 
 **Go:** pursue the larger project only if RL beats both tuned comparators by a
 predeclared minimum welfare gain on held-out scenarios, the uncertainty interval
-supports that gain, fiscal and distributional guardrails pass, and the result is
-not driven by one calibration or exploitable model artifact.
+supports that gain, debt and distributional outcomes meet predeclared criteria,
+and the result is not driven by one calibration or exploitable model artifact.
 
 **No-go or redesign:** if static or simple feedback policy matches RL, if
 results change sign under plausible assumptions, or if the agent exploits a

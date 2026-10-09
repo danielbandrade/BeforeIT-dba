@@ -42,7 +42,8 @@ method if added later.
 
 ### One episode
 
-`run_episode(policy, scenario, seed, spec)` runs 12 quarters. Each quarter:
+`run_episode(policy, parameters, initial_conditions; ...)` runs 12 quarters.
+Each quarter:
 
 1. Give the policy an observation from the preceding quarter. At quarter 0,
    mark unavailable measures as missing rather than using initialized zeros.
@@ -62,15 +63,16 @@ The reward is the [research plan's welfare function](government-rl-research-plan
 In particular, unemployment contributes
 `-lambda_u * count(==(0), model.w_act.O_h) / length(model.w_act.O_h)`
 every quarter, with `lambda_u > 0`. Include all represented households in
-consumption welfare, use realized government consumption for its public-service
-proxy, and measure debt against nominal GDP. Fix weights, reference values,
-and policy bounds in `experiment.toml` before tuning. Apply the same
-predeclared penalty to fiscal violations when tuning every policy; the final
-feasibility decision uses the research plan's guardrails.
+consumption welfare. Government consumption remains an action and a reported
+outcome, with no direct reward term. Add the research plan's terminal debt-change
+penalty, scaled by initial annualized nominal GDP, to the episode score; it is
+not implemented yet. Report debt levels and debt divided by annualized nominal
+GDP separately. Fix the debt weight, other weights, reference value, and policy
+bounds in `experiment.toml` before tuning.
 
 Save the specification, run manifest, and compact quarterly results in an
 immutable `government-rl/experiments/<id>/` directory, ignored by Git. Record failed runs
-and fiscal guardrail violations alongside successful runs.
+and action-bound violations alongside successful runs.
 
 ## Build order
 
@@ -94,5 +96,5 @@ The built-in `ProductivityShock` and `ConsumptionShock` methods currently
 accept concrete `Bit.Model`, while `PolicyModel` is an `AbstractModel`
 subtype. Extend those shocks only if a robustness scenario needs them.
 
-**First coding task:** implement the policy model and episode loop, then run
-the no-op integration check.
+**Next coding task:** choose the debt weight and add the terminal debt penalty
+to episode scores before tuning policies.
