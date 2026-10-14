@@ -4,7 +4,7 @@
 
 ### Problem and Context 
 
-The work in *Poledna et al. and Gilemo et al.* establish a realistic and composable agent based model for an small open economy based on national account data. As this model is composed by a rich set of agents found in the real economy, such as active and inactive househouds, consumer and capital firms, bank, government, central bank, and has levaraged national accounts data, such as the input-output matrix, basel III regulation, it can be use as a test bed for diferent economic cenarios, including how changes in government spending and taxation can affect the economy. 
+The work in *Poledna et al. and Gilemo et al.* establish a realistic and composable agent based model for an small open economy based on national account data. As this model is composed by a rich set of agents found in the real economy, such as active and inactive househouds, consumer and capital firms, bank, government, central bank, and has levaraged national accounts data, such as the input-output matrix, basel III regulation to create a relistic simulation, it can be use as a test bed for diferent economic cenarios, including how changes in government spending and taxation can affect the economy. 
 
 ### Research Question
 
@@ -16,7 +16,7 @@ Can a optimal adaptive behaviour for government fiscal policy in a highly non li
 - Understand and describe the behaviour of the model proposed by *Poledna et. al*
 - Run a sensitive analysis of core fiscal policy actions in the simulation
 - Use machine learning methods, such as supervised and reinforcement learning, for seaching for optimal fiscal policies 
-- 
+- Compare the emerging policies with the agent based macroeconomic literature 
 
 ### Justification
 
@@ -28,6 +28,8 @@ Agent based models consist of a poweful tool for representing and understanding 
 Brian Arthur, Dewid and Gatti, Gallegati, Poledna et al, Sutton.
 
 ## Methodology 
+
+Simulation, monte carlo simulation, machine learning, statistics. 
 
 ## References 
 
