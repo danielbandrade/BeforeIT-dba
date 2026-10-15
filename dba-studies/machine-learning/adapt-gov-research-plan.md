@@ -38,7 +38,28 @@ Brian Arthur, Dewid and Gatti, Gallegati, Poledna et al, Sutton.
 
 ## Methodology 
 
+### Approach 
+
 The main method for this research will be perfoming simulations, using of machine learning tools for the creating a new government agent and statiscal analisys for evaluating the results. 
+
+### Data 
+
+This work will be based mainly on simulation generated data but will also leverage empirical data for qualitative validation of the results. 
+
+### Techniques and tools 
+
+Simulation, machine learning, statistical analysis. 
+
+### Activity schedule
+
+| Activity and method | Expected output | Sem 1 | Sem 2 | Sem 3 | Sem 4 |
+|---|---|:---:|:---:|:---:|:---:|
+| Review the literature and document the model’s fiscal rules and economic indicators | Research gap and reproducible baseline | ✓ | | | |
+| Run sensitivity analyses of selected tax and government spending decisions across repeated simulations | Feasible policy ranges and measurable effects | ✓ | ✓ | | |
+| Define the policy objective and compare the existing rule with simple fixed or feedback policies | Evaluation criteria and comparison results | | ✓ | | |
+| Assess the role of supervised learning and develop an adaptive government agent using reinforcement learning | Trained policy and documented decisions | | | ✓ | |
+| Test all policies on new simulation runs and economic shocks; compare outcomes and uncertainty | Welfare, fiscal, and robustness results | | | ✓ | ✓ |
+| Complete coursework, qualification, writing, and submission | Qualification and dissertation | ✓ | ✓ | | ✓ |
 
 ## References 
 
