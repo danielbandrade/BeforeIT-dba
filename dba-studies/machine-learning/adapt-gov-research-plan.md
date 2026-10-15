@@ -4,6 +4,10 @@
 
 ### Problem and Context 
 
+In agent-based macroeconomic models, different types of heterogeneous
+agents endowed with behavioral and expectational rules interact through explicitly
+represented market protocols and meso- as well as macroeconomic variables are determined by actual aggregation of the output in this population of agents (Dawid and Gatti, 2018). 
+
 The work in *Poledna et al. and Gilemo et al.* establish a realistic and composable agent based model for an small open economy based on national account data. As this model is composed by a rich set of agents found in the real economy, such as active and inactive househouds, consumer and capital firms, a bank, the government, a central bank, and has levaraged national accounts data, such as the input-output matrix, basel III regulations to create a relistic simulation, it can be use as a test bed for diferent economic cenarios, including how changes in government spending and taxation can affect the economy. 
 
 ### Research Questions
@@ -62,6 +66,16 @@ Simulation, machine learning, statistical analysis.
 | Complete coursework, qualification, writing, and submission | Qualification and dissertation | ✓ | ✓ | | ✓ |
 
 ## References 
+
+DAWID, Herbert; DELLI GATTI, Domenico. [Agent-Based Macroeconomics](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3112074). *Bielefeld Working Papers in Economics and Management*, n. 02-2018, 2018. DOI: [10.2139/ssrn.3112074](https://doi.org/10.2139/ssrn.3112074).
+
+GLIELMO, Aldo; DEVETAK, Mitja; MELIGRANA, Adriano; POLEDNA, Sebastian. [BeforeIT.jl: High-Performance Agent-Based Macroeconomics Made Easy](https://arxiv.org/abs/2502.13267). *arXiv*, arXiv:2502.13267, 2025. DOI: [10.48550/arXiv.2502.13267](https://doi.org/10.48550/arXiv.2502.13267).
+
+LEONTIEF, Wassily W. [Input-Output Economics](https://www.scientificamerican.com/article/input-output-economics/) (A economia do insumo-produto). *Scientific American*, v. 185, n. 4, p. 15–21, 1951. DOI: [10.1038/scientificamerican1051-15](https://doi.org/10.1038/scientificamerican1051-15).
+
+POLEDNA, Sebastian; MIESS, Michael Gregor; HOMMES, Cars; RABITSCH, Katrin. [Economic forecasting with an agent-based model](https://www.sciencedirect.com/science/article/pii/S0014292122001891). *European Economic Review*, v. 151, art. 104306, 2023. DOI: [10.1016/j.euroecorev.2022.104306](https://doi.org/10.1016/j.euroecorev.2022.104306).
+
+
 
 ------------------
 
