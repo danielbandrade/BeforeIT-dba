@@ -4,8 +4,7 @@
 
 ### Problem and Context 
 
-In agent-based macroeconomic models, different types of heterogeneous
-agents endowed with behavioral and expectational rules interact through explicitly
+In agent-based macroeconomic models, different types of heterogeneous agents endowed with behavioral and expectational rules interact through explicitly
 represented market protocols and meso- as well as macroeconomic variables are determined by actual aggregation of the output in this population of agents (Dawid and Gatti, 2018). 
 
 The work in *Poledna et al. and Gilemo et al.* establish a realistic and composable agent based model for an small open economy based on national account data. As this model is composed by a rich set of agents found in the real economy, such as active and inactive househouds, consumer and capital firms, a bank, the government, a central bank, and has levaraged national accounts data, such as the input-output matrix, basel III regulations to create a relistic simulation, it can be use as a test bed for diferent economic cenarios, including how changes in government spending and taxation can affect the economy. 

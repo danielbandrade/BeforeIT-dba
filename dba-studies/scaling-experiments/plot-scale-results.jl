@@ -3,10 +3,10 @@ using JLD2
 ENV["GKSwstype"] = "100"
 using Plots
 
-const INPUT = joinpath(@__DIR__, "scale-1-results.jld2")
-const OUTPUT = joinpath(@__DIR__, "scale-1-results.png")
+const INPUT = joinpath(@__DIR__, "austria-scale-1-results.jld2")
+const OUTPUT = joinpath(@__DIR__, "austria-scale-1-results.png")
 
-isfile(INPUT) || error("Run dba-studies/scaling-experiments/run-scale-0.1.jl first")
+isfile(INPUT) || error("Run dba-studies/scaling-experiments/run-scale.jl first")
 data = JLD2.load(INPUT, "data")
 quarters = 0:(length(data.collection_time) - 1)
 indexed(series) = 100 .* series ./ first(series)

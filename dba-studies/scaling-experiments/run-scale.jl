@@ -7,11 +7,12 @@ const SCALE = 1
 const HORIZON = 12
 const SEED = 1234
 const CALIBRATION_DATE = DateTime(2010, 3, 31)
-const OUTPUT = joinpath(@__DIR__, "scale-1-results.jld2")
+const OUTPUT = joinpath(@__DIR__, "austria-scale-1-results.jld2")
 
-println("Calibrating Italy at scale $SCALE...")
+println("Calibrating Austria at scale $SCALE...")
+calibration = Bit.download_zenodo_calibration_object("AT")
 parameters, initial_conditions = Bit.get_params_and_initial_conditions(
-    Bit.ITALY_CALIBRATION,
+    calibration,
     CALIBRATION_DATE;
     scale = SCALE,
 )
@@ -28,7 +29,7 @@ println("Running $HORIZON quarters...")
 elapsed = @elapsed Bit.run!(model, HORIZON; parallel = false)
 
 metadata = Dict(
-    "country" => "Italy",
+    "country" => "Austria",
     "calibration_date" => string(Date(CALIBRATION_DATE)),
     "scale" => SCALE,
     "horizon" => HORIZON,
