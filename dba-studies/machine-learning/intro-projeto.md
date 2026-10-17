@@ -10,6 +10,4 @@ Os modelos baseados em agentes tem se constituído uma ferramenta poderosa para 
 
 O trabalho proposto por Poledna et. al, é um modelo baseado em agentes para a macroeconomia, ou seja, focado no estudo de propriedades agregadas da economia, como inflação, PIB, desemprego, em particular para a Áustria, que é um país pequeno, industrial e com economia aberta. O foco foi construir um modelo ancorado nas estatísticas nacionais para realizar previsões para estas variáveis economias concorrendo com modelos DSGE, que são o estado da arte da economia neoclássica.  O [BeforeIT.jl](https://arxiv.org/abs/2502.13267) oferece uma implementação aberta e extensível deste modelo.
 
-O presente trabalho se propõe a explorar caminhos para a política fiscal, ou seja, da cobrança de impostos e dos gastos públicos, a partir das hipóteses do modelo, utilizando técnicas de análise de sensibilidade, criação de meta modelos e aprendizado por reforço. 
-
-   
+O presente trabalho se propõe a explorar caminhos para a política fiscal, ou seja, das receitas e dos gastos públicos, a partir da plataforma do modelo, utilizando técnicas de análise de sensibilidade, criação de meta modelos e aprendizado por reforço. 

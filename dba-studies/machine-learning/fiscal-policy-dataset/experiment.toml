@@ -1,0 +1,15 @@
+[experiment]
+source = "bundled" # Austrian calibration included with BeforeIT
+scale = 0.001
+configurations = 100 # baseline + 8 one-variable boundaries + 91 LHS points
+seeds = 5
+horizon = 12
+master_seed = 2026
+output_dir = "experiments/austria-scale-0.001"
+
+[bounds]
+# Exploratory ranges around the Austrian baseline; adjust before a full study.
+tau_INC_delta = 0.02
+tau_VAT_delta = 0.02
+theta_UB_delta = 0.05
+spending_multiplier = [0.95, 1.05] # sampled uniformly in log space
