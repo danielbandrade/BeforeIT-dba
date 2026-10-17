@@ -1,0 +1,85 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+
+\begin{document}
+
+\section*{AdaptGov: aprendizado de política fiscal adaptativa em um modelo macroeconômico baseado em agentes}
+
+\section*{Introdução, objetivos e justificativa}
+
+\subsection{Introdução}
+
+Um sistema complexo é um sistema formado por um conjunto de agentes interagindo que, de maneira agregada, formam comportamentos emergentes, ou seja, que não podem ser derivados trivialmente a partir de seu comportamento individual \cite{newman2011}. Além disso, estes fenômenos emergentes afetam os agentes individuais, formando feedbacks positivos e negativos.
+
+A economia é um sistema complexo onde milhões de agentes, trabalhadores, empresas e instituições governamentais, interagem resultando em fenômenos emergentes como preços, inflação, produto interno, crescimento, dentre outras. A aplicação da lente teórica de sistemas complexos para o estudo da economia tem se mostrado uma alternativa promissora ao paradigma predominante da teoria econômica neoclássica, que se âncora em pressupostos teóricos pouco críveis, como a existência de um equilíbrio geral, as expectativas racionais e os agentes representativos \cite{gallegati2012}.
+
+Nesse sentido, o campo da economia complexa (“complexity economics”), estuda a economia a partir de agentes com racionalidade limitada, que, ao interagirem, resultam em meso e macro comportamentos emergentes \cite{arthur2013}.
+
+Os modelos baseados em agentes tem se constituído uma ferramenta poderosa para o estudo da economia complexa através de ferramentas computacionais \cite{dawid2018}. Neles, os agentes econômicos são simulados através regras comportamentais que regem tanto seu comportamento individual quanto suas interações, sem a necessidade de um controle central. As variáveis agregadas resultantes emergem como resultado do computacional dos comportamentos e interações ao longo do tempo, sem a utilização de pressupostos de equilíbrio, informação e racionalidade perfeita e sem um controle central.
+
+O trabalho proposto por Poledna et. al \cite{poledna2023}, é um modelo baseado em agentes para a macroeconomia, ou seja, focado no estudo de propriedades agregadas da economia, como inflação, PIB, desemprego, em particular para a Áustria, que é um país pequeno, industrial e com economia aberta. O foco foi construir um modelo ancorado nas estatísticas nacionais para realizar previsões para estas variáveis economias concorrendo com modelos DSGE, que são o estado da arte da economia neoclássica. O BeforeIT.jl oferece uma implementação aberta e extensível deste modelo \cite{glielmo2025}.
+
+O presente trabalho se propõe a explorar caminhos para a política fiscal, ou seja, das receitas e dos gastos públicos, a partir da plataforma do modelo, utilizando técnicas de análise de sensibilidade, criação de meta modelos e aprendizado por reforço.
+
+\subsection{Perguntas de Pesquisa}
+
+Pergunta central: É possível construir uma política fiscal adaptativa que melhora o bem estar previamente definido em relação a políticas fixas, sem deterioração inaceitável da dívida pública e da estabilidade macroeconômica?
+
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{0pt}
+
+Perguntas secundárias:
+\begin{itemize}
+    \item Quais alterações nos parâmetros da política fiscal produzem resultados estatisticamente significativos?
+    \item É possível treinar um modelo para prever as variáveis de análise a partir dos parâmetros da política fiscal?
+    \item É possível treinar uma política fiscal adaptativa utilizando aprendizado por reforço?
+\end{itemize}
+
+\subsection{Justificativa}
+
+\section*{Revisão bibliográfica}
+
+\section*{Metodologia e plano de atividades}
+
+Objetivo geral: desenvolver e avaliar políticas fiscais adaptativas no modelo Before.IT através de técnicas de análise de sensibilidade, meta modelos e aprendizagem por reforço.
+
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{0pt}
+
+Objetivos específicos:
+\begin{itemize}
+    \item Formular o problema de política fiscal no contexto do modelo Before.IT, com seus parâmetros, variáveis livres e restrições
+    \item Realizar análise de sensibilidade nas variáveis de estudo do problema de fiscal
+    \item Propor, treinar e avaliar um modelo de aprendizado por reforço para a política fiscal
+    \item Avaliar e interpretar os resultados frente a proposta do modelo Before.IT
+\end{itemize}
+
+\section*{Resultados parciais, se houver}
+
+\renewcommand{\refname}{Referências bibliográficas}
+\begin{thebibliography}{99}
+
+\bibitem{arthur2013} ARTHUR, W. B. \emph{Complexity Economics: A Different Framework for Economic Thought}. Santa Fe Institute Working Paper, 2013. Disponível em: \url{https://sites.santafe.edu/~wbarthur/Papers/Comp.Econ.SFI.pdf}.
+
+\bibitem{dawid2018} DAWID, Herbert; DELLI GATTI, Domenico. Agent-Based Macroeconomics. In: \emph{Handbook of Computational Economics}. Elsevier, 2018. v. 4, p. 63--156. DOI: \url{https://doi.org/10.1016/bs.hescom.2018.02.006}.
+
+\bibitem{dosi2015} DOSI, Giovanni; FAGIOLO, Giorgio; NAPOLETANO, Mauro; ROVENTINI, Andrea; TREIBICH, Tania. Fiscal and monetary policies in complex evolving economies. \emph{Journal of Economic Dynamics and Control}, v. 52, p. 166--189, 2015. DOI: \url{https://doi.org/10.1016/j.jedc.2014.11.014}.
+
+\bibitem{gallegati2012} GALLEGATI, Mauro; KIRMAN, Alan. Reconstructing Economics: Agent Based Models and Complexity. \emph{Complexity Economics}, v. 1, n. 1, p. 5--31, 2012. DOI: \url{https://doi.org/10.7564/12-COEC2}.
+
+\bibitem{glielmo2025} GLIELMO, Aldo; DEVETAK, Mitja; MELIGRANA, Adriano; POLEDNA, Sebastian. BeforeIT.jl: High-Performance Agent-Based Macroeconomics Made Easy. \emph{arXiv}, arXiv:2502.13267, 2025. DOI: \url{https://doi.org/10.48550/arXiv.2502.13267}. Preprint.
+
+\bibitem{newman2011} NEWMAN, M. E. J. \emph{Complex Systems: A Survey}. arXiv:1112.1440, 2011. Disponível em: \url{https://arxiv.org/abs/1112.1440}.
+
+\bibitem{poledna2023} POLEDNA, Sebastian; MIESS, Michael Gregor; HOMMES, Cars; RABITSCH, Katrin. Economic forecasting with an agent-based model. \emph{European Economic Review}, v. 151, art. 104306, 2023. DOI: \url{https://doi.org/10.1016/j.euroecorev.2022.104306}.
+
+\bibitem{zheng2022} ZHENG, Stephan; TROTT, Alexander; SRINIVASA, Sunil; PARKES, David C.; SOCHER, Richard. The AI Economist: Taxation policy design via two-level deep multiagent reinforcement learning. \emph{Science Advances}, v. 8, n. 18, eabk2607, 2022. DOI: \url{https://doi.org/10.1126/sciadv.abk2607}.
+
+\end{thebibliography}
+
+\end{document}
