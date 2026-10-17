@@ -14,21 +14,27 @@
 
 \subsection{Introdução}
 
-Um sistema complexo é um sistema formado por um conjunto de agentes interagindo que, de maneira agregada, formam comportamentos emergentes, ou seja, que não podem ser derivados trivialmente a partir de seu comportamento individual \cite{newman2011}. Além disso, estes fenômenos emergentes afetam os agentes individuais, formando feedbacks positivos e negativos.
+Um sistema complexo é um sistema formado por um conjunto de agentes interagindo que, de maneira agregada, resultam em comportamentos emergentes, que não podem ser derivados trivialmente a partir de seu comportamento individual \cite{newman2011}. Estes fenômenos emergentes afetam os agentes individuais, criando retroalimentações positivas e negativas.
 
-A economia é um sistema complexo onde milhões de agentes, trabalhadores, empresas e instituições governamentais, interagem resultando em fenômenos emergentes como preços, inflação, produto interno, crescimento, dentre outras. A aplicação da lente teórica de sistemas complexos para o estudo da economia tem se mostrado uma alternativa promissora ao paradigma predominante da teoria econômica neoclássica, que se âncora em pressupostos teóricos pouco críveis, como a existência de um equilíbrio geral, as expectativas racionais e os agentes representativos \cite{gallegati2012}.
+A economia é um sistema complexo onde bilhões de agentes, entre trabalhadores, empresas e instituições governamentais, interagem resultando em fenômenos emergentes como preços, inflação, produto interno e crescimento. Além disso, esses atores aprendem e evoluem ao longo do tempo, o que modifica fundamentalmente a estrutura do sistema, tornando-o adaptativo \cite{arthur2013}. 
 
-Nesse sentido, o campo da economia complexa (“complexity economics”), estuda a economia a partir de agentes com racionalidade limitada, que, ao interagirem, resultam em meso e macro comportamentos emergentes \cite{arthur2013}.
+A aplicação da lente teórica de sistemas complexos adaptativos para o estudo da economia tem se mostrado uma alternativa promissora ao paradigma predominante da teoria econômica, o neoclássico, que se âncora em pressupostos teóricos pouco críveis, como a existência de um equilíbrio, as expectativas racionais e os agentes representativos \cite{gallegati2012}.
+
+Nesse sentido, o campo da economia complexa (“complexity economics”), seria uma formulação mais geral da economia neoclássica, pois estuda as estruturas econômicas a partir de premissas menos restritas \cite{arthur2013}. 
 
 Os modelos baseados em agentes tem se constituído uma ferramenta poderosa para o estudo da economia complexa através de ferramentas computacionais \cite{dawid2018}. Neles, os agentes econômicos são simulados através regras comportamentais que regem tanto seu comportamento individual quanto suas interações, sem a necessidade de um controle central. As variáveis agregadas resultantes emergem como resultado do computacional dos comportamentos e interações ao longo do tempo, sem a utilização de pressupostos de equilíbrio, informação e racionalidade perfeita e sem um controle central.
 
-O trabalho proposto por Poledna et. al \cite{poledna2023}, é um modelo baseado em agentes para a macroeconomia, ou seja, focado no estudo de propriedades agregadas da economia, como inflação, PIB, desemprego, em particular para a Áustria, que é um país pequeno, industrial e com economia aberta. O foco foi construir um modelo ancorado nas estatísticas nacionais para realizar previsões para estas variáveis economias concorrendo com modelos DSGE, que são o estado da arte da economia neoclássica. O BeforeIT.jl oferece uma implementação aberta e extensível deste modelo \cite{glielmo2025}.
+O trabalho proposto por Poledna et. al \cite{poledna2023}, é um modelo baseado em agentes para a macroeconomia, ou seja, focado no estudo de propriedades agregadas da economia, como inflação, PIB, crescimento, desemprego \cite{dawid2018}, em particular para a Áustria, que é um país pequeno, industrial e com economia aberta. Ele é constituído por um modelo ancorado nas estatísticas nacionais e em regras autoregressivas de primeira ordem que realizou previsões macroeconômicas comparávais aos modelos DSGE ("Dynamic Stochastic General Equilibrium"), que são o estado da arte da economia neoclássica. O BeforeIT.jl oferece uma implementação aberta e extensível deste modelo na linguagem Julia feita pela equipe de tecnologia da informação do Banco da Itália \cite{glielmo2025}.
 
-O presente trabalho se propõe a explorar caminhos para a política fiscal, ou seja, das receitas e dos gastos públicos, a partir da plataforma do modelo, utilizando técnicas de análise de sensibilidade, criação de meta modelos e aprendizado por reforço.
+Novos trabalhos têm alavancado o campo da  inteligência artificial para construir modelos macroeconômicos baseados em agentes. Em \cite{zheng2022} e \cite{brusatin2024} técnicas de aprendizado por reforço são utlizadas para treinar agenetes com comportamentos racionais e avaliar o resultado macroeconômico. Em \cite{li2024} LLMs ("Large Language Models") fazem o papal de consumidores e trabalhadores em um modelo que busca reproduzir qualitativamente comportamentos macroeconômicos conhecidos.  
+
+A análise de sensibilidade e os metas modelos tem se constituído uma ferramenta importante para a avaliação e emulação de ABMs em diversas áreas \cite{angione2022}, pois podem oferecer maior robustez e explicabilidade aos resultados dos modelos em questão. 
+
+Dessa maneira, por ser um modelo extensível e com performance similar aos DSGEs, o Before.IT pode ser utilzado como plataforma para a exploração de políticas fiscais alteranativas, que combinam análise de sensibilidade, meta modelos e aprendizagem por reforço, avaliando-as contra regras fixas ou simples, frente medidas bem definidas de bem-estar, dívida pública e robustez. 
 
 \subsection{Perguntas de Pesquisa}
 
-Pergunta central: É possível construir uma política fiscal adaptativa que melhora o bem estar previamente definido em relação a políticas fixas, sem deterioração inaceitável da dívida pública e da estabilidade macroeconômica?
+Pergunta central: É possível construir uma política fiscal adaptativa no modelo Before.IT calibrado para a Áustria que melhora o bem estar previamente definido em relação a políticas fixas, sem deterioração inaceitável da dívida pública e da estabilidade macroeconômica?
 
 \setlength{\parskip}{0.5em}
 \setlength{\parindent}{0pt}
@@ -37,19 +43,23 @@ Perguntas secundárias:
 \begin{itemize}
     \item Quais alterações nos parâmetros da política fiscal produzem resultados estatisticamente significativos?
     \item É possível treinar um modelo para prever as variáveis de análise a partir dos parâmetros da política fiscal?
-    \item É possível treinar uma política fiscal adaptativa utilizando aprendizado por reforço?
+    \item É possível treinar uma política fiscal adaptativa utilizando aprendizado por reforço que melhore o desempenho com relações a uma política fixa?
 \end{itemize}
 
 \subsection{Justificativa}
 
-\section*{Revisão bibliográfica}
+Modelos baseados em agentes são uma ferramenta poderosa para a análise da macroeconomia com o potencial de informar a sociedade e agencias governamentais sobre o comportamento passado e futuro de indicadores chaves como inflação, desemprego, crescimento. Os Bancos Centrais do Canadá e da Itália já tem trabalhado em modelos que possam informar sobre os próximos passos de suas economias. 
 
-\section*{Metodologia e plano de atividades}
+Nesse cenário, a construção de análise de sensibilidade e metamodelos é importante para sustentar a validade, explicabilidade e robustez dos modelos em questão. 
+
+Além disso, os modelos baseados em agentes tem tido sua fronteira explorada através da utilização de inteligência artificial para a construção de agentes adaptativos que aprendem ao longo da simulação. 
+
+Este trabalho busca contribuir para o campo dos modelos macroeconomico baseados em agentes ao explorar um modelo  fronteira, construindo, validando e interpretando políticas fiscais adaptativa. Assim, busca-se extender a aplicação do modelo de um papel preditivo para também um papel informativo sob eventuais políticas fiscais a serem aplicadas por um formulador de política economica.  
+
+
+\subsection{Objetivos}
 
 Objetivo geral: desenvolver e avaliar políticas fiscais adaptativas no modelo Before.IT através de técnicas de análise de sensibilidade, meta modelos e aprendizagem por reforço.
-
-\setlength{\parskip}{0.5em}
-\setlength{\parindent}{0pt}
 
 Objetivos específicos:
 \begin{itemize}
@@ -59,12 +69,56 @@ Objetivos específicos:
     \item Avaliar e interpretar os resultados frente a proposta do modelo Before.IT
 \end{itemize}
 
+\section*{Revisão bibliográfica}
+
+Uma revisão geral sobre o campo de estudo dos sistemas complexos pode ser econtrada em \cite{newman2011}, que os conceitua como sistemas onde muitos atores interagem formando comportamentos que não podem ser explicados por suas ações individuais, chamados de emergentes. 
+
+Em \cite{arthur2013}, \cite{gallegati2012} e \cite{dawid2018} é possível encontrar uma conexão entre sistemas complexos e as ciências economicas. Em especial, a abordagem de sistemas complexos para a economia é colocada como visão não reducionista e não axiomática, onde se estuda a interações economicas deses agentes. 
+
+A modelagem baseada em agentes para economia ("Agent-based Computational Economics") é definida em \cite{dawid2018} como o estudo computacional de processos economicos modelados a partir de sistemas dinamicos de agentes interativos. 
+
+\section*{Metodologia e plano de atividades}
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{|p{0.38\textwidth}|p{0.22\textwidth}|c|c|c|c|}
+\hline
+Activity and method & Expected output & Sem 1 & Sem 2 & Sem 3 & Sem 4 \\
+\hline
+Review the literature and document the model's fiscal rules and economic indicators
+& Research gap and reproducible baseline & X & & & \\
+\hline
+Run sensitivity analyses of selected tax and government spending decisions across repeated simulations
+& Feasible policy ranges and measurable effects & X & X & & \\
+\hline
+Define the policy objective and compare the existing rule with simple fixed or feedback policies
+& Evaluation criteria and comparison results & & X & & \\
+\hline
+Assess the role of supervised learning and develop an adaptive government agent using reinforcement learning
+& Trained policy and documented decisions & & & X & \\
+\hline
+Test all policies on new simulation runs and economic shocks; compare outcomes and uncertainty
+& Welfare, fiscal, and robustness results & & & X & X \\
+\hline
+Complete coursework, qualification, writing, and submission
+& Qualification and dissertation & X & X & & X \\
+\hline
+\end{tabular}
+\end{table}
+
+
 \section*{Resultados parciais, se houver}
 
 \renewcommand{\refname}{Referências bibliográficas}
 \begin{thebibliography}{99}
 
+\bibitem{angione2022} ANGIONE, Claudio; SILVERMAN, Eric; YANESKE, Elisabeth. Using machine learning as a surrogate model for agent-based simulations. \emph{PLOS ONE}, v. 17, n. 2, e0263150, 2022. DOI: \url{https://doi.org/10.1371/journal.pone.0263150}.
+
 \bibitem{arthur2013} ARTHUR, W. B. \emph{Complexity Economics: A Different Framework for Economic Thought}. Santa Fe Institute Working Paper, 2013. Disponível em: \url{https://sites.santafe.edu/~wbarthur/Papers/Comp.Econ.SFI.pdf}.
+
+\bibitem{brusatin2024} BRUSATIN, Simone; PADOAN, Tommaso; COLETTA, Andrea; DELLI GATTI, Domenico; GLIELMO, Aldo. Simulating the Economic Impact of Rationality through Reinforcement Learning and Agent-Based Modelling. In: \emph{Proceedings of the 5th ACM International Conference on AI in Finance}. ACM, 2024. p. 159--167. DOI: \url{https://doi.org/10.1145/3677052.3698621}.
 
 \bibitem{dawid2018} DAWID, Herbert; DELLI GATTI, Domenico. Agent-Based Macroeconomics. In: \emph{Handbook of Computational Economics}. Elsevier, 2018. v. 4, p. 63--156. DOI: \url{https://doi.org/10.1016/bs.hescom.2018.02.006}.
 
@@ -73,6 +127,8 @@ Objetivos específicos:
 \bibitem{gallegati2012} GALLEGATI, Mauro; KIRMAN, Alan. Reconstructing Economics: Agent Based Models and Complexity. \emph{Complexity Economics}, v. 1, n. 1, p. 5--31, 2012. DOI: \url{https://doi.org/10.7564/12-COEC2}.
 
 \bibitem{glielmo2025} GLIELMO, Aldo; DEVETAK, Mitja; MELIGRANA, Adriano; POLEDNA, Sebastian. BeforeIT.jl: High-Performance Agent-Based Macroeconomics Made Easy. \emph{arXiv}, arXiv:2502.13267, 2025. DOI: \url{https://doi.org/10.48550/arXiv.2502.13267}. Preprint.
+
+\bibitem{li2024} LI, Nian; GAO, Chen; LI, Mingyu; LI, Yong; LIAO, Qingmin. EconAgent: Large Language Model-Empowered Agents for Simulating Macroeconomic Activities. \emph{arXiv}, arXiv:2310.10436, 2024. DOI: \url{https://doi.org/10.48550/arXiv.2310.10436}. Preprint.
 
 \bibitem{newman2011} NEWMAN, M. E. J. \emph{Complex Systems: A Survey}. arXiv:1112.1440, 2011. Disponível em: \url{https://arxiv.org/abs/1112.1440}.
 

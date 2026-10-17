@@ -66,3 +66,11 @@ agregar trajetórias por configuração; separar treino/validação/teste por i
 
 - **Implementação:** `generate_dataset.jl` reutiliza `../government-rl/government_policy.jl` e fixa $\tau^{INC}$, $\tau^{VAT}$, $\theta^{UB}$ e $m^G$ antes do primeiro trimestre. Nenhuma decisão depende do estado observado durante o run.
 - **Custo estimado:** um run austríaco em escala 1 levou 569 s para 12 trimestres; $100\times5$ runs seriam aproximadamente 79 horas de simulação serial, sem calibração e gravação. Essa extrapolação usa apenas uma medição.
+
+## Expansão do piloto
+
+- `experiment-expanded.toml` mantém a calibração austríaca, escala `0.001` e 12 trimestres, mas usa **500 configurações e 10 sementes**: 5.000 runs. O piloto de 100 × 5 continua em sua própria pasta.
+- Os novos intervalos são $\tau^{INC}_0\pm0{,}03$, $\tau^{VAT}_0\pm0{,}03$, $\theta^{UB}_0\pm0{,}075$ e $m^G\in[0{,}925,1{,}075]$. Cada largura cresce cerca de 50%; o volume de quatro dimensões cresce cerca de $1{,}5^4\approx5{,}1$ vezes. As 500 configurações mantêm aproximadamente a densidade média do piloto, sem garantir cobertura idêntica perto da referência.
+- A nova amostra é independente: política base, oito fronteiras e 491 pontos LHS. As partições são **400 treino, 50 validação e 50 teste**, sempre por configuração. O teste novo é a avaliação final para o domínio ampliado.
+- O desenho gerado tem **105 políticas dentro dos limites antigos** (83 treino, 14 validação e 8 teste). O erro de teste nessa região terá incerteza alta por conter só oito políticas.
+- Comparar os modelos também por erro absoluto e separar resultados dentro e fora dos limites antigos. O NRMSE calculado com o desvio padrão do novo treino não é diretamente comparável ao NRMSE do piloto, porque o domínio mudou.
