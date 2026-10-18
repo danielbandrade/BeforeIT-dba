@@ -154,9 +154,9 @@ INPUT ./fluxo-completo-mermaid-diagram.png
 INPUT ./fluxo-completo-mermaid-diagram.png
 INPUT ./fluxo-completo-mermaid-diagram.png
 INPUT ./fluxo-completo-mermaid-diagram.png
-INPUT /usr/local/texlive/2026/texmf-dist/fonts/tfm/jknappen/ec/ectt1200.tfm
 INPUT /usr/local/texlive/2026/texmf-dist/fonts/tfm/jknappen/ec/ecrm1000.tfm
 INPUT /usr/local/texlive/2026/texmf-dist/fonts/tfm/jknappen/ec/ecbx1000.tfm
+INPUT /usr/local/texlive/2026/texmf-dist/fonts/tfm/jknappen/ec/ectt1200.tfm
 INPUT ./ridge-quadratic-learning-curve.png
 INPUT ./ridge-quadratic-learning-curve.png
 INPUT ./ridge-quadratic-learning-curve.png

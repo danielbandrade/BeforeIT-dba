@@ -129,31 +129,6 @@ Cada etapa temporal do modelo equivale a um `trimestre`. As etapas-chave que lev
 \clearpage
 \section{Metodologia e plano de atividades}
 
-\begin{itemize}
-    \item Política:
-    \(p_i=(\tau_i^{\mathrm{INC}},\tau_i^{\mathrm{VAT}},
-    \theta_i^{\mathrm{UB}},\log m_i^G)\in\mathcal{P}\),
-    no domínio exploratório definido abaixo.
-
-    \item Dinâmica: para configuração \(i\), semente \(j\) e trimestre \(t\),
-    \[
-    \begin{array}{l}
-    p_{i,t}=p_i \quad (0\leq t<T),\\[0.4em]
-    x_{i,j,t+1}=F(x_{i,j,t},p_i,z_{i,j,t},\varepsilon_{i,j,t+1}),\\[0.4em]
-    s_{i,j,t}=H(x_{i,j,t}).
-    \end{array}
-    \]
-    O estado econômico \(x\) evolui; os
-    parâmetros da política não mudam dentro do run.
-\end{itemize}
-
-\begin{itemize}
-    \item \(\tau^{\mathrm{INC}}\) (\texttt{tau\_INC}): alíquota do imposto de renda.
-    \item \(\tau^{\mathrm{VAT}}\) (\texttt{tau\_VAT}): alíquota do imposto sobre valor agregado (IVA).
-    \item \(\theta^{\mathrm{UB}}\) (\texttt{theta\_UB}): taxa de reposição do benefício de desemprego.
-    \item \(m^G\) (\texttt{spending\_multiplier}): multiplicador da demanda de consumo do governo, amostrado como \(\log m^G\). A regra estocástica continua ativa, portanto o gasto realizado pode variar mesmo com \(m^G\) fixo.
-\end{itemize}
-
 \begin{table}[H]
 \centering
 \caption{Plano de atividades por semestre}
@@ -188,6 +163,31 @@ Complete coursework, qualification, writing, and submission
 
 \clearpage
 \section{Resultados parciais, se houver}
+
+\begin{itemize}
+    \item Política:
+    \(p_i=(\tau_i^{\mathrm{INC}},\tau_i^{\mathrm{VAT}},
+    \theta_i^{\mathrm{UB}},\log m_i^G)\in\mathcal{P}\),
+    no domínio exploratório definido abaixo.
+
+    \item Dinâmica: para configuração \(i\), semente \(j\) e trimestre \(t\),
+    \[
+    \begin{array}{l}
+    p_{i,t}=p_i \quad (0\leq t<T),\\[0.4em]
+    x_{i,j,t+1}=F(x_{i,j,t},p_i,z_{i,j,t},\varepsilon_{i,j,t+1}),\\[0.4em]
+    s_{i,j,t}=H(x_{i,j,t}).
+    \end{array}
+    \]
+    O estado econômico \(x\) evolui; os
+    parâmetros da política não mudam dentro do run.
+\end{itemize}
+
+\begin{itemize}
+    \item \(\tau^{\mathrm{INC}}\) (\texttt{tau\_INC}): alíquota do imposto de renda.
+    \item \(\tau^{\mathrm{VAT}}\) (\texttt{tau\_VAT}): alíquota do imposto sobre valor agregado (IVA).
+    \item \(\theta^{\mathrm{UB}}\) (\texttt{theta\_UB}): taxa de reposição do benefício de desemprego.
+    \item \(m^G\) (\texttt{spending\_multiplier}): multiplicador da demanda de consumo do governo, amostrado como \(\log m^G\). A regra estocástica continua ativa, portanto o gasto realizado pode variar mesmo com \(m^G\) fixo.
+\end{itemize}
 
 \begin{figure}[H]
 \centering
