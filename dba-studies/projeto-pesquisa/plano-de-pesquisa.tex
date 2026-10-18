@@ -112,11 +112,11 @@ Os agentes do modelo são famílias ativas e invativas, empresas e empresários,
 Cada etapa temporal do modelo equivale a um `trimestre`. As etapas-chave que levam o modelo de $t$ para $t+1$ são:
 
 \begin{enumerate}
-    \item Formação de expectativas coletivas
-    \item Execução dos choques exógenos
-    \item Execução dos mercados de crédito e trabalho
-    \item Execução dos mercados de bens
-    \item Atualização da contabilidade
+    \item Formação de expectativas coletivas: nesta etapa é realizada uma regressão de primeira ordem para a previsão do PIB e da inflação. Essas previsões são utilizadas pelos diversos agentes, como empresas para estimar a produção do próximo ciclo e consumidores para estimar a renda do próximo ciclo. 
+    \item Execução dos choques exógenos: nesta etapa são sorteados choques exógenos que modelam demanda e oferta do resto do mundo, ou seja, que quantificam as importações e exportações, bem como a inflação da zona do euro. 
+    \item Execução dos mercados de crédito e trabalho: nesta etapa as empresas, após determinarem seus planos de produção, determinam o quanto querem de crédito do banco comercial. Depois, determinam o qual será a força de trabalho a ser contrada ou demitida. 
+    \item Execução dos mercados de bens: inicialmente o mercado intra-empresas é executado através do mencanismo de busca e pareamento, onde, para cada bem desejado, a empresas consumidora é selecionada aleatoriamente e os fornecedores são selecionados de com probabilidade proporcional ao seu preço e tamanho. O mesmo processo é então repetido para os consumidores finais e empresas de bem de consumo. 
+    \item Atualização da contabilidade: são atualizados os preços, rendas, saldos e agregados econômicos. 
 \end{enumerate}
 
 \begin{figure}[H]
@@ -126,10 +126,35 @@ Cada etapa temporal do modelo equivale a um `trimestre`. As etapas-chave que lev
 \label{fig:fluxo-modelo-referencia}
 \end{figure}
 
-
+\clearpage
 \section{Metodologia e plano de atividades}
 
-\begin{table}[htbp]
+\begin{itemize}
+    \item \textbf{Política:}
+    \(p_i=(\tau_i^{\mathrm{INC}},\tau_i^{\mathrm{VAT}},
+    \theta_i^{\mathrm{UB}},\log m_i^G)\in\mathcal{P}\),
+    no domínio exploratório definido abaixo.
+
+    \item \textbf{Dinâmica:} para configuração \(i\), semente \(j\) e trimestre \(t\),
+    \[
+    \begin{array}{l}
+    p_{i,t}=p_i \quad (0\leq t<T),\\[0.4em]
+    x_{i,j,t+1}=F(x_{i,j,t},p_i,z_{i,j,t},\varepsilon_{i,j,t+1}),\\[0.4em]
+    s_{i,j,t}=H(x_{i,j,t}).
+    \end{array}
+    \]
+    O \textbf{estado econômico} \(x\) evolui; os
+    \textbf{parâmetros da política} não mudam dentro do run.
+\end{itemize}
+
+\begin{itemize}
+    \item \(\tau^{\mathrm{INC}}\) (\texttt{tau\_INC}): alíquota do imposto de renda.
+    \item \(\tau^{\mathrm{VAT}}\) (\texttt{tau\_VAT}): alíquota do imposto sobre valor agregado (IVA).
+    \item \(\theta^{\mathrm{UB}}\) (\texttt{theta\_UB}): taxa de reposição do benefício de desemprego.
+    \item \(m^G\) (\texttt{spending\_multiplier}): multiplicador da demanda de consumo do governo, amostrado como \(\log m^G\). A regra estocástica continua ativa, portanto o gasto realizado pode variar mesmo com \(m^G\) fixo.
+\end{itemize}
+
+\begin{table}[H]
 \centering
 \caption{Plano de atividades por semestre}
 \label{tab:plano-atividades}
@@ -161,9 +186,25 @@ Complete coursework, qualification, writing, and submission
 \end{tabularx}
 \end{table}
 
-
+\clearpage
 \section{Resultados parciais, se houver}
 
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\linewidth]{ridge-quadratic-learning-curve.png}
+\caption{Curva de aprendizado da Ridge quadrática.}
+\label{fig:ridge-quadratic-learning-curve}
+\end{figure}
+
+\clearpage
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{test-policy-trajectories.png}
+\caption{Trajetórias da política de teste 2: BeforeIT versus surrogate.}
+\label{fig:test-policy-trajectories}
+\end{figure}
+
+\clearpage
 \renewcommand{\refname}{Referências bibliográficas}
 \begin{thebibliography}{99}
 

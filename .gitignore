@@ -86,6 +86,8 @@ Temporary Items
 # images
 *.png
 !dba-studies/projeto-pesquisa/fluxo-completo-mermaid-diagram.png
+!dba-studies/projeto-pesquisa/ridge-quadratic-learning-curve.png
+!dba-studies/projeto-pesquisa/test-policy-trajectories.png
 *.jpg
 *.jpeg
 
