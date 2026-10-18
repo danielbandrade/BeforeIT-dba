@@ -30,7 +30,7 @@
 ## Treinar o surrogate em Python
 
 - O notebook [train_surrogate.ipynb](train_surrogate.ipynb) implementa o plano de treinamento. `EXPERIMENT_NAME` seleciona o experimento; o padrão é a versão ampliada. Para o piloto, use `austria-scale-0.001`.
-- Na raiz do repositório, use Python 3.11 ou superior e crie o ambiente: `python3 -m venv dba-studies/machine-learning/fiscal-policy-dataset/.venv`.
-- Instale as dependências: `dba-studies/machine-learning/fiscal-policy-dataset/.venv/bin/python -m pip install -r dba-studies/machine-learning/fiscal-policy-dataset/requirements.txt`.
-- Abra o notebook com `dba-studies/machine-learning/fiscal-policy-dataset/.venv/bin/jupyter lab dba-studies/machine-learning/fiscal-policy-dataset/train_surrogate.ipynb` e execute as células em ordem. O notebook também pode ser executado a partir da pasta em que está salvo.
-- Os resultados do treino são gravados em `experiments/austria-scale-0.001/surrogate/` (pasta ignorada pelo Git). O notebook recusa dados incompletos e consulta o teste apenas após escolher o modelo na validação.
+- Na raiz do repositório, crie o ambiente com Python 3.12 fora do Git: `python3.12 -m venv ../.venvs/beforeit-fiscal-policy`.
+- Instale as dependências: `../.venvs/beforeit-fiscal-policy/bin/python -m pip install -r dba-studies/machine-learning/fiscal-policy-dataset/requirements.txt`.
+- Para usar no VS Code, abra `train_surrogate.ipynb` e selecione **Select Kernel → Select Another Kernel → Jupyter Kernels → Python (BeforeIT fiscal policy)**. O kernel foi registrado com `../.venvs/beforeit-fiscal-policy/bin/python -m ipykernel install --user --name beforeit-fiscal-policy --display-name "Python (BeforeIT fiscal policy)"`. Execute as células em ordem; o notebook também pode ser executado a partir da pasta em que está salvo.
+- Os resultados do treino são gravados em `experiments/<EXPERIMENT_NAME>/surrogate/` (pasta ignorada pelo Git). O notebook recusa dados incompletos e consulta o teste apenas após escolher o modelo na validação.

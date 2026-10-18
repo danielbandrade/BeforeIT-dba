@@ -4,13 +4,29 @@
 \usepackage[T1]{fontenc}
 \usepackage[brazil]{babel}
 \usepackage[margin=2.5cm]{geometry}
+\usepackage{array,booktabs,needspace,tabularx}
+\usepackage{float,graphicx}
+\graphicspath{{./}{dba-studies/projeto-pesquisa/}}
+\usepackage[authoryear,round]{natbib}
 \usepackage{hyperref}
+\hypersetup{hidelinks}
+\let\cite\citep
+
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{0pt}
+\widowpenalty=10000
+\clubpenalty=10000
+
+\title{AdaptGov: aprendizado de política fiscal adaptativa em um modelo macroeconômico baseado em agentes}
+\author{}
+\date{}
 
 \begin{document}
 
-\section*{AdaptGov: aprendizado de política fiscal adaptativa em um modelo macroeconômico baseado em agentes}
+\maketitle
+\vspace{-3em}
 
-\section*{Introdução, objetivos e justificativa}
+\section{Introdução, objetivos e justificativa}
 
 \subsection{Introdução}
 
@@ -34,10 +50,9 @@ Dessa maneira, por ser um modelo extensível e com performance similar aos DSGEs
 
 \subsection{Perguntas de Pesquisa}
 
-Pergunta central: É possível construir uma política fiscal adaptativa no modelo Before.IT calibrado para a Áustria que melhora o bem estar previamente definido em relação a políticas fixas, sem deterioração inaceitável da dívida pública e da estabilidade macroeconômica?
+Pergunta central:
 
-\setlength{\parskip}{0.5em}
-\setlength{\parindent}{0pt}
+É possível construir uma política fiscal adaptativa no modelo Before.IT calibrado para a Áustria que melhora o bem estar previamente definido em relação a políticas fixas, sem deterioração inaceitável da dívida pública e da estabilidade macroeconômica?
 
 Perguntas secundárias:
 \begin{itemize}
@@ -59,7 +74,10 @@ Este trabalho busca contribuir para o campo dos modelos macroeconomico baseados 
 
 \subsection{Objetivos}
 
-Objetivo geral: desenvolver e avaliar políticas fiscais adaptativas no modelo Before.IT através de técnicas de análise de sensibilidade, meta modelos e aprendizagem por reforço.
+\Needspace{5\baselineskip}
+Objetivo geral:
+
+Desenvolver e avaliar políticas fiscais adaptativas no modelo Before.IT através de técnicas de análise de sensibilidade, meta modelos e aprendizagem por reforço.
 
 Objetivos específicos:
 \begin{itemize}
@@ -69,7 +87,7 @@ Objetivos específicos:
     \item Avaliar e interpretar os resultados frente a proposta do modelo Before.IT
 \end{itemize}
 
-\section*{Revisão bibliográfica}
+\section{Revisão bibliográfica}
 
 Uma revisão geral sobre o campo de estudo dos sistemas complexos pode ser econtrada em \cite{newman2011}, que os conceitua como sistemas onde muitos atores interagem formando comportamentos que não podem ser explicados por suas ações individuais, chamados de emergentes. 
 
@@ -77,64 +95,99 @@ Em \cite{arthur2013}, \cite{gallegati2012} e \cite{dawid2018} é possível encon
 
 A modelagem baseada em agentes para economia ("Agent-based Computational Economics") é definida em \cite{dawid2018} como o estudo computacional de processos economicos modelados a partir de sistemas dinamicos de agentes interativos. 
 
-\section*{Metodologia e plano de atividades}
+\section{Modelo de referência}
+
+As principais motivações do modelo de Poledna et al. são:
+
+\begin{itemize}
+    \item Realizar `previsões macroeconômicas` utilizando modelagem baseada em agentes.
+    \item Construir uma modelagem verossimilhante, calibrando o modelo de acordo com as estatísticas governamentais e executando a simulação com escala 1:1 da população do país.
+\end{itemize}
+
+O modelo inicial foi calibrado para a economia da Áustria, que é um país pequeno e altamente integrado com a economia externa ($ \approx 9M$ habitantes  e $\approx 50\%  $ do PIB em importações/exportações).
+
+Os agentes do modelo são famílias ativas e invativas, empresas e empresários, governo, um banco comercial, um banco central e empresas extrangeiras.
+
+\Needspace{10\baselineskip}
+Cada etapa temporal do modelo equivale a um `trimestre`. As etapas-chave que levam o modelo de $t$ para $t+1$ são:
+
+\begin{enumerate}
+    \item Formação de expectativas coletivas
+    \item Execução dos choques exógenos
+    \item Execução dos mercados de crédito e trabalho
+    \item Execução dos mercados de bens
+    \item Atualização da contabilidade
+\end{enumerate}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{fluxo-completo-mermaid-diagram.png}
+\caption{Fluxo de um período de simulação do modelo de referência.}
+\label{fig:fluxo-modelo-referencia}
+\end{figure}
+
+
+\section{Metodologia e plano de atividades}
 
 \begin{table}[htbp]
 \centering
+\caption{Plano de atividades por semestre}
+\label{tab:plano-atividades}
 \footnotesize
 \setlength{\tabcolsep}{3pt}
-\begin{tabular}{|p{0.38\textwidth}|p{0.22\textwidth}|c|c|c|c|}
-\hline
-Activity and method & Expected output & Sem 1 & Sem 2 & Sem 3 & Sem 4 \\
-\hline
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{0.22\textwidth} cccc@{}}
+\toprule
+\textbf{Activity and method} & \textbf{Expected output} & \textbf{Sem 1} & \textbf{Sem 2} & \textbf{Sem 3} & \textbf{Sem 4} \\
+\midrule
 Review the literature and document the model's fiscal rules and economic indicators
 & Research gap and reproducible baseline & X & & & \\
-\hline
+\addlinespace[2pt]
 Run sensitivity analyses of selected tax and government spending decisions across repeated simulations
 & Feasible policy ranges and measurable effects & X & X & & \\
-\hline
+\addlinespace[2pt]
 Define the policy objective and compare the existing rule with simple fixed or feedback policies
 & Evaluation criteria and comparison results & & X & & \\
-\hline
+\addlinespace[2pt]
 Assess the role of supervised learning and develop an adaptive government agent using reinforcement learning
 & Trained policy and documented decisions & & & X & \\
-\hline
+\addlinespace[2pt]
 Test all policies on new simulation runs and economic shocks; compare outcomes and uncertainty
 & Welfare, fiscal, and robustness results & & & X & X \\
-\hline
+\addlinespace[2pt]
 Complete coursework, qualification, writing, and submission
 & Qualification and dissertation & X & X & & X \\
-\hline
-\end{tabular}
+\bottomrule
+\end{tabularx}
 \end{table}
 
 
-\section*{Resultados parciais, se houver}
+\section{Resultados parciais, se houver}
 
 \renewcommand{\refname}{Referências bibliográficas}
 \begin{thebibliography}{99}
 
-\bibitem{angione2022} ANGIONE, Claudio; SILVERMAN, Eric; YANESKE, Elisabeth. Using machine learning as a surrogate model for agent-based simulations. \emph{PLOS ONE}, v. 17, n. 2, e0263150, 2022. DOI: \url{https://doi.org/10.1371/journal.pone.0263150}.
+\bibitem[Angione et al.(2022)]{angione2022} ANGIONE, Claudio; SILVERMAN, Eric; YANESKE, Elisabeth. Using machine learning as a surrogate model for agent-based simulations. \emph{PLOS ONE}, v. 17, n. 2, e0263150, 2022. DOI: \url{https://doi.org/10.1371/journal.pone.0263150}.
 
-\bibitem{arthur2013} ARTHUR, W. B. \emph{Complexity Economics: A Different Framework for Economic Thought}. Santa Fe Institute Working Paper, 2013. Disponível em: \url{https://sites.santafe.edu/~wbarthur/Papers/Comp.Econ.SFI.pdf}.
+\bibitem[Arthur(2013)]{arthur2013} ARTHUR, W. B. \emph{Complexity Economics: A Different Framework for Economic Thought}. Santa Fe Institute Working Paper, 2013. Disponível em: \url{https://sites.santafe.edu/~wbarthur/Papers/Comp.Econ.SFI.pdf}.
 
-\bibitem{brusatin2024} BRUSATIN, Simone; PADOAN, Tommaso; COLETTA, Andrea; DELLI GATTI, Domenico; GLIELMO, Aldo. Simulating the Economic Impact of Rationality through Reinforcement Learning and Agent-Based Modelling. In: \emph{Proceedings of the 5th ACM International Conference on AI in Finance}. ACM, 2024. p. 159--167. DOI: \url{https://doi.org/10.1145/3677052.3698621}.
+\bibitem[Brusatin et al.(2024)]{brusatin2024} BRUSATIN, Simone; PADOAN, Tommaso; COLETTA, Andrea; DELLI GATTI, Domenico; GLIELMO, Aldo. Simulating the Economic Impact of Rationality through Reinforcement Learning and Agent-Based Modelling. In: \emph{Proceedings of the 5th ACM International Conference on AI in Finance}. ACM, 2024. p. 159--167. DOI: \url{https://doi.org/10.1145/3677052.3698621}.
 
-\bibitem{dawid2018} DAWID, Herbert; DELLI GATTI, Domenico. Agent-Based Macroeconomics. In: \emph{Handbook of Computational Economics}. Elsevier, 2018. v. 4, p. 63--156. DOI: \url{https://doi.org/10.1016/bs.hescom.2018.02.006}.
+\bibitem[Dawid e Delli Gatti(2018)]{dawid2018} DAWID, Herbert; DELLI GATTI, Domenico. Agent-Based Macroeconomics. In: \emph{Handbook of Computational Economics}. Elsevier, 2018. v. 4, p. 63--156. DOI: \url{https://doi.org/10.1016/bs.hescom.2018.02.006}.
 
-\bibitem{dosi2015} DOSI, Giovanni; FAGIOLO, Giorgio; NAPOLETANO, Mauro; ROVENTINI, Andrea; TREIBICH, Tania. Fiscal and monetary policies in complex evolving economies. \emph{Journal of Economic Dynamics and Control}, v. 52, p. 166--189, 2015. DOI: \url{https://doi.org/10.1016/j.jedc.2014.11.014}.
+\bibitem[Dosi et al.(2015)]{dosi2015} DOSI, Giovanni; FAGIOLO, Giorgio; NAPOLETANO, Mauro; ROVENTINI, Andrea; TREIBICH, Tania. Fiscal and monetary policies in complex evolving economies. \emph{Journal of Economic Dynamics and Control}, v. 52, p. 166--189, 2015. DOI: \url{https://doi.org/10.1016/j.jedc.2014.11.014}.
 
-\bibitem{gallegati2012} GALLEGATI, Mauro; KIRMAN, Alan. Reconstructing Economics: Agent Based Models and Complexity. \emph{Complexity Economics}, v. 1, n. 1, p. 5--31, 2012. DOI: \url{https://doi.org/10.7564/12-COEC2}.
+\bibitem[Gallegati e Kirman(2012)]{gallegati2012} GALLEGATI, Mauro; KIRMAN, Alan. Reconstructing Economics: Agent Based Models and Complexity. \emph{Complexity Economics}, v. 1, n. 1, p. 5--31, 2012. DOI: \url{https://doi.org/10.7564/12-COEC2}.
 
-\bibitem{glielmo2025} GLIELMO, Aldo; DEVETAK, Mitja; MELIGRANA, Adriano; POLEDNA, Sebastian. BeforeIT.jl: High-Performance Agent-Based Macroeconomics Made Easy. \emph{arXiv}, arXiv:2502.13267, 2025. DOI: \url{https://doi.org/10.48550/arXiv.2502.13267}. Preprint.
+\bibitem[Glielmo et al.(2025)]{glielmo2025} GLIELMO, Aldo; DEVETAK, Mitja; MELIGRANA, Adriano; POLEDNA, Sebastian. BeforeIT.jl: High-Performance Agent-Based Macroeconomics Made Easy. \emph{arXiv}, arXiv:2502.13267, 2025. DOI: \url{https://doi.org/10.48550/arXiv.2502.13267}. Preprint.
 
-\bibitem{li2024} LI, Nian; GAO, Chen; LI, Mingyu; LI, Yong; LIAO, Qingmin. EconAgent: Large Language Model-Empowered Agents for Simulating Macroeconomic Activities. \emph{arXiv}, arXiv:2310.10436, 2024. DOI: \url{https://doi.org/10.48550/arXiv.2310.10436}. Preprint.
+\bibitem[Li et al.(2024)]{li2024} LI, Nian; GAO, Chen; LI, Mingyu; LI, Yong; LIAO, Qingmin. EconAgent: Large Language Model-Empowered Agents for Simulating Macroeconomic Activities. \emph{arXiv}, arXiv:2310.10436, 2024. DOI: \url{https://doi.org/10.48550/arXiv.2310.10436}. Preprint.
 
-\bibitem{newman2011} NEWMAN, M. E. J. \emph{Complex Systems: A Survey}. arXiv:1112.1440, 2011. Disponível em: \url{https://arxiv.org/abs/1112.1440}.
+\bibitem[Newman(2011)]{newman2011} NEWMAN, M. E. J. \emph{Complex Systems: A Survey}. arXiv:1112.1440, 2011. Disponível em: \url{https://arxiv.org/abs/1112.1440}.
 
-\bibitem{poledna2023} POLEDNA, Sebastian; MIESS, Michael Gregor; HOMMES, Cars; RABITSCH, Katrin. Economic forecasting with an agent-based model. \emph{European Economic Review}, v. 151, art. 104306, 2023. DOI: \url{https://doi.org/10.1016/j.euroecorev.2022.104306}.
+\bibitem[Poledna et al.(2023)]{poledna2023} POLEDNA, Sebastian; MIESS, Michael Gregor; HOMMES, Cars; RABITSCH, Katrin. Economic forecasting with an agent-based model. \emph{European Economic Review}, v. 151, art. 104306, 2023. DOI: \url{https://doi.org/10.1016/j.euroecorev.2022.104306}.
 
-\bibitem{zheng2022} ZHENG, Stephan; TROTT, Alexander; SRINIVASA, Sunil; PARKES, David C.; SOCHER, Richard. The AI Economist: Taxation policy design via two-level deep multiagent reinforcement learning. \emph{Science Advances}, v. 8, n. 18, eabk2607, 2022. DOI: \url{https://doi.org/10.1126/sciadv.abk2607}.
+\bibitem[Zheng et al.(2022)]{zheng2022} ZHENG, Stephan; TROTT, Alexander; SRINIVASA, Sunil; PARKES, David C.; SOCHER, Richard. The AI Economist: Taxation policy design via two-level deep multiagent reinforcement learning. \emph{Science Advances}, v. 8, n. 18, eabk2607, 2022. DOI: \url{https://doi.org/10.1126/sciadv.abk2607}.
 
 \end{thebibliography}
 

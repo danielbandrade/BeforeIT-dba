@@ -85,6 +85,7 @@ Temporary Items
 
 # images
 *.png
+!dba-studies/projeto-pesquisa/fluxo-completo-mermaid-diagram.png
 *.jpg
 *.jpeg
 
