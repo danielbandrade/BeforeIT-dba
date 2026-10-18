@@ -18,8 +18,8 @@
 \clubpenalty=10000
 
 \title{AdaptGov: aprendizado de política fiscal adaptativa em um modelo macroeconômico baseado em agentes}
-\author{}
-\date{}
+\author{Daniel Andrade}
+\date{Outrubro de 2026}
 
 \begin{document}
 
@@ -30,9 +30,9 @@
 
 \subsection{Introdução}
 
-Um sistema complexo é um sistema formado por um conjunto de agentes interagindo que, de maneira agregada, resultam em comportamentos emergentes, que não podem ser derivados trivialmente a partir de seu comportamento individual \cite{newman2011}. Estes fenômenos emergentes afetam os agentes individuais, criando retroalimentações positivas e negativas.
+Um sistema complexo é caracterizado por possuir muitos agentes interagindo de forma a produzir comportamentos emergentes, ou seja, que não podem ser trivialmente derivados a partir de seus comportamentos individuais \cite{newman2011}. Estes fenômenos emergentes por sua vez afetam os agentes individualmente, criando retroalimentações ("feedbacks") positivas e negativas.
 
-A economia é um sistema complexo onde bilhões de agentes, entre trabalhadores, empresas e instituições governamentais, interagem resultando em fenômenos emergentes como preços, inflação, produto interno e crescimento. Além disso, esses atores aprendem e evoluem ao longo do tempo, o que modifica fundamentalmente a estrutura do sistema, tornando-o adaptativo \cite{arthur2013}. 
+A economia é um sistema complexo onde bilhões de agentes, entre trabalhadores, empresas, bancos e instituições governamentais, interagem resultando em fenômenos emergentes como preços, inflação, produto interno e crescimento. Além disso, esses atores aprendem e evoluem ao longo do tempo, o que modifica fundamentalmente a estrutura do sistema, tornando-o adaptativo \cite{arthur2013}. 
 
 A aplicação da lente teórica de sistemas complexos adaptativos para o estudo da economia tem se mostrado uma alternativa promissora ao paradigma predominante da teoria econômica, o neoclássico, que se âncora em pressupostos teóricos pouco críveis, como a existência de um equilíbrio, as expectativas racionais e os agentes representativos \cite{gallegati2012}.
 
@@ -40,11 +40,11 @@ Nesse sentido, o campo da economia complexa (“complexity economics”), seria 
 
 Os modelos baseados em agentes tem se constituído uma ferramenta poderosa para o estudo da economia complexa através de ferramentas computacionais \cite{dawid2018}. Neles, os agentes econômicos são simulados através regras comportamentais que regem tanto seu comportamento individual quanto suas interações, sem a necessidade de um controle central. As variáveis agregadas resultantes emergem como resultado do computacional dos comportamentos e interações ao longo do tempo, sem a utilização de pressupostos de equilíbrio, informação e racionalidade perfeita e sem um controle central.
 
-O trabalho proposto por Poledna et. al \cite{poledna2023}, é um modelo baseado em agentes para a macroeconomia, ou seja, focado no estudo de propriedades agregadas da economia, como inflação, PIB, crescimento, desemprego \cite{dawid2018}, em particular para a Áustria, que é um país pequeno, industrial e com economia aberta. Ele é constituído por um modelo ancorado nas estatísticas nacionais e em regras autoregressivas de primeira ordem que realizou previsões macroeconômicas comparávais aos modelos DSGE ("Dynamic Stochastic General Equilibrium"), que são o estado da arte da economia neoclássica. O BeforeIT.jl oferece uma implementação aberta e extensível deste modelo na linguagem Julia feita pela equipe de tecnologia da informação do Banco da Itália \cite{glielmo2025}.
+O trabalho proposto por Poledna et. al \cite{poledna2023}, é um modelo baseado em agentes para a macroeconomia, ou seja, focado no estudo de propriedades agregadas da economia, como inflação, PIB, crescimento, desemprego \cite{dawid2018}, em particular para a Áustria, que é um país pequeno, industrial e com economia aberta. Ele é constituído por um modelo ancorado nas estatísticas nacionais e em regras autoregressivas de primeira ordem que realizou previsões macroeconômicas comparávais aos modelos DSGE ("Dynamic Stochastic General Equilibrium"), representante do paradigma atual da macroeconomia neoclássica. O BeforeIT.jl oferece uma implementação aberta e extensível deste modelo na linguagem Julia feita pela equipe de tecnologia da informação do Banco da Itália \cite{glielmo2025}.
 
-Novos trabalhos têm alavancado o campo da  inteligência artificial para construir modelos macroeconômicos baseados em agentes. Em \cite{zheng2022} e \cite{brusatin2024} técnicas de aprendizado por reforço são utlizadas para treinar agenetes com comportamentos racionais e avaliar o resultado macroeconômico. Em \cite{li2024} LLMs ("Large Language Models") fazem o papal de consumidores e trabalhadores em um modelo que busca reproduzir qualitativamente comportamentos macroeconômicos conhecidos.  
+Novos trabalhos têm alavancado o campo da  inteligência artificial para construir modelos macroeconômicos baseados em agentes. Em \cite{zheng2022} e \cite{brusatin2024} técnicas de aprendizado por reforço são utlizadas para treinar agenetes com comportamentos racionais e avaliar o resultado macroeconômico. Em \cite{li2024} LLMs ("Large Language Models") fazem o papel de consumidores e trabalhadores em um modelo que busca reproduzir qualitativamente fatos estilizados macroeconômicos.  
 
-A análise de sensibilidade e os metas modelos tem se constituído uma ferramenta importante para a avaliação e emulação de ABMs em diversas áreas \cite{angione2022}, pois podem oferecer maior robustez e explicabilidade aos resultados dos modelos em questão. 
+A análise de sensibilidade e os metas modelos tem se constituído uma ferramenta importante para a avaliação e emulação de ABMs em diversas áreas , pois podem oferecer maior robustez e explicabilidade aos resultados dos modelos em questão\cite{angione2022}. 
 
 Dessa maneira, por ser um modelo extensível e com performance similar aos DSGEs, o Before.IT pode ser utilzado como plataforma para a exploração de políticas fiscais alteranativas, que combinam análise de sensibilidade, meta modelos e aprendizagem por reforço, avaliando-as contra regras fixas ou simples, frente medidas bem definidas de bem-estar, dívida pública e robustez. 
 
@@ -130,12 +130,12 @@ Cada etapa temporal do modelo equivale a um `trimestre`. As etapas-chave que lev
 \section{Metodologia e plano de atividades}
 
 \begin{itemize}
-    \item \textbf{Política:}
+    \item Política:
     \(p_i=(\tau_i^{\mathrm{INC}},\tau_i^{\mathrm{VAT}},
     \theta_i^{\mathrm{UB}},\log m_i^G)\in\mathcal{P}\),
     no domínio exploratório definido abaixo.
 
-    \item \textbf{Dinâmica:} para configuração \(i\), semente \(j\) e trimestre \(t\),
+    \item Dinâmica: para configuração \(i\), semente \(j\) e trimestre \(t\),
     \[
     \begin{array}{l}
     p_{i,t}=p_i \quad (0\leq t<T),\\[0.4em]
@@ -143,8 +143,8 @@ Cada etapa temporal do modelo equivale a um `trimestre`. As etapas-chave que lev
     s_{i,j,t}=H(x_{i,j,t}).
     \end{array}
     \]
-    O \textbf{estado econômico} \(x\) evolui; os
-    \textbf{parâmetros da política} não mudam dentro do run.
+    O estado econômico \(x\) evolui; os
+    parâmetros da política não mudam dentro do run.
 \end{itemize}
 
 \begin{itemize}
