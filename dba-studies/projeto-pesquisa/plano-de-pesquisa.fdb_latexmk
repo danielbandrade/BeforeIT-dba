@@ -1,6 +1,6 @@
 # Fdb version 4
-["pdflatex"] 1792452776.4923 "/Users/danielbandrade/Documents/programing/BeforeIT-dba/dba-studies/projeto-pesquisa/plano-de-pesquisa.tex" "plano-de-pesquisa.pdf" "plano-de-pesquisa" 1792452777.08923 0
-  "/Users/danielbandrade/Documents/programing/BeforeIT-dba/dba-studies/projeto-pesquisa/plano-de-pesquisa.tex" 1792452776.26418 22490 1532b955a49521afefbf01856c47f03d ""
+["pdflatex"] 1792526599.45757 "/Users/danielbandrade/Documents/programing/BeforeIT-dba/dba-studies/projeto-pesquisa/plano-de-pesquisa.tex" "plano-de-pesquisa.pdf" "plano-de-pesquisa" 1792526600.07915 0
+  "/Users/danielbandrade/Documents/programing/BeforeIT-dba/dba-studies/projeto-pesquisa/plano-de-pesquisa.tex" 1792526599.23786 22914 e553a0d2193c70e335893c9f6d098b0e ""
   "/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1136849721 2971 def0b6c1f0b107b3b936def894055589 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1136849721 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
@@ -105,9 +105,9 @@
   "/usr/local/texlive/2026/texmf-var/web2c/pdftex/pdflatex.fmt" 1783558576 3636770 55a55b564a89dfc8118a2947e4a2d6a2 ""
   "/usr/local/texlive/2026/texmf.cnf" 1774209515 577 648cd9f92f9c0eac486f4c71c85cfbbe ""
   "fluxo-completo-mermaid-diagram.png" 1792282787.08002 248011 98a807e7191e7d0a33f1c84db83bf38b ""
-  "plano-de-pesquisa.aux" 1792452777.02683 3667 3a6ca70ac5349434c547a7f58b7bc70d "pdflatex"
-  "plano-de-pesquisa.out" 1792452777.0273 1479 5a68e021a5d2cae5f2278434b6240d82 "pdflatex"
-  "plano-de-pesquisa.tex" 1792452776.26418 22490 1532b955a49521afefbf01856c47f03d ""
+  "plano-de-pesquisa.aux" 1792526600.0126 3667 db82aada4747368fc642f4bfdbab3263 "pdflatex"
+  "plano-de-pesquisa.out" 1792526600.01316 1479 5a68e021a5d2cae5f2278434b6240d82 "pdflatex"
+  "plano-de-pesquisa.tex" 1792526599.23786 22914 e553a0d2193c70e335893c9f6d098b0e ""
   "ridge-quadratic-learning-curve.png" 1792283819.85866 26573 bceddd772af113724170e7012ec92227 ""
   "test-policy-trajectories.png" 1792283819.90304 97237 0c11f2b07dfd9b216206545611d663fc ""
   (generated)
