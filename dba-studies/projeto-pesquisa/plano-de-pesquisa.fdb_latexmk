@@ -1,6 +1,6 @@
 # Fdb version 4
-["pdflatex"] 1792678775.1923 "/Users/danielbandrade/Documents/programing/BeforeIT-dba/dba-studies/projeto-pesquisa/plano-de-pesquisa.tex" "plano-de-pesquisa.pdf" "plano-de-pesquisa" 1792678775.77591 0
-  "/Users/danielbandrade/Documents/programing/BeforeIT-dba/dba-studies/projeto-pesquisa/plano-de-pesquisa.tex" 1792678774.99786 25934 fb6ab9076809acbf07b9b05c5b8a38df ""
+["pdflatex"] 1792681426.49314 "/Users/danielbandrade/Documents/programing/BeforeIT-dba/dba-studies/projeto-pesquisa/plano-de-pesquisa.tex" "plano-de-pesquisa.pdf" "plano-de-pesquisa" 1792681427.06729 0
+  "/Users/danielbandrade/Documents/programing/BeforeIT-dba/dba-studies/projeto-pesquisa/plano-de-pesquisa.tex" 1792681426.2778 26849 2485d7ca302210bd3a7c430c9841008e ""
   "/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1136849721 2971 def0b6c1f0b107b3b936def894055589 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1136849721 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
@@ -8,6 +8,8 @@
   "/usr/local/texlive/2026/texmf-dist/fonts/tfm/jknappen/ec/ecbx1200.tfm" 1136768653 3584 402da0b29eafbad07963b1224b222f18 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/tfm/jknappen/ec/ecbx1440.tfm" 1136768653 3584 13049b61b922a28b158a38aeff75ee9b ""
   "/usr/local/texlive/2026/texmf-dist/fonts/tfm/jknappen/ec/ecbx1728.tfm" 1136768653 3584 ad49a18d8515beef6d92d4d3f197d0fd ""
+  "/usr/local/texlive/2026/texmf-dist/fonts/tfm/jknappen/ec/ecrm0600.tfm" 1136768653 3584 291a5713401683441e0a8c8f4417b17b ""
+  "/usr/local/texlive/2026/texmf-dist/fonts/tfm/jknappen/ec/ecrm0800.tfm" 1136768653 3584 49064b465390a8e316a3c8417a050403 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/tfm/jknappen/ec/ecrm1000.tfm" 1136768653 3584 adb004a0c8e7c46ee66cad73671f37b4 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/tfm/jknappen/ec/ecrm1200.tfm" 1136768653 3584 f80ddd985bd00e29e9a6047ebd9d4781 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/tfm/jknappen/ec/ecrm1440.tfm" 1136768653 3584 3169d30142b88a27d4ab0e3468e963a2 ""
@@ -125,9 +127,9 @@
   "/usr/local/texlive/2026/texmf-var/web2c/pdftex/pdflatex.fmt" 1783558576 3636770 55a55b564a89dfc8118a2947e4a2d6a2 ""
   "/usr/local/texlive/2026/texmf.cnf" 1774209515 577 648cd9f92f9c0eac486f4c71c85cfbbe ""
   "novo-fluxo-completo-mermaid-diagram.png" 1792673123.03153 277104 b96dde3f01b9c2e76a0e1f7ad07e5cff ""
-  "plano-de-pesquisa.aux" 1792678775.7073 3159 3414172b81df2c1853bb0e0014f56e9b "pdflatex"
-  "plano-de-pesquisa.out" 1792678775.70796 1479 5a68e021a5d2cae5f2278434b6240d82 "pdflatex"
-  "plano-de-pesquisa.tex" 1792678774.99786 25934 fb6ab9076809acbf07b9b05c5b8a38df ""
+  "plano-de-pesquisa.aux" 1792681426.99669 3159 71c67a348cec77f8700f117f84f61c1e "pdflatex"
+  "plano-de-pesquisa.out" 1792681426.99723 1479 5a68e021a5d2cae5f2278434b6240d82 "pdflatex"
+  "plano-de-pesquisa.tex" 1792681426.2778 26849 2485d7ca302210bd3a7c430c9841008e ""
   (generated)
   "plano-de-pesquisa.aux"
   "plano-de-pesquisa.log"

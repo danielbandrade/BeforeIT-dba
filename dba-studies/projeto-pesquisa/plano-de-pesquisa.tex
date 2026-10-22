@@ -219,13 +219,13 @@ p_t =
 
 Os demais parâmetros do modelo serão mantidos os mesmos da calibração do BeforeIT.jl.
 
-Em seguida será treinada a política fiscal adaptativa utilizando apredizagem por reforço. Essa política terá como objetivo maximixar o bem-estar, minimizando o deficit público e a dídiva pública de acordo com a política europeia de estabilização e crescimento, através da seguinte função de recompensa:
+A função de recomensa refletirá o objetivo de maximixar o bem estar da população através do aumento do PIB, da diminuição do desemprego, da convergência para a meta de inflação e da adequação às regras fiscais europeias de dívida e deficit público. Será dada por:
+
 \[
 \begin{aligned}
 r_t={}&\alpha\log\left(\frac{Y_t^{\mathrm{real}}}{Y_0^{\mathrm{real}}}\right)
 -\beta u_t-\gamma|\pi_t-\pi^*|\\
-&-\lambda_a\left\|p_t-p_{t-1}\right\|_2^2
--\lambda_d\left[\max\left(0,d_t-0{,}03\right)\right]^2\\
+&-\lambda_d\left[\max\left(0,d_t-0{,}03\right)\right]^2\\
 &-\lambda_b\left[\max\left(0,b_t-b_t^{\mathrm{meta}}\right)\right]^2.
 \end{aligned}
 \]
@@ -249,15 +249,52 @@ r_t={}&\alpha\log\left(\frac{Y_t^{\mathrm{real}}}{Y_0^{\mathrm{real}}}\right)
     \item \(b_t^{\mathrm{meta}}=0{,}60+\max(0,b_0-0{,}60)
     \left(\frac{19}{20}\right)^{t/4}\): trajetória que reduz em 1/20 por
     ano a distância inicial da dívida à meta de 60\% do PIB;
-    \item \(\alpha,\beta,\gamma,\lambda_a>0\): pesos dos componentes
-    da recompensa.
-    \item \(\lambda_d,\lambda_b>0\): pesos das penalidades por excesso de
-    déficit e desvio da trajetória da dívida, respectivamente.
+    \item \(\alpha,\beta,\gamma, \lambda_d, \lambda_b >0\): pesos dos componentes da recompensa.
 \end{itemize}
 
+Um tema em aberto é a definição dos pesos da função de recompensa, que será atacado durante a execução do projeto.   
 
+No treinamento, o agente atualizará a sua função de valor \(Q\) de acordo com a seguinte equação de Bellman:
 
-Inicialmente, será realizada uma análise de sensibilidade dos
+\[
+\begin{aligned}
+Q(s_{i,t},a_{i,t})
+\leftarrow
+(1-\alpha)Q(s_{i,t},a_{i,t})
++
+\alpha\left(
+r_{i,t}
++
+\gamma \max_{a\in\mathcal{A}} Q(s_{i,t+1},a)
+\right)
+\end{aligned}
+\]
+
+Em que \(alpha\) é a taxa de aprendizado e \(gamma\) é o fator de desconto. Durante o treinamento, o agente seleciona suas ações segundo
+uma política \(\varepsilon\)-greedy:
+
+\[
+\begin{aligned}
+a_{i,t} =
+\begin{cases}
+\text{uma ação aleatória},
+    & \text{com probabilidade } \varepsilon,\\[4pt]
+\displaystyle\operatorname*{arg\,max}_{a\in\mathcal{A}}
+    Q(s_{i,t},a),
+    & \text{caso contrário}.
+\end{cases}
+\end{aligned}
+\]
+
+Com o valor de  \(\varepsilon\) diminuindo gradualmente ao longo dos episódios de treinamento.  Após o treinamento, cada agente segue
+a política aprendida, escolhendo a ação que maximiza a função \(Q\):
+\[
+a_i^{*}(s)
+=
+\operatorname*{arg\,max}_{a\in\mathcal{A}} Q_i(s,a).
+\]
+
+Será realizada uma análise de sensibilidade dos
 parâmetros da política fiscal através de simulações de Monte Carlo. Serão selecionadas \(N\) configurações por amostragem por hipercubo latino ("LHS").
 Cada configuração será mantida fixa durante 12 trimestres, e seus
 resultados serão calculados com \(J\) sementes aletórias comuns. Os pares
