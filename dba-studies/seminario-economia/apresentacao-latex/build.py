@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import base64
+from io import BytesIO
 import json
 import re
 import shutil
@@ -81,6 +82,21 @@ def image_frame(title: str, path: Path) -> str:
         f"\\includegraphics[width=0.95\\textwidth,height=0.78\\textheight,keepaspectratio]{{{path.as_posix()}}}"
     )
     return frame(title, body)
+
+
+def attachment_frames(title: str, path: Path) -> list[str]:
+    with Image.open(path) as image:
+        width, height = image.size
+        if height <= width * 0.9:
+            return [image_frame(title, path.relative_to(HERE))]
+        midpoint = height // 2
+        parts = [(0, midpoint), (midpoint, height)]
+        frames = []
+        for part_number, (top, bottom) in enumerate(parts, start=1):
+            part_path = path.with_name(f"{path.stem}-parte-{part_number}.png")
+            image.crop((0, top, width, bottom)).save(part_path)
+            frames.append(image_frame(title, part_path.relative_to(HERE)))
+        return frames
 
 
 def markdown_fragments(markdown: str) -> list[tuple[str, str]]:
@@ -165,11 +181,17 @@ def save_png_from_output(index: int, output: dict) -> Path:
     return target
 
 
-def gif_frames(index: int) -> list[Path]:
-    gif_name = "ar1.gif" if index == 22 else "matching-100x20.gif"
-    source = SEMINAR / gif_name
-    shutil.copy2(source, ASSETS / gif_name)
-    image = Image.open(source)
+def gif_frames(index: int, output: dict) -> list[Path]:
+    html_output = output_text(output["data"]["text/html"])
+    encoded = re.search(r"data:image/gif;base64,([^\"\s]+)", html_output)
+    if not encoded:
+        raise ValueError(f"GIF image not found in output of cell {index}")
+    gif_bytes = base64.b64decode(encoded.group(1))
+    plain = output_text(output["data"].get("text/plain", ""))
+    source_name = re.search(r'AnimatedGif\("([^"]+\.gif)"\)', plain)
+    gif_name = Path(source_name.group(1)).name if source_name else f"celula-{index:02d}.gif"
+    (ASSETS / gif_name).write_bytes(gif_bytes)
+    image = Image.open(BytesIO(gif_bytes))
     indices = sorted({0, image.n_frames // 2, image.n_frames - 1})
     paths = []
     for frame_index in indices:
@@ -183,8 +205,13 @@ def gif_frames(index: int) -> list[Path]:
 def build() -> None:
     ASSETS.mkdir(parents=True, exist_ok=True)
     OUTPUTS.mkdir(parents=True, exist_ok=True)
+    for old_image in ASSETS.glob("celula-*.png"):
+        old_image.unlink()
+    for old_output in OUTPUTS.glob("celula-*.txt"):
+        old_output.unlink()
     cells = json.loads(NOTEBOOK.read_text())["cells"]
     title = source_text(cells[0]).lstrip("# ").strip()
+    author = source_text(cells[1]).strip()
 
     tex = [
         r"\documentclass[aspectratio=169,11pt]{beamer}",
@@ -223,11 +250,13 @@ def build() -> None:
         r"\begin{document}",
         r"\begin{frame}[plain]\vfill\centering{\Huge\bfseries\color{SeminarRed} "
         + latex_escape(title)
-        + r"}\vspace{0.8cm}\par{\color{black}\rule{0.55\textwidth}{0.8pt}}\vfill\end{frame}",
+        + r"}\vspace{0.8cm}\par{\color{black}\rule{0.55\textwidth}{0.8pt}}"
+        + r"\vspace{0.5cm}\par{\color{black} " + latex_escape(author)
+        + r"}\vfill\end{frame}",
     ]
 
     current_title = title
-    for index, cell in enumerate(cells[1:], start=1):
+    for index, cell in enumerate(cells[2:], start=2):
         if cell["cell_type"] == "markdown":
             content = source_text(cell).strip()
             if not content:
@@ -246,12 +275,22 @@ def build() -> None:
                 if kind == "heading":
                     active_title = fragment.strip()
                 elif kind == "image":
-                    source = SEMINAR / fragment
-                    if not source.exists():
-                        raise FileNotFoundError(source)
-                    target = ASSETS / source.name
-                    shutil.copy2(source, target)
-                    tex.append(image_frame(active_title, target.relative_to(HERE)))
+                    if fragment.startswith("attachment:"):
+                        name = fragment.removeprefix("attachment:")
+                        attachment = cell.get("attachments", {}).get(name, {})
+                        if "image/png" not in attachment:
+                            raise ValueError(f"PNG attachment {name!r} not found in cell {index}")
+                        target = ASSETS / f"celula-{index:02d}-{Path(name).name}"
+                        target.write_bytes(base64.b64decode(output_text(attachment["image/png"])))
+                        tex.extend(attachment_frames(active_title, target))
+                    else:
+                        source = SEMINAR / fragment
+                        target = ASSETS / source.name
+                        if source.exists():
+                            shutil.copy2(source, target)
+                        elif not target.exists():
+                            raise FileNotFoundError(source)
+                        tex.append(image_frame(active_title, target.relative_to(HERE)))
                 elif fragment.strip():
                     for chunk in prose_chunks(fragment):
                         latex = markdown_to_latex(chunk)
@@ -265,7 +304,7 @@ def build() -> None:
                 elif "text/html" in data and "data:image/gif;base64" in output_text(data["text/html"]):
                     tex.extend(
                         image_frame(current_title, path.relative_to(HERE))
-                        for path in gif_frames(index)
+                        for path in gif_frames(index, output)
                     )
                 elif "text/html" in data and "data-frame" in output_text(data["text/html"]):
                     tex.extend(table_frames(current_title, output))

@@ -9,3 +9,5 @@
 *.vrb
 *.xdv
 __pycache__/
+!seminario.tex
+!assets/*.png
