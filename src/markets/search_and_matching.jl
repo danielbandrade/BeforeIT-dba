@@ -106,7 +106,7 @@ function update_aggregate_variables!(
 
     agg.P_bar_h = sum(C_h) / agg.P_bar_h
     agg.P_bar_CF_h = sum(I_h) / zero_to_one(agg.P_bar_CF_h)
-    gov.P_j = gov.C_j / gov.P_j
+    gov.P_j = iszero(gov.C_j) ? one(typeFloat) : gov.C_j / gov.P_j
     rotw.P_l = rotw.C_l / rotw.P_l
 
     active_gambler_mask = in.(w_act.ID, Ref(Set(prop.gambling_active_worker_ids)))

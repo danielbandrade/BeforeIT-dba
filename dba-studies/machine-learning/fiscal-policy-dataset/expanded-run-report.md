@@ -1,6 +1,6 @@
 # Experimento fiscal ampliado — Áustria, escala 0,001
 
-- Configuração: `experiment-expanded.toml`; saída: `experiments/austria-scale-0.001-expanded/`. O piloto original permanece em sua pasta.
+- Configuração histórica: `experiments/austria-scale-0.001-expanded/experiment-expanded.toml`; saída: `experiments/austria-scale-0.001-expanded/`. O arquivo `experiment-expanded.toml` na raiz desta pasta agora define a nova repetição de zero ao dobro.
 - Faixas: `tau_INC` 0,183407–0,243407; `tau_VAT` 0,122868–0,182868; `theta_UB` 0,283582–0,433582; multiplicador de gasto público 0,925–1,075.
 - Desenho: 500 políticas (400 treino, 50 validação, 50 teste), 10 sementes comuns e 12 trimestres. **105 políticas** estão dentro dos limites antigos: 83 treino, 14 validação e 8 teste.
 - Execução em 17/10/2026: **5.000 runs válidos**, nenhuma falha, **60.000 observações** e **6.000 linhas de resumo**. A simulação serial levou cerca de 34 minutos entre a primeira e a última trajetória, além da inicialização e agregação. O notebook validou contagens, chaves, finitude e médias das sementes.

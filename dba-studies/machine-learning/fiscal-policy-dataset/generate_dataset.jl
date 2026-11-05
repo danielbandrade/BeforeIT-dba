@@ -4,7 +4,7 @@ using CSV, DataFrames, Dates, Random, SHA, Statistics, TOML
 include(joinpath(@__DIR__, "..", "government-rl", "government_policy.jl"))
 using .GovernmentPolicy: PolicyModel
 
-const POLICY_NAMES = ("tau_INC", "tau_VAT", "theta_UB", "log_m_G")
+const POLICY_NAMES = ("tau_INC", "tau_VAT", "theta_UB", "spending_multiplier")
 const OUTPUT_NAMES = (
     :real_gdp, :real_household_consumption, :real_capitalformation,
     :unemployment_rate, :gdp_deflator_inflation, :government_revenue,
@@ -24,15 +24,13 @@ function load_settings(path)
     source in ("zenodo", "bundled") || error("source must be zenodo or bundled")
     scale = Float64(e["scale"])
     scale > 0 || error("scale must be positive")
-    deltas = Dict(name => Float64(b[name * "_delta"]) for name in POLICY_NAMES[1:3])
-    all(x -> isfinite(x) && x > 0, values(deltas)) || error("rate deltas must be positive and finite")
-    spending = Float64.(b["spending_multiplier"])
-    length(spending) == 2 && 0 < spending[1] < 1 < spending[2] && all(isfinite, spending) ||
-        error("spending_multiplier must bracket 1 with positive finite bounds")
+    relative_bounds = Float64.(b["relative_to_baseline"])
+    length(relative_bounds) == 2 && relative_bounds == [0.0, 2.0] ||
+        error("relative_to_baseline must be [0.0, 2.0]")
     output = String(e["output_dir"])
     output = isabspath(output) ? output : joinpath(dirname(abspath(path)), output)
     return (; n, seeds, horizon, source, scale, master_seed = Int(e["master_seed"]),
-            output, deltas, spending)
+            output, relative_bounds)
 end
 
 function calibration(settings)
@@ -49,20 +47,18 @@ end
 
 function policy_bounds(parameters, settings)
     bounds = Dict{String, Tuple{Float64, Float64}}()
-    for name in POLICY_NAMES[1:3]
-        center = Float64(parameters[name])
-        delta = settings.deltas[name]
-        bounds[name] = (center - delta, center + delta)
-        0 <= bounds[name][1] < center < bounds[name][2] <= 1 ||
+    for name in POLICY_NAMES
+        center = name == "spending_multiplier" ? 1.0 : Float64(parameters[name])
+        bounds[name] = Tuple(center .* settings.relative_bounds)
+        0 <= bounds[name][1] < center < bounds[name][2] ||
             error("invalid bounds for $name")
     end
-    bounds["log_m_G"] = Tuple(log.(settings.spending))
     return bounds
 end
 
 function configurations(parameters, bounds, n, rng)
     baseline = [Float64(parameters[name]) for name in POLICY_NAMES[1:3]]
-    push!(baseline, 0.0)
+    push!(baseline, 1.0)
     policies = Vector{Vector{Float64}}([baseline])
     kinds = ["baseline"]
     for (j, name) in enumerate(POLICY_NAMES)
@@ -95,8 +91,8 @@ function configurations(parameters, bounds, n, rng)
     return DataFrame(
         configuration_id = 1:n, kind = kinds, split = splits,
         tau_INC = getindex.(policies, 1), tau_VAT = getindex.(policies, 2),
-        theta_UB = getindex.(policies, 3), log_m_G = getindex.(policies, 4),
-        spending_multiplier = exp.(getindex.(policies, 4)),
+        theta_UB = getindex.(policies, 3),
+        spending_multiplier = getindex.(policies, 4),
     )
 end
 
@@ -112,8 +108,8 @@ function observe(model, policy, configuration_id, seed, quarter)
     row = (
         configuration_id = configuration_id, seed = seed, quarter = quarter,
         tau_INC = policy.tau_INC, tau_VAT = policy.tau_VAT,
-        theta_UB = policy.theta_UB, log_m_G = policy.log_m_G,
-        spending_multiplier = exp(policy.log_m_G),
+        theta_UB = policy.theta_UB,
+        spending_multiplier = policy.spending_multiplier,
         real_gdp = real,
         real_household_consumption = last(d.real_household_consumption),
         real_capitalformation = last(d.real_capitalformation),
@@ -138,7 +134,7 @@ function simulate(parameters, initial_conditions, policy, configuration_id, seed
     model.prop.tau_INC = policy.tau_INC
     model.prop.tau_VAT = policy.tau_VAT
     model.prop.theta_UB = policy.theta_UB
-    model.spending_multiplier = exp(policy.log_m_G)
+    model.spending_multiplier = policy.spending_multiplier
 
     rows = NamedTuple[]
     for quarter in 1:horizon
@@ -146,7 +142,7 @@ function simulate(parameters, initial_conditions, policy, configuration_id, seed
         Bit.collect_data!(model)
         (model.prop.tau_INC, model.prop.tau_VAT, model.prop.theta_UB,
          model.spending_multiplier) ==
-        (policy.tau_INC, policy.tau_VAT, policy.theta_UB, exp(policy.log_m_G)) ||
+        (policy.tau_INC, policy.tau_VAT, policy.theta_UB, policy.spending_multiplier) ||
             error("fiscal policy changed during the run")
         push!(rows, observe(model, policy, configuration_id, seed, quarter))
     end
@@ -201,7 +197,7 @@ function save_metadata(path, settings, parameters, bounds)
             "splits" => "80/10/10 by configuration, rounded for validation and test",
         ),
         "policy" => Dict(name => Dict(
-            "baseline" => name == "log_m_G" ? 0.0 : Float64(parameters[name]),
+            "baseline" => name == "spending_multiplier" ? 1.0 : Float64(parameters[name]),
             "lower" => bounds[name][1], "upper" => bounds[name][2],
         ) for name in POLICY_NAMES),
     )
@@ -276,7 +272,7 @@ function generate_dataset(config_path = joinpath(@__DIR__, "experiment.toml"))
         end
         policy = (
             tau_INC = config.tau_INC, tau_VAT = config.tau_VAT,
-            theta_UB = config.theta_UB, log_m_G = config.log_m_G,
+            theta_UB = config.theta_UB, spending_multiplier = config.spending_multiplier,
         )
         started = time()
         status, failure = "success", ""

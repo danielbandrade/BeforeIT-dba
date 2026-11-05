@@ -1,7 +1,7 @@
 # Plano curto: dataset de políticas fiscais fixas no BeforeIT
 
 - **Objetivo:** treinar um *surrogate* para prever trajetórias macroeconômicas sob uma política fiscal escolhida no início de cada run e mantida por 12 trimestres.
-- **Política:** $p_i=(\tau_i^{INC},\tau_i^{VAT},\theta_i^{UB},\log m_i^G)\in\mathcal P$, no domínio exploratório definido abaixo.
+- **Política:** $p_i=(\tau_i^{INC},\tau_i^{VAT},\theta_i^{UB},m_i^G)\in\mathcal P$, no domínio exploratório definido abaixo.
 - **Dinâmica:** para configuração $i$, semente $j$ e trimestre $t$,
 
   $$
@@ -18,16 +18,16 @@
 
 - $\tau^{INC}$ (`tau_INC`): alíquota do imposto de renda.
 - $\tau^{VAT}$ (`tau_VAT`): alíquota do imposto sobre valor agregado (IVA).
-- $\theta^{UB}$ (`theta_UB`): taxa de reposição do benefício de desemprego.
-- $m^G$ (`spending_multiplier`): multiplicador da demanda de consumo do governo, amostrado como $\log m^G$. A regra estocástica continua ativa, portanto o gasto realizado pode variar mesmo com $m^G$ fixo.
+- $\theta^{UB}$ (`theta_UB`): taxa do seguro-desemprego, expressa como fração do salário de referência.
+- $m^G$ (`spending_multiplier`): multiplicador da demanda de consumo do governo, amostrado diretamente. Quando $m^G=0$, o consumo público planejado e realizado é zero; para $m^G>0$, a regra estocástica continua ativa.
 
-**Intervalos exploratórios do piloto — centrados na calibração austríaca carregada:**
+**Intervalos exploratórios do piloto e da expansão — 0% a 200% da calibração austríaca carregada:**
 
-- $\tau^{INC}\in[\tau^{INC}_0-0{,}02,\tau^{INC}_0+0{,}02]$; com a referência austríaca embutida, **0,193407 a 0,233407** (19,34% a 23,34%).
-- $\tau^{VAT}\in[\tau^{VAT}_0-0{,}02,\tau^{VAT}_0+0{,}02]$; na referência embutida, **0,132868 a 0,172868** (13,29% a 17,29%).
-- $\theta^{UB}\in[\theta^{UB}_0-0{,}05,\theta^{UB}_0+0{,}05]$; na referência embutida, **0,308582 a 0,408582** (30,86% a 40,86%).
-- $m^G\in[0{,}95,1{,}05]$, amostrado em $\log m^G\in[\log(0{,}95),\log(1{,}05)]\approx[-0{,}051293,0{,}048790]$.
-- Os desvios **0,02** e **0,05** são distâncias até os limites em pontos percentuais, **não passos de uma grade**. São escolhas para o piloto e precisam de avaliação econômica e de estabilidade antes do dataset completo.
+- $\tau^{INC}\in[0,2\tau^{INC}_0]$; na referência embutida, **0 a 0,426814** (0% a 42,68%).
+- $\tau^{VAT}\in[0,2\tau^{VAT}_0]$; na referência embutida, **0 a 0,305736** (0% a 30,57%).
+- $\theta^{UB}\in[0,2\theta^{UB}_0]$; na referência embutida, **0 a 0,717164** (0% a 71,72%).
+- $m^G\in[0,2]$, com valor de referência 1. Zero é uma política válida e é amostrado diretamente, sem transformação logarítmica.
+- Os limites são contínuos, **não passos de uma grade**. Cada variável é zerada exatamente em sua fronteira inferior; a política com as quatro variáveis zeradas não é uma âncora obrigatória do LHS.
 
 **Saídas — observadas a cada trimestre:**
 
@@ -44,7 +44,7 @@
 
 ## Geração
 
-- **Amostragem:** compor $N=100$ vetores: 1 política atual, 8 fronteiras (limite inferior e superior de cada variável, com as demais no valor base) e 91 pontos LHS. Em cada variável, dividir seu intervalo em 91 faixas, sortear um valor por faixa e embaralhar independentemente a associação entre variáveis. Fixar calibração, protocolo de inicialização e horizonte $T=12$.
+- **Amostragem:** compor $N=100$ vetores: 1 política atual, 8 fronteiras (limite inferior e superior de cada variável, com as demais no valor base) e 91 pontos LHS. Em cada variável, dividir seu intervalo em 91 faixas, sortear um valor por faixa e embaralhar independentemente a associação entre variáveis. Fixar calibração, protocolo de inicialização e horizonte $T=12$. O LHS cobre todo o novo domínio; as fronteiras garantem os quatro zeros individuais.
 - **Repetições:** executar cada vetor com um painel comum inicial de $M=5$ sementes. Medir a variância entre sementes antes de ampliar $M$ ou $N$.
 - **Registro:** salvar $(configuração_i, semente_j, t, p_i, s_{i,j,t})$, a trajetória completa, falhas, calibração e versão do código.
 - **Alvo:** para cada configuração e trimestre, calcular $\bar s_{i,t}=M^{-1}\sum_{j=1}^{M}s_{i,j,t}$ e seu erro padrão. Ajustar $\hat f_\phi(p_i)\approx\mathbb E[(s_1,\ldots,s_T)\mid p_i]$ sob a calibração fixa; preservar as trajetórias por semente para medir incerteza.
@@ -64,13 +64,12 @@ para cada configuração i e semente j do painel comum:
 agregar trajetórias por configuração; separar treino/validação/teste por i
 ```
 
-- **Implementação:** `generate_dataset.jl` reutiliza `../government-rl/government_policy.jl` e fixa $\tau^{INC}$, $\tau^{VAT}$, $\theta^{UB}$ e $m^G$ antes do primeiro trimestre. Nenhuma decisão depende do estado observado durante o run.
+- **Implementação:** `generate_dataset.jl` reutiliza `../government-rl/government_policy.jl` e fixa $\tau^{INC}$, $\tau^{VAT}$, $\theta^{UB}$ e $m^G$ após construir o modelo e antes do primeiro trimestre. Nenhuma decisão depende do estado observado durante o run. A inicialização permanece na calibração austríaca; a política é uma intervenção a partir do trimestre 1.
 - **Custo estimado:** um run austríaco em escala 1 levou 569 s para 12 trimestres; $100\times5$ runs seriam aproximadamente 79 horas de simulação serial, sem calibração e gravação. Essa extrapolação usa apenas uma medição.
 
 ## Expansão do piloto
 
-- `experiment-expanded.toml` mantém a calibração austríaca, escala `0.001` e 12 trimestres, mas usa **500 configurações e 10 sementes**: 5.000 runs. O piloto de 100 × 5 continua em sua própria pasta.
-- Os novos intervalos são $\tau^{INC}_0\pm0{,}03$, $\tau^{VAT}_0\pm0{,}03$, $\theta^{UB}_0\pm0{,}075$ e $m^G\in[0{,}925,1{,}075]$. Cada largura cresce cerca de 50%; o volume de quatro dimensões cresce cerca de $1{,}5^4\approx5{,}1$ vezes. As 500 configurações mantêm aproximadamente a densidade média do piloto, sem garantir cobertura idêntica perto da referência.
-- A nova amostra é independente: política base, oito fronteiras e 491 pontos LHS. As partições são **400 treino, 50 validação e 50 teste**, sempre por configuração. O teste novo é a avaliação final para o domínio ampliado.
-- O desenho gerado tem **105 políticas dentro dos limites antigos** (83 treino, 14 validação e 8 teste). O erro de teste nessa região terá incerteza alta por conter só oito políticas.
-- Comparar os modelos também por erro absoluto e separar resultados dentro e fora dos limites antigos. O NRMSE calculado com o desvio padrão do novo treino não é diretamente comparável ao NRMSE do piloto, porque o domínio mudou.
+- `experiment-expanded.toml` mantém a calibração austríaca, escala `0.001`, horizonte de 12 trimestres e **o mesmo domínio de 0% a 200% do piloto**, mas usa **500 configurações e 10 sementes**: 5.000 runs. O piloto de 100 × 5 fica em outra pasta.
+- A nova amostra é independente: política base, oito fronteiras e 491 pontos LHS. As partições são **400 treino, 50 validação e 50 teste**, sempre por configuração. O teste novo avalia o mesmo domínio com amostragem mais densa.
+- Comparar os modelos por erro absoluto e NRMSE, lembrando que o NRMSE usa o desvio padrão do treino de cada experimento. Conferir separadamente os resultados nas fronteiras com zero.
+- Os experimentos anteriores, com intervalos estreitos, permanecem arquivados nas pastas originais e não são misturados aos novos dados.

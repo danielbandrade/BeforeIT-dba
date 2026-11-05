@@ -1,16 +1,16 @@
 # Plano: surrogate das trajetórias de política fiscal
 
-- **Objetivo:** prever a trajetória macroeconômica **média** de 12 trimestres para uma política fiscal fixa $p=(\tau^{INC},\tau^{VAT},\theta^{UB},\log m^G)$, sob a calibração austríaca embutida e escala `0.001`.
+- **Objetivo:** prever a trajetória macroeconômica **média** de 12 trimestres para uma política fiscal fixa $p=(\tau^{INC},\tau^{VAT},\theta^{UB},m^G)$, sob a calibração austríaca embutida e escala `0.001`. As quatro entradas variam de zero ao dobro do valor calibrado.
 - **Unidade estatística:** uma **configuração fiscal**. As cinco sementes medem a variabilidade do BeforeIT; os 500 runs correspondem a 100 valores distintos de $p$.
 - **Alvo:** para os dez indicadores do plano do dataset, $y_i=\operatorname{vec}(\bar s_{i,1:12})\in\mathbb R^{120}$, onde $\bar s_{i,t}=M_i^{-1}\sum_j s_{i,j,t}$. O modelo aproxima $f(p)=\mathbb E[y\mid p]$.
 - **Arquivos:** juntar `configurations.csv` (entradas e partições) a `summary.csv` (médias por trimestre); usar `observations.csv` para estimar a variação entre sementes.
-- **Dados já obtidos em 17/10/2026:** o experimento `experiments/austria-scale-0.001` contém 100 configurações, 500 runs com status `success`, 6.000 observações trimestrais e 1.200 linhas no resumo. Cada configuração já tem cinco runs completos de 12 trimestres; a checagem de integridade necessária para iniciar o treino está satisfeita.
-- **Sinal versus ruído:** no trimestre 12 e **apenas nas 80 configurações de treino**, o desvio padrão das médias entre políticas dividido pela mediana do erro padrão entre sementes é aproximadamente 6,5 para PIB real, 1,1 para inflação e 1,3 para dívida/PIB. **Inferência:** inflação e dívida/PIB podem exigir mais sementes ou um alvo mais agregado para distinguir efeitos fiscais pequenos.
+- **Dados históricos obtidos em 17/10/2026:** o experimento anterior `experiments/austria-scale-0.001` contém 100 configurações, 500 runs com status `success`, 6.000 observações trimestrais e 1.200 linhas no resumo. Esse domínio estreito não é misturado ao novo domínio de zero ao dobro.
+- **Sinal versus ruído no piloto histórico:** no trimestre 12 e **apenas nas 80 configurações de treino anteriores**, o desvio padrão das médias entre políticas dividido pela mediana do erro padrão entre sementes foi aproximadamente 6,5 para PIB real, 1,1 para inflação e 1,3 para dívida/PIB. Recalcular essas razões no domínio de zero ao dobro antes de tirar conclusões sobre novas sementes.
 
 ## Aplicação ao experimento ampliado
 
-- `experiment-expanded.toml` define 500 políticas, 10 sementes e faixas fiscais cerca de 50% mais largas, em uma nova pasta. O mesmo pipeline usa as partições **400/50/50** por configuração, lidas dos CSVs. As regras abaixo que citam 100 políticas ou 5 sementes descrevem o piloto; no conjunto ampliado, usar os novos tamanhos e recalcular todas as escalas e estimativas de ruído.
-- Avaliar separadamente as políticas dentro do domínio antigo e no anel acrescentado. Comparar também MAE/RMSE em unidades originais, pois o NRMSE muda de denominador quando a dispersão de políticas aumenta.
+- `experiment-expanded.toml` define 500 políticas, 10 sementes e o mesmo domínio de zero ao dobro usado pelo novo piloto, em outra pasta. O pipeline usa as partições **400/50/50** por configuração, lidas dos CSVs. As regras abaixo que citam 100 políticas ou 5 sementes descrevem o piloto; no conjunto ampliado, usar os novos tamanhos e recalcular todas as escalas e estimativas de ruído.
+- Avaliar separadamente as fronteiras com parâmetro zero. Comparar MAE/RMSE em unidades originais; o NRMSE usa o desvio padrão do treino de cada experimento.
 
 ## Modelo recomendado
 

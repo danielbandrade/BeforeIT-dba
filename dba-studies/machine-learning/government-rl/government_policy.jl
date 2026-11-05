@@ -10,6 +10,10 @@ Bit.@object mutable struct PolicyModel(Bit.Model) <: Bit.AbstractModel
 end
 
 function Bit.gov_expenditure(model::PolicyModel)
+    if iszero(model.spending_multiplier)
+        randn() # Keep the same random draw count without evaluating log(0) next quarter.
+        return zero(model.gov.C_G), zero.(model.gov.C_d_j)
+    end
     C_G, C_d_j = invoke(Bit.gov_expenditure, Tuple{Any}, model)
     m = model.spending_multiplier
     return m * C_G, m .* C_d_j

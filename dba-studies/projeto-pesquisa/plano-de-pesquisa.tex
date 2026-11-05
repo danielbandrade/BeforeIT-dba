@@ -21,7 +21,7 @@
 
 \title{AdaptGov: aprendizado de política fiscal adaptativa em um modelo macroeconômico baseado em agentes}
 \author{Daniel Andrade}
-\date{Outrubro de 2026}
+\date{Outubro de 2026}
 
 \begin{document}
 
@@ -32,105 +32,91 @@
 
 \subsection{Introdução}
 
-Um sistema complexo se caracteriza por possuir muitos agentes interagindo de forma a produzir comportamentos emergentes, ou seja, que não podem ser trivialmente derivados a partir de seus comportamentos individuais \cite{newman2011}. Estes fenômenos emergentes por sua vez afetam os agentes individualmente, criando retroalimentações ("feedbacks") positivas e negativas.
-
-A economia é um sistema complexo onde bilhões de agentes heterogêneos, entre trabalhadores, empresas, bancos e instituições governamentais, interagem em compras e vendas, empréstimos, pagamentos, investimentos, resultando em fenômenos emergentes como preços, inflação e crescimento. Além disso, esses atores aprendem e evoluem ao longo do tempo, o que modifica fundamentalmente a estrutura do sistema, tornando-o adaptativo \cite{arthur2013}. 
+Um sistema complexo é caracterizado por possuir muitos agentes que interagem produzindo comportamentos emergentes, ou seja, que não podem ser trivialmente derivados a partir de suas características individuais \cite{newman2011}. A economia é um sistema complexo onde bilhões de agentes heterogêneos, entre trabalhadores, empresas, bancos e instituições governamentais, interagem em compras e vendas, empréstimos, pagamentos, investimentos, resultando em fenômenos emergentes como preços, inflação e crescimento. Além disso, esses atores aprendem e evoluem ao longo do tempo, o que modifica fundamentalmente a estrutura do sistema, tornando-o adaptativo \cite{arthur2013}. 
 
 A aplicação da lente teórica de sistemas complexos adaptativos para o estudo da economia tem se mostrado uma alternativa promissora ao paradigma predominante da teoria econômica, o neoclássico, que se ancora em pressupostos teóricos pouco críveis, como a existência de um equilíbrio geral, as expectativas racionais e os agentes representativos \cite{gallegati2012}.
+ 
+Os modelos baseados em agentes ("ABMs") têm se constituído em uma ferramenta poderosa para o estudo da economia complexa através de ferramentas computacionais \cite{dawid2018}. Neles, os agentes são simulados por meio de regras comportamentais que regem tanto seu comportamento individual quanto suas interações, sem a necessidade de um controle central. As variáveis agregadas resultantes emergem como resultado computacional dos comportamentos e interações, sem a utilização de pressupostos de informação e racionalidade perfeita ou de equilíbrio.
 
-Nesse sentido, o campo da economia complexa (“complexity economics”), seria uma formulação mais geral da economia neoclássica, pois estuda as estruturas econômicas a partir de premissas menos restritas \cite{arthur2013}. 
+O trabalho proposto por Poledna et al. \cite{poledna2023} é um modelo baseado em agentes para a macroeconomia, ou seja, focado no estudo de propriedades agregadas da economia, como inflação, PIB, crescimento, desemprego \cite{dawid2018}. O modelo foi calibrado para a Áustria, que é um país pequeno, industrial e com economia aberta. Ele se ancora nas estatísticas nacionais e em regras autorregressivas de primeira ordem, realizando previsões macroeconômicas comparáveis aos modelos DSGE ("Dynamic Stochastic General Equilibrium"), que representam o paradigma atual da macroeconomia neoclássica. O BeforeIT.jl \cite{glielmo2025} oferece uma implementação aberta e extensível deste modelo na linguagem Julia feita pela equipe de tecnologia da informação do Banco da Itália. Nos trabalhos apresentados, a política fiscal é constituída majoritariamente como parâmetros fixos que delimitam impostos, benefícios sociais e gastos do governo. Nesse sentido, há espaço para o estudo de uma política fiscal variável e adaptativa, ou seja, que reage ao estado do modelo. 
 
-Os modelos baseados em agentes ("ABMs") tem se constituído uma ferramenta poderosa para o estudo da economia complexa através de ferramentas computacionais \cite{dawid2018}. Neles, os agentes são simulados por meio de regras comportamentais que regem tanto seu comportamento individual quanto suas interações, sem a necessidade de um controle central. As variáveis agregadas resultantes emergem como resultado computacional dos comportamentos e interações ao longo do tempo, sem a utilização de pressupostos de equilíbrio e de informação e racionalidade perfeita.
+Também no campo dos ABMs para macroeconomia, trabalhos recentes têm utilizado inteligência artificial ("IA"), como em \cite{zheng2022} e \cite{brusatin2024}, onde técnicas de aprendizado por reforço são utilizadas para treinar agentes com comportamentos racionais e avaliar o resultado macroeconômico. Em \cite{li2024} LLMs ("Large Language Models") fazem o papel de consumidores e trabalhadores em um modelo que busca reproduzir qualitativamente fatos estilizados macroeconômicos.  
 
-O trabalho proposto por Poledna et. al \cite{poledna2023}, é um modelo baseado em agentes para a macroeconomia, ou seja, focado no estudo de propriedades agregadas da economia, como inflação, PIB, crescimento, desemprego \cite{dawid2018}, em particular para a Áustria, que é um país pequeno, industrial e com economia aberta. Ele é ancorado nas estatísticas nacionais e em regras autoregressivas de primeira ordem, realizando previsões macroeconômicas comparávais aos modelos DSGE ("Dynamic Stochastic General Equilibrium"), que representa do paradigma atual da macroeconomia neoclássica. O BeforeIT.jl \cite{glielmo2025} oferece uma implementação aberta e extensível deste modelo na linguagem Julia feita pela equipe de tecnologia da informação do Banco da Itália. Nos trabalhos apresentados, a política fiscal é constituída majoritariamente como parâmetros fixos que delimitam impostos, benefícios sociais e gastos do governos. Nesse sentido, há espaço para o estudo de uma política fiscal variável e adaptativa, ou seja, que reage ao estado do modelo. 
+Por outro lado, a análise de sensibilidade e os metamodelos têm se constituído em ferramentas importantes para a avaliação e emulação de ABMs em diversas áreas, pois podem auxiliar na avaliação da robustez e da explicabilidade dos resultados dos modelos em questão como pode ser visto em \cite{angione2022}. 
 
-No campo dos ABMs para macroeconomia, novos trabalhos tem alavancado em inteligência artificial ("IA"), como em \cite{zheng2022} e \cite{brusatin2024}, onde técnicas de aprendizado por reforço são utlizadas para treinar agentes com comportamentos racionais e avaliar o resultado macroeconômico. Em \cite{li2024} LLMs ("Large Language Models") fazem o papel de consumidores e trabalhadores em um modelo que busca reproduzir qualitativamente fatos estilizados macroeconômicos.  
-
-Por outro lado, a análise de sensibilidade e os metas modelos tem se constituído ferramentas importante para a avaliação e emulação de ABMs em diversas áreas, pois podem auxiliar na robustez e explicabilidade aos resultados dos modelos em questão como pode ser visto em \cite{angione2022}. 
-
-Por ser um modelo aberto, extensível, calibrado para as estatísticas nacionais e com desempenho preditivo similar aos DSGEs nos testes dos autores, o Before.IT pode ser um campo fértil para investigar políticas fiscais em um modelo macroeconômico baseado em agentes. Este trabalho propõe realizar análises de sensibilidade dos parâmetros fiscais e treinar com aprendizagem por reforço uma política fiscal adaptativa. Essa política será comparada a configurações fixas de parâmetros com relação a indicadores de bem-estar (e.g. considerando PIB, desemprego e inflação), dívida pública e estabilidade macroeconômica. Assim, busca-se avaliar se a adaptação da política fiscal melhora o resultado das simulações e em quais casos. Esse tipo de exploração pode ser um passo importante para tornar o BeforeIT.jl e outros ABMs macroeconômicos úteis ao auxiliar tomadores de decisões governamentais na formulação de políticas públicas. 
+Por ser um modelo aberto, extensível, calibrado para as estatísticas nacionais e com desempenho preditivo similar aos DSGEs nos testes dos autores, o BeforeIT.jl é um campo fértil para investigar políticas fiscais em um modelo macroeconômico baseado em agentes. Este trabalho propõe realizar análises de sensibilidade dos parâmetros fiscais e treinar com aprendizagem por reforço uma política fiscal adaptativa. Essa política será comparada a configurações de parâmetros fixos com relação a indicadores de bem-estar definidos, medidos através de uma função de recompensa, que combina PIB, desemprego, inflação, dívida e déficit. Assim, busca-se avaliar se a adaptação da política fiscal melhora o resultado das simulações e em quais casos. Esse tipo de exploração pode ser um passo importante para tornar o BeforeIT.jl e outros ABMs macroeconômicos úteis ao auxiliar tomadores de decisões governamentais na formulação de políticas públicas. 
 
 \subsection{Perguntas de Pesquisa}
 
 \textbf{Pergunta central}
 
-No modelo BeforeIT.jl calibrado para a Áustria, uma política fiscal adaptativa treinada com aprendizado por reforço proporciona maior bem-estar que políticas de parametros fixos, considerando referências fiscais de dívida e défict inspiradas nas regras europeias?
+No modelo BeforeIT.jl calibrado para a Áustria, uma política fiscal adaptativa treinada com aprendizado por reforço proporciona maior bem-estar que políticas de parâmetros fixos, considerando referências fiscais de dívida e déficit inspiradas nas regras europeias?
 
 \textbf{Perguntas secundárias}
 \begin{itemize}
     \item Quais alterações nos parâmetros da política fiscal produzem resultados estatisticamente significantes?
-    \item Em quais cenários os resultados de uma política fiscal adaptativa superam as regras fixas e políticas fiscais?
+    \item Quais estratégias adaptativas emergem a partir do treinamento de uma política fiscal com aprendizagem por reforço?
+    \item Em quais cenários os resultados de uma política fiscal adaptativa superam as regras fixas e políticas fiscais segundo uma função de bem-estar bem definida?
 \end{itemize}
 
 \subsection{Justificativa}
 
-Modelos baseados em agentes são uma ferramenta poderosa para a análise da macroeconomia com o potencial de informar a sociedade e agencias governamentais sobre o comportamento passado e futuro de indicadores chaves como inflação, desemprego, crescimento \cite{arthur2013,gallegati2012,dawid2018}. 
+Modelos baseados em agentes são uma ferramenta poderosa para a análise da macroeconomia com o potencial de informar a sociedade e agências governamentais sobre o comportamento passado e futuro de indicadores-chave como inflação, desemprego, crescimento \cite{arthur2013,gallegati2012,dawid2018}. 
 
-Nesse cenário, a construção de análise de sensibilidade é uma ferramenta importantes para avaliar a validade, explicabilidade e robustez dos modelos em questão. 
+Além disso, os modelos baseados em agentes têm tido sua fronteira explorada através da utilização de inteligência artificial para a construção de agentes adaptativos que aprendem ao longo da simulação \cite{brusatin2024, zheng2022}. Adicionalmente, a análise de sensibilidade é uma ferramenta importante para avaliar a validade, explicabilidade e robustez dos modelos em questão \cite{angione2022}. 
 
-Além disso, os modelos baseados em agentes tem tido sua fronteira explorada através da utilização de inteligência artificial para a construção de agentes adaptativos que aprendem ao longo da simulação\cite{angione2022, zheng2022}. 
-
-Este trabalho busca contribuir para o campo dos modelos macroeconomico baseados em agentes ao explorar um modelo de fronteira, construindo, validando e interpretando políticas fiscais adaptativa construídas através de aprendizagem por reforço. Assim, busca-se extender a aplicação do modelo de um papel preditivo para também um papel informativo sob eventuais políticas fiscais a serem aplicadas por um formulador de política economica.  
+O trabalho busca explorar um modelo macroeconômico baseado em agente, desenvolvendo, validando e interpretando políticas fiscais adaptativas treinadas através de aprendizagem por reforço, ampliando o uso do modelo para análises de política fiscal. 
 
 \subsection{Objetivos}
 
 \Needspace{5\baselineskip}
 Objetivo geral:
 
-Desenvolver e avaliar políticas fiscais adaptativas no modelo Before.IT, calibrado para Áustria, através de técnicas de análise de sensibilidade e aprendizagem por reforço, comparando-as com políticas de parametros fixos, quanto a bem-estar, dívida pública e estabilidade macroeconômica.
+Desenvolver e avaliar políticas fiscais adaptativas no modelo BeforeIT.jl, calibrado para a Áustria, através de técnicas de análise de sensibilidade e aprendizagem por reforço, comparando-as com políticas de parâmetros fixos, quanto a bem-estar, dívida pública e estabilidade macroeconômica.
 
 Objetivos específicos:
 \begin{itemize}
-    \item Formular o problema de política fiscal no contexto do modelo Before.IT, com seus parâmetros, variáveis livres e restrições. 
-    \item Realizar análise de sensibilidade nas variáveis de estudo do problema de fiscal quantificando seus efeitos nos indicadores de avaliação selecionados.
+    \item Formular o problema de política fiscal no contexto do modelo BeforeIT.jl, com seus parâmetros, variáveis livres e restrições. 
+    \item Realizar análise de sensibilidade nas variáveis de estudo do problema fiscal quantificando seus efeitos nos indicadores de avaliação selecionados.
     \item Propor, treinar e avaliar um modelo de aprendizado por reforço para a política fiscal.
-    \item Avaliar e interpretar os resultados considerando bem-estar, dívida pública e estabilidade macroecoznômica. 
+    \item Avaliar e interpretar os resultados considerando bem-estar, dívida pública e estabilidade macroeconômica. 
 \end{itemize}
 
 \section{Revisão bibliográfica}
 
-Uma revisão geral sobre o campo de estudo dos sistemas complexos pode ser econtrada em \cite{newman2011}, que os conceitua como sistemas onde muitos atores interagem formando comportamentos que não podem ser explicados por suas ações individuais, chamados de emergentes. 
+Este trabalho se insere na agenda de uso de modelos baseados em agentes para estudar políticas macroeconômicas. Como sintetizam \citet{dawid2018}, esses modelos estudam a dinâmica das variáveis agregadas da economia, calculadas pela soma de quantidades individuais de agentes heterogêneos que interagem entre si (abordagem \emph{bottom-up}). Assim, como é amplamente demonstrado na revisão, os modelos macroeconômicos baseados em agentes oferecem um rico campo para o estudo da política econômica, seja ela fiscal, monetária ou regulatória. 
 
-Em \cite{arthur2013}, \cite{gallegati2012} e \cite{dawid2018} é possível encontrar uma conexão entre sistemas complexos e as ciências economicas. Em especial, a abordagem de sistemas complexos para a economia é colocada como visão não reducionista e não axiomática, onde se estuda a interações economicas deses agentes. 
+O trabalho de \citet{dosi2015} compara regras fiscais em uma economia simulada sujeita a crises e mostra que, naquele modelo, regras restritivas podem reduzir a atividade sem melhorar as contas públicas. Já \citet{poledna2023} foi construído um ABM de previsão macroeconômica para a economia da Áustria. \citet{glielmo2025} esse trabalho foi adaptado para a linguagem Julia e disponibilizado de maneira open source. 
 
-A modelagem baseada em agentes para economia ("Agent-based Computational Economics") é definida em \cite{dawid2018} como o estudo computacional de processos economicos modelados a partir de sistemas dinamicos de agentes interativos. Além disso, \citet{dawid2018} descrevem um estudo de \citet{dosi2015} com regras fiscais inspiradas no Pacto de Estabilidade e Crescimento e no Pacto Fiscal Europeu, que usam como referências um déficit de 3\% do PIB e uma dívida de 60\% do PIB. Neste estudo, esses valores servirão de referência para a função de recompensa e para a avaliação da política fiscal adaptativa.
-
-Em \cite{poledna2023} foi construído um ABM de previsão macroeconômica para a economia da Áustria. Em \cite{glielmo2025} esse trabalho foi adaptado para a linguagem julia e disponibilidado de maneira open source. 
-
-Em \cite{zheng2022}, \cite{zheng2022} e \cite{brusatin2024} é possível encontrar exemplos da aplicação de ferramentas de IA, como LLMs e aprendizagem por reforço, para aplicações em ABMs macroeconômicos.
+Adicionalmente, esta pesquisa se ancora na recente literatura que aplica técnicas de inteligência artificial em ABMs macroeconômicos. \citet{zheng2022} e \citet{brusatin2024} usam aprendizagem por reforço para, respectivamente, desenhar impostos e treinar firmas em um modelo macroeconômico e \citet{li2024} usam modelos de linguagem para simular decisões de trabalho e consumo. 
 
 \section{Modelo de referência}
 
 As principais motivações do modelo BeforeIT.jl são:
 
 \begin{itemize}
-    \item Realizar `previsões macroeconômicas` utilizando modelagem baseada em agentes.
+    \item Realizar previsões macroeconômicas utilizando modelagem baseada em agentes.
     \item Construir uma modelagem verossimilhante, calibrando o modelo de acordo com as estatísticas governamentais e executando a simulação com escala 1:1 da população do país.
 \end{itemize}
 
-O modelo inicial foi calibrado para a economia da Áustria, que é um país pequeno e altamente integrado com a economia externa ($ \approx 9M$ habitantes  e $\approx 50\%  $ do PIB em importações/exportações). Os agentes do modelo são famílias ativas e invativas, empresas e empresários, governo, um banco comercial, um banco central e empresas extrangeiras.
+O modelo inicial foi calibrado para a economia da Áustria, que é um país pequeno e altamente integrado com a economia externa ($ \approx 9M$ habitantes  e $\approx 50\%  $ do PIB em importações/exportações). Os agentes do modelo são famílias ativas e inativas, empresas e empresários, governo, um banco comercial, um banco central e empresas estrangeiras.
 
 \Needspace{10\baselineskip}
-Cada etapa temporal do modelo equivale a um `trimestre`. As etapas-chave que levam o modelo de $t$ para $t+1$ são:
+Cada etapa temporal do modelo equivale a um trimestre. As etapas-chave que levam o modelo de $t$ para $t+1$ são:
 
 \begin{enumerate}
     \item \textbf{Formação de expectativas coletivas:} nesta etapa é realizada uma regressão de primeira ordem para a previsão do PIB e da inflação. Essas previsões são utilizadas pelos diversos agentes, como empresas para estimar a produção do próximo ciclo e consumidores para estimar a renda do próximo ciclo. 
-    \item \textbf{Execução dos choques exógenos:} nesta etapa são sorteados choques exógenos que modelam demanda e oferta do resto do mundo, ou seja, que quantificam as importações e exportações, bem como a inflação da zona do euro. 
-    \item \textbf{Execução dos mercados de crédito e trabalho:} nesta etapa as empresas, após determinarem seus planos de produção, determinam o quanto querem de crédito do banco comercial. O banco então fornece crédito em uma ordem aleatória às empresas, obedecendo as regras regulatórias de fornecimento de crédito. Depois, as empresas determinam o qual será a força de trabalho a ser contrada ou demitida, que é selecionada aleatóriamente. 
-    \item \textbf{Execução dos mercados de bens:} inicialmente o mercado intra-empresas é executado através do mencanismo de busca e pareamento, onde, para cada bem desejado, a empresas consumidora é selecionada aleatoriamente e os fornecedores são selecionados de com probabilidade proporcional ao seu preço e tamanho. O mesmo processo é então repetido para os consumidores finais e empresas de bem de consumo. 
+    \item \textbf{Execução dos choques exógenos:} são sorteados choques exógenos que modelam demanda e oferta do resto do mundo, ou seja, que quantificam as importações e exportações, bem como a inflação da zona do euro. 
+    \item \textbf{Execução dos mercados de crédito e trabalho:} nesta etapa as empresas, após determinarem seus planos de produção, determinam o quanto querem de crédito do banco comercial. O banco então fornece crédito em uma ordem aleatória às empresas, obedecendo às regras regulatórias de fornecimento de crédito. Depois, as empresas determinam quantos trabalhadores serão contratados ou demitidos, selecionados aleatoriamente. 
+    \item \textbf{Execução dos mercados de bens:} inicialmente o mercado intra-empresas é executado através do mecanismo de busca e pareamento, onde, para cada bem desejado, a empresa consumidora é selecionada aleatoriamente e os fornecedores são selecionados com probabilidade proporcional ao seu preço e tamanho. O mesmo processo é então repetido para os consumidores finais e empresas de bens de consumo. 
     \item \textbf{Atualização da contabilidade:} são atualizados os preços, rendas, saldos, impostos e agregados econômicos. 
 \end{enumerate}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=\linewidth]{novo-fluxo-completo-mermaid-diagram.png}
-\caption{Fluxo de um período de simulação do modelo de referência.}
-\label{fig:novo-fluxo-completo-mermaid-diagram}
-\end{figure}
 
 \clearpage
 
 \section{Metodologia e plano de atividades}
+
+\textbf{Política Fiscal Adaptativa}
 
 A pesquisa será baseada em simulações computacionais do modelo BeforeIT.jl calibrado para a Áustria. Os resultados da simulação no tempo \(t\), representados por \(\mathbf{y}_{t}\), dependem dos parâmetros \(\theta\), do vetor de variáveis de estado
 iniciais \(\mathbf{x}_0\) e dos choques aleatórios \(\varepsilon_{t}\):
@@ -147,9 +133,9 @@ O agente governamental adaptativo terá como objetivo maximizar a soma da sua fu
 S = \sum_{t=1}^{t_{\mathrm{sim}}} \gamma^t r_{t}
 \]
 
-Assim, a recompensa em cada etapa temporal \(r_{t}\) será uma funcão do espaço de estados do modelo \(y_{t}\). A modelagem de aprendizado por reforço será baseada na proposta de \cite{angione2022}. Será utilizado o algoritmo padrão de Q-learning, com uma política \(\varepsilon\) greedy. O agente terá um espaço de estado \(\mathcal{S}\) e espaço de ação discretos \(\mathcal{A}\), e aprenderá a função de valor \(Q : \mathcal{S} \times \mathcal{A} \to \mathbb{R}\), utilizando a equação de Bellman para estimar sua função de recompensa \(r\) dado um espaço de estado e possíveis ações \((s,a)\). 
+Assim, a recompensa em cada etapa temporal \(r_{t}\) será uma função do espaço de estados do modelo \(y_{t}\). A modelagem de aprendizado por reforço será baseada na proposta de \cite{brusatin2024}, utilizado o algoritmo padrão de Q-learning, com uma política de eploração \(\varepsilon\)-greedy. O agente terá um espaço de estado \(\mathcal{S}\) e espaço de ação discretos \(\mathcal{A}\), e aprenderá a função de valor \(Q : \mathcal{S} \times \mathcal{A} \to \mathbb{R}\), utilizando a equação de Bellman para estimar seu retorno esperado, dado um espaço de estado e possíveis ações \((s,a)\). 
 
-O agente governamental terá como seu espaço de estados observações dos prinicipais agregados econômicos de interesse para a política fiscal, como função do espaço de estados geral do modelo \(\mathbf{y}_{t}\). A saber: 
+O agente governamental terá como seu espaço de estados observações dos principais agregados econômicos de interesse para a política fiscal, como função do espaço de estados geral do modelo \(\mathbf{y}_{t}\). A saber: 
 
 \[
 \mathbf{s}_t = f(\mathbf{y}_t)
@@ -167,9 +153,9 @@ O agente governamental terá como seu espaço de estados observações dos prini
     PIB nominal anualizado a partir de até quatro trimestres;
 \end{itemize}
 
-Esse espaço de estado será discretizado a para o treinamento Q-learning, utilizando \(n_S\) divisões espaçadas entre um mínimo \(S_{\min}\) e um máximo \(S_{\max}\). Cada valor real de observação será aproximado ao valor discreto mais próximo. 
+Esse espaço de estado será discretizado para o treinamento do Q-learning, utilizando \(n_S\) divisões espaçadas entre um mínimo \(S_{\min}\) e um máximo \(S_{\max}\). Cada valor real de observação será aproximado ao valor discreto mais próximo. 
 
-Para o espaço de ações, foram selecionados o cojunto dos parâmetros \(\theta\) que interessam a política fiscal e que tipicamente estão sob controle da política fiscal, ou seja, dos impostos e gastos públicos. A saber:
+Para o espaço de ações, foi selecionado o conjunto dos parâmetros \(\theta\) que interessam à política fiscal e que tipicamente estão sob controle da política fiscal, ou seja, dos impostos e gastos públicos. A saber:
 
 \[
 p_t =
@@ -184,7 +170,7 @@ p_t =
     \item \(p_t\): vetor de parâmetros da política fiscal no trimestre \(t\);
     \item \(\tau_t^{\mathrm{INC}}\): alíquota do imposto de renda no trimestre \(t\);
     \item \(\tau_t^{\mathrm{VAT}}\): alíquota do imposto sobre valor agregado (IVA) no trimestre \(t\);
-    \item \(\theta_t^{\mathrm{UB}}\): taxa de reposição do benefício de desemprego no trimestre \(t\);
+    \item \(\theta_t^{\mathrm{UB}}\): parâmetro do seguro-desemprego no trimestre \(t\);
     \item \(\log m_t^G\): logaritmo do multiplicador da demanda de consumo do governo no trimestre \(t\);
     \item \(\mathcal{P}\): conjunto de combinações de política fiscal admissíveis.
 \end{itemize}
@@ -219,7 +205,7 @@ p_t =
 
 Os demais parâmetros do modelo serão mantidos os mesmos da calibração do BeforeIT.jl.
 
-A função de recomensa refletirá o objetivo de maximixar o bem estar da população através do aumento do PIB, da diminuição do desemprego, da convergência para a meta de inflação e da adequação às regras fiscais europeias de dívida e deficit público. Será dada por:
+A função de recompensa refletirá o objetivo de maximizar o bem-estar da população através do aumento do PIB, da diminuição do desemprego, da convergência para a meta de inflação e da adequação às regras fiscais europeias de dívida e déficit público. Será dada por:
 
 \[
 \begin{aligned}
@@ -252,7 +238,7 @@ r_t={}&\alpha\log\left(\frac{Y_t^{\mathrm{real}}}{Y_0^{\mathrm{real}}}\right)
     \item \(\alpha,\beta,\gamma, \lambda_d, \lambda_b >0\): pesos dos componentes da recompensa.
 \end{itemize}
 
-Um tema em aberto é a definição dos pesos da função de recompensa, que será atacado durante a execução do projeto.   
+Um tema em aberto é a definição dos pesos da função de recompensa, que será elaborado durante a execução do projeto.   
 
 No treinamento, o agente atualizará a sua função de valor \(Q\) de acordo com a seguinte equação de Bellman:
 
@@ -286,7 +272,7 @@ a_{i,t} =
 \end{aligned}
 \]
 
-Com o valor de  \(\varepsilon\) diminuindo gradualmente ao longo dos episódios de treinamento.  Após o treinamento, cada agente segue
+O valor de \(\varepsilon\) diminuirá gradualmente ao longo dos episódios de treinamento. Após o treinamento, cada agente seguirá
 a política aprendida, escolhendo a ação que maximiza a função \(Q\):
 \[
 a_i^{*}(s)
@@ -294,10 +280,16 @@ a_i^{*}(s)
 \operatorname*{arg\,max}_{a\in\mathcal{A}} Q_i(s,a).
 \]
 
-Será realizada uma análise de sensibilidade dos
-parâmetros da política fiscal através de simulações de Monte Carlo. Serão selecionadas \(N\) configurações por amostragem por hipercubo latino ("LHS").
+Após o treinamento, os resultados serão interpretados para identificar estratégias e padrões da política fiscal e seus principais impactos nas variáveis agregadas de interesse, como PIB, inflação, dívida. 
+
+Além disso, serão explorados os comportamentos da política fiscal frente a choques exógenos, como diminuições na renda disponível para o consumo. 
+
+\textbf{Análise de Sensibilidade}
+
+Antes do treinamento, será realizada uma análise de sensibilidade dos
+parâmetros da política fiscal através de simulações de Monte Carlo. Serão selecionadas \(N\) configurações por amostragem em hipercubo latino ("LHS").
 Cada configuração será mantida fixa durante 12 trimestres, e seus
-resultados serão calculados com \(J\) sementes aletórias comuns. Os pares
+resultados serão calculados com \(J\) sementes aleatórias comuns. Os pares
 formados pelos parâmetros e pelos resultados médios serão usados
 para estimar a influência de cada alavanca fiscal.
 
@@ -320,40 +312,11 @@ S_{12}(p_i,\mathbf{x}_0,\varepsilon_j).
     configuração \(i\).
 \end{itemize}
 
-A análise de sensibilidade será uma primeira etapa informativa sobre o potencial impacto da política fiscal nas variáveis de interesse do modelo como inflação, crescimento do PIB, desemprego, deficit público e dívida do governo. Caso ela mostre que alterar os parâmetros da política fiscal não altera significativamente as variáveis de interesse, a política adaptativa pode se mostrar inóqua.  
-
-
-
-
-Os pesos da função de recompensa serão definidos a partir da análise de sensibilidade, antes do treinamento da política adaptativa. 
-
-\[
-\begin{aligned}
-R_{i,j,T}&=\sum_{t=1}^{T}r_t^{(i,j)},\\
-D_{i,j,T}&=\sum_{t=1}^{T}
-\left[\max\left(0,d_t^{(i,j)}-0{,}03\right)\right]^2,\\
-B_{i,j,T}&=\sum_{t=1}^{T}
-\left[\max\left(0,b_t^{(i,j)}-b_t^{\mathrm{meta},(i,j)}\right)\right]^2,\\
-\bar{\mathbf{z}}_{i,T}&=\frac{1}{J}\sum_{j=1}^{J}
-\begin{pmatrix}R_{i,j,T}\\D_{i,j,T}\\B_{i,j,T}\end{pmatrix}.
-\end{aligned}
-\]
-
-\[
-\hat{\mathbf{z}}_T(p)=\hat h(p),\qquad
-\hat h=\mathop{\mathrm{arg\,min}}\limits_{h\in\mathcal{H}}
-\sum_{i=1}^{N}\left\|\bar{\mathbf{z}}_{i,T}-h(p_i)\right\|_2^2.
-\]
-
-\[
-p^\star=\mathop{\mathrm{arg\,max}}\limits_{p\in\mathcal{P}}
-\left[\hat{\mathbf{z}}_T(p)\right]_1,\qquad
-p_0=p^\star,\qquad
-p_t=\mu(\mathbf{x}_{t-1})=p^\star+\Delta_\phi(\mathbf{x}_{t-1})\in\mathcal{P}.
-\]
+A análise de sensibilidade será uma primeira etapa informativa sobre o potencial impacto da política fiscal nas variáveis de interesse do modelo como inflação, crescimento do PIB, desemprego, déficit público e dívida do governo.
 
 Todos os procedimentos destacados serão primeiramente realizados em uma escala reduzida do modelo (1:1000) e posteriormente serão reproduzidos e validados na escala 1:1 para a economia da Áustria.
 
+\textbf{Plano de atividades} 
 
 \begin{table}[H]
 \centering
@@ -370,25 +333,43 @@ Revisão de literatura e documentação de funcionamento do modelo
 & Lacunas de pesquisa definidas & X & & & \\
 \addlinespace[2pt]
 Realizar análise de sensibilidade nos parâmetros fiscais do modelo
-& Intervalos viáveis de ajuste na política fisscal e seus respectivos efeitos & X & X & & \\
+& Intervalos viáveis de ajuste na política fiscal e seus respectivos efeitos & X & X & & \\
 \addlinespace[2pt]
 Definir objetivo da política fiscal
 & Critérios de avaliação definidos & & X & & \\
 \addlinespace[2pt]
-Avaliar o paper do aprendizado de máquina supervisionado e desenvolver agente governamental usando aprendizagem por reforço 
+Desenvolver agente governamental usando aprendizagem por reforço 
 & Treinar política e documentar decisões & & & X & \\
 \addlinespace[2pt]
-Testar políticas em novas simulações, com e sem choques economicos, comparando resultados e incertezas
+Testar políticas em novas simulações, com e sem choques econômicos, comparando resultados e incertezas
 & Resultados de bem-estar, fiscais e robustez & & & X & X \\
 \addlinespace[2pt]
-Consolidar resultados, qualifcar e finalizar escrita 
+Consolidar resultados, qualificar e finalizar a escrita 
 & Qualificação e defesa & X & X & & X \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 \clearpage
-\section{Resultados parciais, se houver}
+\section{Resultados parciais}
+
+\textbf{Resultados Parciais da Análise de Sensibilidade}
+
+Na escala de 1:1000, no 12º trimestre, o experimento pareado indica queda do PIB real com o aumento do imposto de renda e resposta não linear ao multiplicador do gasto público (Figura~\ref{fig:sensibilidade-pib-pareado-t12}). Na amostragem conjunta, esse multiplicador apresenta correlação positiva com o PIB real (\(\rho=0{,}80\)) e com a razão dívida/PIB (\(\rho=0{,}83\)); IVA e seguro-desemprego mostram relações mais fracas com o PIB (Figura~\ref{fig:sensibilidade-correlacoes-t12}). Os resultados são exploratórios e se restringem à calibração austríaca e à escala reduzida.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth,height=0.55\textheight,keepaspectratio]{sensibilidade-pib-pareado-t12.png}
+\caption{Efeito pareado dos parâmetros fiscais sobre a variação percentual do PIB real no 12º trimestre; as barras indicam a incerteza das estimativas.}
+\label{fig:sensibilidade-pib-pareado-t12}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.92\linewidth,height=0.55\textheight,keepaspectratio]{sensibilidade-correlacoes-t12.png}
+\caption{Correlações de Spearman entre os parâmetros fiscais e os indicadores econômicos no 12º trimestre, na amostragem por hipercubo latino.}
+\label{fig:sensibilidade-correlacoes-t12}
+\end{figure}
 
 \clearpage
 \renewcommand{\refname}{Referências bibliográficas}
