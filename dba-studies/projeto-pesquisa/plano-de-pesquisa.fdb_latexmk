@@ -1,6 +1,6 @@
 # Fdb version 4
-["pdflatex"] 1793906816.51871 "/Users/danielbandrade/Documents/programing/BeforeIT-dba/dba-studies/projeto-pesquisa/plano-de-pesquisa.tex" "plano-de-pesquisa.pdf" "plano-de-pesquisa" 1793906817.11406 0
-  "/Users/danielbandrade/Documents/programing/BeforeIT-dba/dba-studies/projeto-pesquisa/plano-de-pesquisa.tex" 1793906816.28277 27195 9fca1a7884a4e0cc0f3f0d01b8627eed ""
+["pdflatex"] 1793914398.04638 "/Users/danielbandrade/Documents/programing/BeforeIT-dba/dba-studies/projeto-pesquisa/plano-de-pesquisa.tex" "plano-de-pesquisa.pdf" "plano-de-pesquisa" 1793914398.63738 0
+  "/Users/danielbandrade/Documents/programing/BeforeIT-dba/dba-studies/projeto-pesquisa/plano-de-pesquisa.tex" 1793914397.83614 24229 9afcd58ae4ce702509adf6c5663342e5 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1136849721 2971 def0b6c1f0b107b3b936def894055589 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1136849721 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
@@ -65,7 +65,7 @@
   "/usr/local/texlive/2026/texmf-dist/tex/context/base/mkii/supp-pdf.mkii" 1461363279 71627 94eb9990bed73c364d7f53f960cc8c5b ""
   "/usr/local/texlive/2026/texmf-dist/tex/generic/babel-portuges/brazilian.ldf" 1769289180 6096 b2165a3d4d5e10b4990e15cb0c21a9b0 ""
   "/usr/local/texlive/2026/texmf-dist/tex/generic/babel/babel.sty" 1773085155 147019 a132d5463be1676209afefa6c8d009c6 ""
-  "/usr/local/texlive/2026/texmf-dist/tex/generic/babel/locale/invalid/babel-brazil.tex" 1762723313 652 7dccbebb70081db63e04f21ba35d0012 ""
+  "/usr/local/texlive/2026/texmf-dist/tex/generic/babel/locale/pt/babel-brazilian.tex" 1752438283 379 9f94ea4211dd06e65f547717726f23f5 ""
   "/usr/local/texlive/2026/texmf-dist/tex/generic/babel/locale/pt/babel-pt-BR.ini" 1666557646 4550 1f8aa8e0148d8a21ebf02f586bbb2fc0 ""
   "/usr/local/texlive/2026/texmf-dist/tex/generic/babel/txtbabel.def" 1768770623 5231 c1599e5bf7d2ee42743212a7f8d20a56 ""
   "/usr/local/texlive/2026/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty" 1576625341 40635 c40361e206be584d448876bba8a64a3b ""
@@ -126,9 +126,9 @@
   "/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1783558597 5573038 b99aad5e4898a9034e953632f940512b ""
   "/usr/local/texlive/2026/texmf-var/web2c/pdftex/pdflatex.fmt" 1783558576 3636770 55a55b564a89dfc8118a2947e4a2d6a2 ""
   "/usr/local/texlive/2026/texmf.cnf" 1774209515 577 648cd9f92f9c0eac486f4c71c85cfbbe ""
-  "plano-de-pesquisa.aux" 1793906817.04713 3656 a9e60c4918232417866557cf772bf834 "pdflatex"
-  "plano-de-pesquisa.out" 1793906817.04759 1418 16cc69aebf55467e81b5b88565162275 "pdflatex"
-  "plano-de-pesquisa.tex" 1793906816.28277 27195 9fca1a7884a4e0cc0f3f0d01b8627eed ""
+  "plano-de-pesquisa.aux" 1793914398.56784 3653 a514d2cdb081f65761f529e38f657d43 "pdflatex"
+  "plano-de-pesquisa.out" 1793914398.56846 1418 6ace8aa53bb64f87c9847c455d2296ff "pdflatex"
+  "plano-de-pesquisa.tex" 1793914397.83614 24229 9afcd58ae4ce702509adf6c5663342e5 ""
   "sensibilidade-correlacoes-t12.png" 1793822861.88256 120759 5dc1240e5438cb718741c187371c5754 ""
   "sensibilidade-pib-pareado-t12.png" 1793822861.88261 117458 b2f6f7be8d189b0caedf3b0418c1db69 ""
   (generated)
