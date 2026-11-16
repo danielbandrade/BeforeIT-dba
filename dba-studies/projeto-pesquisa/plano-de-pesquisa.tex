@@ -21,7 +21,7 @@
 
 \title{AdaptGov: aprendizado de política fiscal adaptativa em um modelo macroeconômico baseado em agentes}
 \author{Daniel Andrade}
-\date{Outubro de 2026}
+\date{Novembro de 2026}
 
 \begin{document}
 
@@ -40,9 +40,9 @@ Nos modelos baseados em agentes ("ABMs"), os agentes são simulados por meio de 
 
 O modelo proposto por \citet{poledna2023} é um modelo baseado em agentes para a macroeconomia, ou seja, focado no estudo de propriedades agregadas da economia, como inflação, PIB, crescimento, desemprego \cite{dawid2018}. O modelo foi calibrado para a Áustria, que é um país pequeno, industrial e com economia aberta, realizando previsões macroeconômicas comparáveis às dos modelos paradgmáticos da macroeconomia neoclássica. O BeforeIT.jl \cite{glielmo2025} oferece uma implementação aberta e extensível deste modelo na linguagem Julia feita pela equipe de tecnologia da informação do Banco da Itália. Nos trabalhos apresentados, a política fiscal é represetada majoritariamente por parâmetros fixos que delimitam impostos, benefícios sociais e gastos do governo. Nesse sentido, há espaço para o estudo de uma política fiscal variável e adaptativa, ou seja, que reage ao estado do modelo.
 
-Também no campo dos ABMs para macroeconomia, trabalhos recentes têm utilizado inteligência artificial ("IA"), como em \citet{zheng2022} e \citet{brusatin2024}, onde técnicas de aprendizado por reforço são utilizadas para treinar agentes com comportamentos racionais e avaliar o resultado macroeconômico. Em \citet{li2024} "Large Language Models" fazem o papel de consumidores e trabalhadores em um modelo que busca reproduzir fatos estilizados macroeconômicos. Por outro lado, a análise de sensibilidade e os metamodelos são ferramentas importantes para a avaliação e emulação de ABMs, pois auxiliam na avaliação da robustez e da explicabilidade dos resultados dos modelos \cite{angione2022}.
+Também no campo dos ABMs para macroeconomia, trabalhos recentes têm empregado inteligência artificial ("IA"), como em \citet{zheng2022} e \citet{brusatin2024}, onde técnicas de aprendizado por reforço são utilizadas para treinar agentes com comportamentos racionais e avaliar o resultado macroeconômico. Em \citet{li2024} "Large Language Models" fazem o papel de consumidores e trabalhadores em um modelo que busca reproduzir fatos estilizados macroeconômicos. Por outro lado, a análise de sensibilidade e os metamodelos são ferramentas importantes para a avaliação e emulação de ABMs, pois auxiliam na avaliação da robustez e da explicabilidade dos resultados dos modelos \cite{angione2022}.
 
-Por ser um modelo aberto, extensível, calibrado para as estatísticas nacionais e com desempenho preditivo similar aos DSGEs nos testes dos autores, o BeforeIT.jl é um campo fértil para investigar políticas fiscais em um modelo macroeconômico baseado em agentes. Este trabalho propõe realizar análises de sensibilidade dos parâmetros fiscais e treinar com aprendizagem por reforço uma política fiscal adaptativa.
+Por ser um modelo aberto, extensível, calibrado para as estatísticas nacionais e com desempenho preditivo similar aos dos modelos neóclassicos nos testes dos autores, o BeforeIT.jl é um campo fértil para investigar políticas fiscais em um modelo macroeconômico baseado em agentes. Este trabalho propõe realizar análises de sensibilidade dos parâmetros fiscais do modelo e treinar com aprendizagem por reforço uma política fiscal adaptativa.
 
 \subsection{Perguntas de pesquisa}
 
@@ -98,12 +98,21 @@ O modelo inicial foi calibrado para a economia da Áustria, que é um país pequ
 Cada etapa temporal do modelo equivale a um trimestre. As etapas-chave que levam o modelo de $t$ para $t+1$ são:
 
 \begin{enumerate}
-    \item \textbf{Formação de expectativas coletivas:} nesta etapa é realizada uma regressão de primeira ordem para a previsão do PIB e da inflação. Essas previsões são utilizadas pelos diversos agentes, como empresas para estimar a produção do próximo ciclo e consumidores para estimar a renda do próximo ciclo.
+    \item \textbf{Formação de expectativas coletivas:} nesta etapa é realizada uma autoregressão de primeira ordem para a previsão do PIB e da inflação. Essas previsões são utilizadas por diversos agentes, como pelas empresas para estimar a produção do próximo ciclo e pelos consumidores para estimar a renda do próximo ciclo.
     \item \textbf{Execução dos choques exógenos:} são sorteados choques exógenos que modelam demanda e oferta do resto do mundo, ou seja, que quantificam as importações e exportações, bem como a inflação da zona do euro.
-    \item \textbf{Execução dos mercados de crédito e trabalho:} nesta etapa as empresas, após determinarem seus planos de produção, determinam o quanto querem de crédito do banco comercial. O banco então fornece crédito em uma ordem aleatória às empresas, obedecendo às regras regulatórias de fornecimento de crédito. Depois, as empresas determinam quantos trabalhadores serão contratados ou demitidos, selecionados aleatoriamente.
+    \item \textbf{Execução dos mercados de crédito e trabalho:} nesta etapa as empresas, após determinarem seus planos de produção, definem o quanto querem de crédito do banco comercial. O banco então fornece crédito em uma ordem aleatória às empresas, obedecendo às regras regulatórias de fornecimento de crédito. Depois, as empresas determinam quantos trabalhadores serão contratados ou demitidos, selecionados aleatoriamente.
     \item \textbf{Execução dos mercados de bens:} inicialmente o mercado intra-empresas é executado através do mecanismo de busca e pareamento, onde, para cada bem desejado, a empresa consumidora é selecionada aleatoriamente e os fornecedores são selecionados com probabilidade proporcional ao seu preço e tamanho. O mesmo processo é então repetido para os consumidores finais e empresas de bens de consumo.
     \item \textbf{Atualização da contabilidade:} são atualizados os preços, rendas, saldos, impostos e agregados econômicos.
 \end{enumerate}
+
+A Figura~\ref{fig:fluxo-modelo} resume o fluxo de um trimestre de simulação.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth,height=0.75\textheight,keepaspectratio]{novo-fluxo-completo-mermaid-diagram.png}
+\caption{Fluxo de um período de simulação do modelo de referência.}
+\label{fig:fluxo-modelo}
+\end{figure}
 
 \section{Metodologia e plano de atividades}
 
@@ -134,7 +143,7 @@ O agente governamental terá como seu espaço de estados observações dos princ
 \]
 
 
-Em que \(Y_t^{\mathrm{real}}\), \(u_t\) e \(\pi_t\) representam, respectivamente, o PIB real, a taxa de desemprego e a taxa de inflação no trimestre \(t\). A razão \(d_t\) é o déficit público acumulado nos últimos quatro trimestres dividido pelo PIB nominal acumulado no mesmo período; \(b_t\) é a dívida pública ao fim do trimestre \(t\) dividida pelo PIB nominal anualizado a partir de até quatro trimestres.
+Em que \(Y_t^{\mathrm{real}}\), \(u_t\) e \(\pi_t\) representam, respectivamente, o PIB real, a taxa de desemprego e a taxa de inflação no trimestre \(t\). A razão \(d_t\) é o déficit público acumulado nos últimos quatro trimestres dividido pelo PIB nominal acumulado no mesmo período e \(b_t\) é a dívida pública ao fim do trimestre \(t\) dividida pelo PIB nominal anualizado a partir de até quatro trimestres.
 
 Esse espaço de estado será discretizado para o treinamento do Q-learning, utilizando \(n_S\) divisões espaçadas entre um mínimo \(S_{\min}\) e um máximo \(S_{\max}\). Cada valor real de observação será aproximado ao valor discreto mais próximo.
 
@@ -149,7 +158,7 @@ p_t =
 \log m_t^G
 \right)
 \]
-O vetor \(p_t\) reúne os parâmetros da política fiscal no trimestre \(t\): \(\tau_t^{\mathrm{INC}}\) é a alíquota do imposto de renda; \(\tau_t^{\mathrm{VAT}}\), a alíquota do imposto sobre valor agregado (IVA); \(\theta_t^{\mathrm{UB}}\), o parâmetro do seguro-desemprego; e \(\log m_t^G\), o logaritmo do multiplicador da demanda de consumo do governo.
+O vetor \(p_t\) reúne os parâmetros da política fiscal no trimestre \(t\): \(\tau_t^{\mathrm{INC}}\) é a alíquota do imposto de renda, \(\tau_t^{\mathrm{VAT}}\), a alíquota do imposto sobre valor agregado (IVA), \(\theta_t^{\mathrm{UB}}\), o parâmetro do seguro-desemprego e \(\log m_t^G\), o logaritmo do multiplicador da demanda de consumo do governo.
 
 
 Após observar o estado \(s_t\), o agente governamental escolhe
@@ -192,7 +201,7 @@ r_t={}&\alpha\log\left(\frac{Y_t^{\mathrm{real}}}{Y_0^{\mathrm{real}}}\right)
 \end{aligned}
 \]
 
-Nessa expressão, \(Y_0^{\mathrm{real}}\) e \(b_0\) são o PIB real e a razão dívida/PIB iniciais; \(\pi^*\) é a meta de inflação; e \(\alpha,\beta,\gamma,\lambda_d,\lambda_b>0\) são os pesos da recompensa. A trajetória de referência da dívida é
+Nessa expressão, \(Y_0^{\mathrm{real}}\) e \(b_0\) são o PIB real e a razão dívida/PIB iniciais, \(\pi^*\) é a meta de inflação e \(\alpha,\beta,\gamma,\lambda_d,\lambda_b>0\) são os pesos da recompensa. A trajetória de referência da dívida é
 \[
 b_t^{\mathrm{meta}}=0{,}60+\max(0,b_0-0{,}60)
 \left(\frac{19}{20}\right)^{t/4},
@@ -258,7 +267,7 @@ para estimar a influência de cada alavanca fiscal.
 S_{12}(p_i,\mathbf{x}_0,\varepsilon_j).
 \]
 
-Na expressão, \(p_i\) é o vetor de parâmetros da configuração \(i\); \(N\), o número de configurações amostradas; \(J\), o número de sementes por configuração; \(\mathbf{x}_0\), o estado inicial do modelo; \(\varepsilon_j\), os choques e sorteios da semente \(j\); \(S_{12}\), o resultado do simulador após 12 trimestres; e \(\bar{\mathbf{y}}_{i,12}\), o vetor médio de resultados da configuração \(i\).
+Na expressão, \(p_i\) é o vetor de parâmetros da configuração \(i\). \(N\) é o número de configurações amostradas, e \(J\) é o número de sementes por configuração. \(\mathbf{x}_0\) representa o estado inicial do modelo, enquanto \(\varepsilon_j\) representa os choques e sorteios da semente \(j\). \(S_{12}\) é o resultado do simulador após 12 trimestres, e \(\bar{\mathbf{y}}_{i,12}\) é o vetor médio de resultados da configuração \(i\).
 
 A análise de sensibilidade será uma primeira etapa informativa sobre o potencial impacto da política fiscal nas variáveis de interesse do modelo como inflação, crescimento do PIB, desemprego, déficit público e dívida do governo.
 

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.8)  5 NOV 2026 18:33
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.7.8)  15 NOV 2026 20:29
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -407,19 +407,25 @@ LaTeX Font Info:    Trying to load font information for U+msb on input line 29.
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) [1
 
-{/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}] [2{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}] [3] [4] [5] [6]
-<sensibilidade-pib-pareado-t12.png, id=153, 794.97pt x 505.89pt>
+{/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}] [2{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}] [3]
+<novo-fluxo-completo-mermaid-diagram.png, id=122, 1610.015pt x 1734.48pt>
+File: novo-fluxo-completo-mermaid-diagram.png Graphic file (type png)
+<use novo-fluxo-completo-mermaid-diagram.png>
+Package pdftex.def Info: novo-fluxo-completo-mermaid-diagram.png  used on input line 112.
+(pdftex.def)             Requested size: 455.22316pt x 490.41498pt.
+ [4] [5 <./novo-fluxo-completo-mermaid-diagram.png>] [6] [7]
+<sensibilidade-pib-pareado-t12.png, id=163, 794.97pt x 505.89pt>
 File: sensibilidade-pib-pareado-t12.png Graphic file (type png)
 <use sensibilidade-pib-pareado-t12.png>
-Package pdftex.def Info: sensibilidade-pib-pareado-t12.png  used on input line 309.
+Package pdftex.def Info: sensibilidade-pib-pareado-t12.png  used on input line 318.
 (pdftex.def)             Requested size: 455.2604pt x 289.71115pt.
- [7]
-<sensibilidade-correlacoes-t12.png, id=165, 505.89pt x 433.62pt>
+ [8]
+<sensibilidade-correlacoes-t12.png, id=173, 505.89pt x 433.62pt>
 File: sensibilidade-correlacoes-t12.png Graphic file (type png)
 <use sensibilidade-correlacoes-t12.png>
-Package pdftex.def Info: sensibilidade-correlacoes-t12.png  used on input line 316.
+Package pdftex.def Info: sensibilidade-correlacoes-t12.png  used on input line 325.
 (pdftex.def)             Requested size: 327.97548pt x 281.12184pt.
- [8 <./sensibilidade-pib-pareado-t12.png> <./sensibilidade-correlacoes-t12.png>] [9] (./plano-de-pesquisa.aux)
+ [9 <./sensibilidade-pib-pareado-t12.png> <./sensibilidade-correlacoes-t12.png>] [10] (./plano-de-pesquisa.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
@@ -428,18 +434,18 @@ Package rerunfilecheck Info: File `plano-de-pesquisa.out' has not changed.
 (rerunfilecheck)             Checksum: 6ACE8AA53BB64F87C9847C455D2296FF;1418.
  ) 
 Here is how much of TeX's memory you used:
- 12225 strings out of 467525
- 187696 string characters out of 5418983
- 622399 words of memory out of 5000000
- 40927 multiletter control sequences out of 15000+600000
+ 12235 strings out of 467525
+ 188050 string characters out of 5418983
+ 622484 words of memory out of 5000000
+ 40935 multiletter control sequences out of 15000+600000
  647268 words of font info for 92 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  75i,15n,79p,1043b,570s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfbx1000.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfbx1200.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfbx1440.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfbx1728.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfrm1000.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfrm1440.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfrm2074.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sfti1200.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/cm-super/sftt1200.pfb>
-Output written on plano-de-pesquisa.pdf (9 pages, 531570 bytes).
+Output written on plano-de-pesquisa.pdf (10 pages, 675442 bytes).
 PDF statistics:
- 294 PDF objects out of 1000 (max. 8388607)
- 235 compressed objects within 3 object streams
- 39 named destinations out of 1000 (max. 500000)
- 83 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 302 PDF objects out of 1000 (max. 8388607)
+ 240 compressed objects within 3 object streams
+ 41 named destinations out of 1000 (max. 500000)
+ 88 words of extra memory for PDF output out of 10000 (max. 10000000)
 

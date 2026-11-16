@@ -1,6 +1,6 @@
 # Fdb version 4
-["pdflatex"] 1793914398.04638 "/Users/danielbandrade/Documents/programing/BeforeIT-dba/dba-studies/projeto-pesquisa/plano-de-pesquisa.tex" "plano-de-pesquisa.pdf" "plano-de-pesquisa" 1793914398.63738 0
-  "/Users/danielbandrade/Documents/programing/BeforeIT-dba/dba-studies/projeto-pesquisa/plano-de-pesquisa.tex" 1793914397.83614 24229 9afcd58ae4ce702509adf6c5663342e5 ""
+["pdflatex"] 1794785394.77995 "/Users/danielbandrade/Documents/programing/BeforeIT-dba/dba-studies/projeto-pesquisa/plano-de-pesquisa.tex" "plano-de-pesquisa.pdf" "plano-de-pesquisa" 1794785395.47581 0
+  "/Users/danielbandrade/Documents/programing/BeforeIT-dba/dba-studies/projeto-pesquisa/plano-de-pesquisa.tex" 1794785394.58772 24644 56e20e3a9dca77e4b4397e53f5ae4b5f ""
   "/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1136849721 2971 def0b6c1f0b107b3b936def894055589 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1136849721 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
@@ -126,9 +126,10 @@
   "/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1783558597 5573038 b99aad5e4898a9034e953632f940512b ""
   "/usr/local/texlive/2026/texmf-var/web2c/pdftex/pdflatex.fmt" 1783558576 3636770 55a55b564a89dfc8118a2947e4a2d6a2 ""
   "/usr/local/texlive/2026/texmf.cnf" 1774209515 577 648cd9f92f9c0eac486f4c71c85cfbbe ""
-  "plano-de-pesquisa.aux" 1793914398.56784 3653 a514d2cdb081f65761f529e38f657d43 "pdflatex"
-  "plano-de-pesquisa.out" 1793914398.56846 1418 6ace8aa53bb64f87c9847c455d2296ff "pdflatex"
-  "plano-de-pesquisa.tex" 1793914397.83614 24229 9afcd58ae4ce702509adf6c5663342e5 ""
+  "novo-fluxo-completo-mermaid-diagram.png" 1792673123.03153 277104 b96dde3f01b9c2e76a0e1f7ad07e5cff ""
+  "plano-de-pesquisa.aux" 1794785395.4124 3936 03f82efcde5f6d6026c995b829820970 "pdflatex"
+  "plano-de-pesquisa.out" 1794785395.41288 1418 6ace8aa53bb64f87c9847c455d2296ff "pdflatex"
+  "plano-de-pesquisa.tex" 1794785394.58772 24644 56e20e3a9dca77e4b4397e53f5ae4b5f ""
   "sensibilidade-correlacoes-t12.png" 1793822861.88256 120759 5dc1240e5438cb718741c187371c5754 ""
   "sensibilidade-pib-pareado-t12.png" 1793822861.88261 117458 b2f6f7be8d189b0caedf3b0418c1db69 ""
   (generated)
