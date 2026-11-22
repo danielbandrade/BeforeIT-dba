@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999998 (TeX Live 2026) (preloaded format=xelatex 2026.7.8)  22 NOV 2026 19:08
+This is XeTeX, Version 3.141592653-2.6-0.999998 (TeX Live 2026) (preloaded format=xelatex 2026.7.8)  22 NOV 2026 19:19
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -550,16 +550,18 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `lmtt' (encoding: TU).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
+ [3]
 File: assets/fluxo-modelo.png Graphic file (type bmp)
 <assets/fluxo-modelo.png>
- [3] [4] [5]
+ [4] [5]
 File: assets/ar1-inicio.png Graphic file (type bmp)
 <assets/ar1-inicio.png>
 File: assets/ar1-final.png Graphic file (type bmp)
 <assets/ar1-final.png>
+ [6]
 File: assets/pib-austria.png Graphic file (type bmp)
 <assets/pib-austria.png>
- [6] [7]
+ [7]
 File: assets/insumos-educacao.png Graphic file (type bmp)
 <assets/insumos-educacao.png>
 File: assets/matriz-insumo-produto.png Graphic file (type bmp)
@@ -589,10 +591,10 @@ Package rerunfilecheck Info: File `relatorio-seminario-scx5013.out' has not chan
 Here is how much of TeX's memory you used:
  15986 strings out of 468168
  306576 string characters out of 5432816
- 806845 words of memory out of 5000000
+ 806846 words of memory out of 5000000
  44495 multiletter control sequences out of 15000+600000
  636189 words of font info for 100 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 73i,11n,93p,1123b,472s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 73i,11n,93p,1123b,478s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
 Output written on relatorio-seminario-scx5013.pdf (16 pages).
